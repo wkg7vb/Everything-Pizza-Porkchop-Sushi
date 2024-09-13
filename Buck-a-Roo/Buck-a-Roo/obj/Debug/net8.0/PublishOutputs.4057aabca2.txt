@@ -1,7 +1,0 @@
-C:\Users\walte\Documents\GitHub\Everything-Pizza-Porkchop-Sushi\Buck-a-Roo\Buck-a-Roo\obj\Debug\net8.0\PubTmp\Out\Buck-a-Roo.exe
-C:\Users\walte\Documents\GitHub\Everything-Pizza-Porkchop-Sushi\Buck-a-Roo\Buck-a-Roo\obj\Debug\net8.0\PubTmp\Out\appsettings.Development.json
-C:\Users\walte\Documents\GitHub\Everything-Pizza-Porkchop-Sushi\Buck-a-Roo\Buck-a-Roo\obj\Debug\net8.0\PubTmp\Out\appsettings.json
-C:\Users\walte\Documents\GitHub\Everything-Pizza-Porkchop-Sushi\Buck-a-Roo\Buck-a-Roo\obj\Debug\net8.0\PubTmp\Out\Buck-a-Roo.dll
-C:\Users\walte\Documents\GitHub\Everything-Pizza-Porkchop-Sushi\Buck-a-Roo\Buck-a-Roo\obj\Debug\net8.0\PubTmp\Out\Buck-a-Roo.deps.json
-C:\Users\walte\Documents\GitHub\Everything-Pizza-Porkchop-Sushi\Buck-a-Roo\Buck-a-Roo\obj\Debug\net8.0\PubTmp\Out\Buck-a-Roo.runtimeconfig.json
-C:\Users\walte\Documents\GitHub\Everything-Pizza-Porkchop-Sushi\Buck-a-Roo\Buck-a-Roo\obj\Debug\net8.0\PubTmp\Out\Buck-a-Roo.pdb
