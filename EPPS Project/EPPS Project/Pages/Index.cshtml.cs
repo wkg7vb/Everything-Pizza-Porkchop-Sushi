@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
+// lul
+
 namespace EPPS_Project.Pages
 {
     public class IndexModel : PageModel
