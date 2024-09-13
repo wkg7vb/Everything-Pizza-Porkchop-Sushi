@@ -1,0 +1,31 @@
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/bin/Debug/net8.0/appsettings.Development.json
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/bin/Debug/net8.0/appsettings.json
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/bin/Debug/net8.0/EPPS Project.staticwebassets.runtime.json
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/bin/Debug/net8.0/EPPS Project
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/bin/Debug/net8.0/EPPS Project.deps.json
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/bin/Debug/net8.0/EPPS Project.runtimeconfig.json
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/bin/Debug/net8.0/EPPS Project.dll
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/bin/Debug/net8.0/EPPS Project.pdb
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/EPPS Project.GeneratedMSBuildEditorConfig.editorconfig
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/EPPS Project.AssemblyInfoInputs.cache
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/EPPS Project.AssemblyInfo.cs
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/EPPS Project.csproj.CoreCompileInputs.cache
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/EPPS Project.MvcApplicationPartsAssemblyInfo.cache
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/EPPS Project.RazorAssemblyInfo.cache
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/EPPS Project.RazorAssemblyInfo.cs
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/EPPS Project.sourcelink.json
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/staticwebassets.build.json
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/staticwebassets.development.json
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/staticwebassets/msbuild.EPPS Project.Microsoft.AspNetCore.StaticWebAssets.props
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/staticwebassets/msbuild.build.EPPS Project.props
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.EPPS Project.props
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.EPPS Project.props
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/staticwebassets.pack.json
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/scopedcss/Pages/Shared/_Layout.cshtml.rz.scp.css
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/scopedcss/bundle/EPPS Project.styles.css
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/scopedcss/projectbundle/EPPS Project.bundle.scp.css
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/EPPS Project.dll
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/refint/EPPS Project.dll
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/EPPS Project.pdb
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/EPPS Project.genruntimeconfig.cache
+/home/max/Projects/github/EPPS/EPPS Project/EPPS Project/obj/Debug/net8.0/ref/EPPS Project.dll
