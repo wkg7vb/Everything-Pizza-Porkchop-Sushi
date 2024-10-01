@@ -1,0 +1,96 @@
+@page "/budget"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+
+@*
+User can create and update their budget and categories.
+Accessible to users that are logged in.
+*@
+
+<PageTitle>Budget</PageTitle>
+
+<h1>
+    Budget
+</h1>
+
+<div class='mb-3'>
+    Monthly budget (@userCurrencyLocale):
+    <CurrencyInput 
+        TValue="int" 
+        Locale="@userCurrencyLocale"
+        @bind-Value="@BdgtAmount" 
+        Placeholder="Enter amount"
+        ShowCurrencySymbol="true"
+        />
+</div>
+
+
+@foreach(var elmt in elmts){
+    <CategoryElmt data="@elmt.Item1"  cats="@elmt.Item2" RmvElmtFnc="@RemoveCategoryElmt" />
+}
+
+
+<div class="bdgt-add-dropdown d-flex gap-2 mb-4">
+    <button class="btn btn-primary" @onclick="AddCategoryElmt">Add more</button>
+</div>
+
+<div class="save-btn md-3">
+    <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
+</div>
+
+@code {
+    // Vars
+    private int BdgtAmount {get; set;} = 0;
+    private string userCurrencyLocale = "en-US";
+    private List<(CategoryData, List<string>)> elmts = new();
+
+    private List<string> categories = new List<string> {
+            "Housing",
+            "Bills/Utilities",
+            "Grocery/Dining",
+            "Transportation",
+            "Education",
+            "Debt",
+            "Entertainment",
+            "Shopping",
+            "Medical",
+            "Miscellaneous"
+        };
+    
+    // Functions
+    protected override void OnInitialized(){
+        // TODO: pull user data from db and populate elmts w/ CategoryData objs
+        if (false == true){
+            return;
+        }
+        // Initialize a generic category cell when no user data is available
+        else {
+            CategoryData defaultData = new();
+            defaultData.Type = categories[0];
+            defaultData.Amt = 0.0m;
+            (CategoryData, List<string>) defaultElmt = (defaultData, categories);
+            elmts.Add(defaultElmt);
+        }
+
+    }
+
+    private void AddCategoryElmt() {
+        CategoryData newData = new();
+        List<string> newCats = new();
+        newCats = categories.ToList();
+
+        foreach (var elmt in elmts){
+            if(newCats.Contains(elmt.Item1.Type)){
+                newCats.Remove(elmt.Item1.Type);
+            }
+        }
+        (CategoryData, List<string>) newElmt = (newData, newCats);
+        elmts.Add(newElmt);
+    }
+    private void RemoveCategoryElmt(){
+        return;
+    }
+    private void SaveChanges(){
+        return;
+    }
+}

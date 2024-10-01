@@ -1,0 +1,16 @@
+@code {
+    [Parameter] public CategoryData data {get; set;} = new();
+    [Parameter] public List<string> cats {get; set;} = new();
+
+    [Parameter] public EventCallback RmvElmtFnc {get; set;}
+}
+
+<div class='bdgt-dropdown d-flex gap-2 mb-4'>
+    <select name="dsj" id="jsdfd" @bind='data.Type'>
+        @foreach(string cat in cats){
+            <option value='@cat'>@cat</option>
+        }
+    </select>
+    <CurrencyInput TValue="decimal" Placeholder="Amount" @bind-Value="data.Amt"/>
+    <Button Color="ButtonColor.Danger" Size="ButtonSize.Small" @onclick="RmvElmtFnc">Remove</Button>
+</div> 
