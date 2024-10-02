@@ -1,6 +1,6 @@
 @page "/budget"
 @rendermode InteractiveServer
-@using System.ComponentModel.DataAnnotations
+
 
 @*
 User can create and update their budget and categories.
@@ -16,23 +16,30 @@ Accessible to users that are logged in.
 <div class='mb-3'>
     Monthly budget (@userCurrencyLocale):
     <CurrencyInput 
-        TValue="int" 
+        TValue="decimal" 
         Locale="@userCurrencyLocale"
-        @bind-Value="@BdgtAmount" 
+        @bind-Value="@BdgtAmt" 
         Placeholder="Enter amount"
         ShowCurrencySymbol="true"
+        Min="0.0m"
+        MaximumFractionDigits="2"
         />
 </div>
-
-
+   
 @foreach(var elmt in elmts){
-    <CategoryElmt data="@elmt.Item1"  cats="@elmt.Item2" RmvElmtFnc="@RemoveCategoryElmt" />
+<CategoryElmt data="@elmt.Item1"  cats="@elmt.Item2" RmvElmtFnc="() => RemoveCategoryElmt(elmt.Item1)" />
 }
-
-
-<div class="bdgt-add-dropdown d-flex gap-2 mb-4">
-    <button class="btn btn-primary" @onclick="AddCategoryElmt">Add more</button>
-</div>
+    
+<ErrorBoundary>
+    <ChildContent>
+        <div class="bdgt-add-dropdown d-flex gap-4 mb-4">
+            <button class="btn btn-primary" @onclick="AddCategoryElmt">Add more...</button>
+        </div>
+    </ChildContent>
+    <ErrorContent>
+        Cannot add more categories.
+    </ErrorContent>
+</ErrorBoundary>
 
 <div class="save-btn md-3">
     <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
@@ -40,10 +47,11 @@ Accessible to users that are logged in.
 
 @code {
     // Vars
-    private int BdgtAmount {get; set;} = 0;
+    private decimal BdgtAmt {get; set;} = 0;
     private string userCurrencyLocale = "en-US";
     private List<(CategoryData, List<string>)> elmts = new();
-
+    
+    private ErrorBoundary? err;
     private List<string> categories = new List<string> {
             "Housing",
             "Bills/Utilities",
@@ -54,10 +62,13 @@ Accessible to users that are logged in.
             "Entertainment",
             "Shopping",
             "Medical",
+            "Investing",
             "Miscellaneous"
         };
     
     // Functions
+
+    // Runs when page is loaded, pseudo "constructor"-like function
     protected override void OnInitialized(){
         // TODO: pull user data from db and populate elmts w/ CategoryData objs
         if (false == true){
@@ -74,6 +85,7 @@ Accessible to users that are logged in.
 
     }
 
+    // Add an element into elmts to be rendered
     private void AddCategoryElmt() {
         CategoryData newData = new();
         List<string> newCats = new();
@@ -84,12 +96,31 @@ Accessible to users that are logged in.
                 newCats.Remove(elmt.Item1.Type);
             }
         }
+        if (newCats.Count < 1){
+            throw new Exception("No more categories.");
+        }
+
+        newData.Type = newCats[0];
         (CategoryData, List<string>) newElmt = (newData, newCats);
         elmts.Add(newElmt);
     }
-    private void RemoveCategoryElmt(){
+
+    // TODO: overloaded function for element initialization on pageload, taking two params
+    private void AddCategoryElmt(string type, decimal amt){
         return;
     }
+
+    // Callback function to remove element (see CategoryElmt.razor)
+    private void RemoveCategoryElmt(CategoryData del){
+        foreach(var elmt in elmts){
+            if (elmt.Item1.Equals(del)){
+                elmts.Remove(elmt);
+                break;
+            }
+        }
+    }
+
+    // TODO: send elmts.CategoryData and BdgtAmt to db
     private void SaveChanges(){
         return;
     }
