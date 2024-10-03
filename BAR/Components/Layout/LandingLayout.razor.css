@@ -15,7 +15,7 @@ main {
 .top-row {
     background-color: #2C3554;
     border-bottom: 1px solid #2C3554;
-    height: 110px;
+    height: 150px;
     width: 100%;
     display: flex;
     align-items: center;
@@ -69,27 +69,6 @@ main {
         padding-right: 1.5rem !important;
     }
 }
-
-.grid {
-    display: grid;
-    grid-template-columns: 100px 100px 100px;
-  }
-  
-  .container {
-    width: 400px;
-    height: 15em;
-    border: 5px solid rgb(111,41,97);
-    border-radius: .5em;
-    padding: 10px;
-    justify-content: space-between;
-    align-content: space-between;
-  }
-  
-  .item {
-    padding: 10px;
-    background-color: rgba(111,41,97,.3);
-    border: 2px solid rgba(111,41,97,.5);
-  }
 
 #blazor-error-ui {
     background: lightyellow;
