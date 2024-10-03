@@ -13,6 +13,12 @@ Accessible to users that are logged in.
     Budget
 </h1>
 
+@if (!string.IsNullOrEmpty(err)){
+    <Alert Color="AlertColor.Danger">
+        <Icon Name="IconName.ExclamationTriangleFill"/> @err <Button Color="ButtonColor.Link" @onclick="ClearErr"><Icon Name="IconName.X"/></Button>
+    </Alert>
+}
+
 <div class='mb-3'>
     Monthly budget (@userCurrencyLocale):
     <CurrencyInput 
@@ -27,19 +33,12 @@ Accessible to users that are logged in.
 </div>
    
 @foreach(var elmt in elmts){
-<CategoryElmt data="@elmt.Item1"  cats="@elmt.Item2" RmvElmtFnc="() => RemoveCategoryElmt(elmt.Item1)" />
+    <CategoryElmt data="@elmt.Item1"  cats="@elmt.Item2" RmvElmtFnc="() => RemoveCategoryElmt(elmt.Item1)" />
 }
-    
-<ErrorBoundary>
-    <ChildContent>
-        <div class="bdgt-add-dropdown d-flex gap-4 mb-4">
-            <button class="btn btn-primary" @onclick="AddCategoryElmt">Add more...</button>
-        </div>
-    </ChildContent>
-    <ErrorContent>
-        Cannot add more categories.
-    </ErrorContent>
-</ErrorBoundary>
+
+<div class="bdgt-add-dropdown d-flex gap-4 mb-4">
+    <button class="btn btn-primary" @onclick="AddCategoryElmt">Add more...</button>
+</div>
 
 <div class="save-btn md-3">
     <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
@@ -50,8 +49,8 @@ Accessible to users that are logged in.
     private decimal BdgtAmt {get; set;} = 0;
     private string userCurrencyLocale = "en-US";
     private List<(CategoryData, List<string>)> elmts = new();
-    
-    private ErrorBoundary? err;
+    private string? err;
+
     private List<string> categories = new List<string> {
             "Housing",
             "Bills/Utilities",
@@ -96,8 +95,14 @@ Accessible to users that are logged in.
                 newCats.Remove(elmt.Item1.Type);
             }
         }
-        if (newCats.Count < 1){
-            throw new Exception("No more categories.");
+        try {
+            if (newCats.Count < 1){
+                throw new Exception("You cannot add more categories.");
+            }
+        }
+        catch (Exception e){
+            err = e.Message;
+            return;
         }
 
         newData.Type = newCats[0];
@@ -123,5 +128,9 @@ Accessible to users that are logged in.
     // TODO: send elmts.CategoryData and BdgtAmt to db
     private void SaveChanges(){
         return;
+    }
+    
+    private void ClearErr(){
+        err = string.Empty;
     }
 }
