@@ -1,0 +1,66 @@
+﻿@page "/landing"
+@layout BAR.Components.Layout.LandingLayout
+@rendermode InteractiveServer
+
+<PageTitle>Landing</PageTitle>
+
+<h1>Howdy Partner!</h1>
+<h1>Ready to Budget?</h1>
+
+<div class="container"> 
+    
+    <div class="grid">
+        <Card class="item" Style="width:18rem;">
+        <CardBody>
+            <CardTitle>Card title</CardTitle>
+            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
+            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+        </CardBody>
+    </Card>
+    <Card class="item" Style="width:18rem;">
+        <CardBody>
+            <CardTitle>Card title</CardTitle>
+            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
+            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+        </CardBody>
+    </Card>
+    <Card class="item" Style="width:18rem;">
+        <CardBody>
+            <CardTitle>Card title</CardTitle>
+            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
+            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+        </CardBody>
+    </Card>
+    <Card class="item" Style="width:18rem;">
+        <CardBody>
+            <CardTitle>Card title</CardTitle>
+            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
+            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+        </CardBody>
+    </Card>
+    <Card class="item" Style="width:18rem;">
+        <CardBody>
+            <CardTitle>Card title</CardTitle>
+            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
+            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+        </CardBody>
+    </Card>
+    <Card class="item" Style="width:18rem;">
+        <CardBody>
+            <CardTitle>Card title</CardTitle>
+            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
+            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+        </CardBody>
+    </Card>
+    </div>
+</div>
+
+@code {
+    
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}
