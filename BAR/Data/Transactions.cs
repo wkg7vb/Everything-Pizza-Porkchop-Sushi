@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BAR.Data
 {
-    public class Transactions : IdentityUser
+    public class Transaction : IdentityUser
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]

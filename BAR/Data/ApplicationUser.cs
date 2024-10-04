@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -15,7 +17,7 @@ namespace BAR.Data
         //budget
         public decimal Income { get; set; }
         [NotMapped]
-        public string TotalSpend 
+        public decimal TotalSpend 
         { get
             {
                 return HouSpend + BillSpend + GroSpend + TraSpend +
@@ -25,47 +27,53 @@ namespace BAR.Data
         }
         public decimal Housing { get; set; }
         [NotMapped]
-        public string HouSpend 
-        { @*UNDER CONSTRUCTION *@
+        public decimal HouSpend 
+        {//UNDER CONSTRUCTION
             get 
             {
-                var spend = from s in Transactions
-                            where s.Uid = Uid
-                            select s;
-                    return spend.ToString();
+                using (var context = new ApplicationDbContext())
+                {
+                    var log = from b in context.Transactions
+                              where b.Uid == Uid
+                              //where TimeStamp == This month
+                              select b;
+                    decimal total = 0;
+                    //sum the transactions in log
+                    return total;
+                }
             } 
         }
         public decimal BillsUtilities { get; set; }
         [NotMapped]
-        public string BillSpend { get { return @*FIXME*@} }
+        public decimal BillSpend { get { return /*FIXME*/} }
         public decimal GroceryDining { get; set; }
         [NotMapped]
-        public string GroSpend { get { return @*FIXME*@} }
+        public decimal GroSpend { get { return /*FIXME*/} }
 
         public decimal Transport { get; set; }
         [NotMapped]
-        public string TraSpend { get { return @*FIXME*@} }
+        public decimal TraSpend { get { return /*FIXME*/} }
         public decimal Education { get; set; }
         [NotMapped]
-        public string EduSpend { get { return @*FIXME*@} }
+        public decimal EduSpend { get { return /*FIXME*/} }
         public decimal Debt { get; set; }
         [NotMapped]
-        public string DebSpend { get { return @*FIXME*@} }
+        public decimal DebSpend { get { return /*FIXME*/} }
         public decimal Entertainment { get; set; }
         [NotMapped]
-        public string EntSpend { get { return @*FIXME*@} }
+        public decimal EntSpend { get { return /*FIXME*/} }
         public decimal Shopping { get; set; }
         [NotMapped]
-        public string ShoSpend { get { return @*FIXME*@} }
+        public decimal ShoSpend { get { return /*FIXME*/} }
         public decimal Medical { get; set; }
         [NotMapped]
-        public string MedSpend { get { return @*FIXME*@} }
+        public decimal MedSpend { get { return /*FIXME*/} }
         public decimal Investing { get; set; }
         [NotMapped]
-        public string InvSpend { get { return @*FIXME*@} }
+        public decimal InvSpend { get { return /*FIXME*/} }
         public decimal Misc { get; set; }
         [NotMapped]
-        public string MisSpend { get { return @*FIXME*@} }
+        public decimal MisSpend { get { return /*FIXME*/} }
         //profile
         [AllowNull]
         public Byte[] UserImage { get; set; }
