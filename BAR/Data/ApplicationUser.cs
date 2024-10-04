@@ -15,10 +15,26 @@ namespace BAR.Data
         //budget
         public decimal Income { get; set; }
         [NotMapped]
-        public string IncSpend { get { return @*FIXME*@} }
+        public string TotalSpend 
+        { get
+            {
+                return HouSpend + BillSpend + GroSpend + TraSpend +
+                    EduSpend + DebSpend + EntSpend + ShoSpend + MedSpend +
+                    InvSpend + MisSpend;
+            } 
+        }
         public decimal Housing { get; set; }
         [NotMapped]
-        public string HouSpend { get { return @*FIXME*@} }
+        public string HouSpend 
+        { @*UNDER CONSTRUCTION *@
+            get 
+            {
+                var spend = from s in Transactions
+                            where s.Uid = Uid
+                            select s;
+                    return spend.ToString();
+            } 
+        }
         public decimal BillsUtilities { get; set; }
         [NotMapped]
         public string BillSpend { get { return @*FIXME*@} }
@@ -37,11 +53,19 @@ namespace BAR.Data
         public string DebSpend { get { return @*FIXME*@} }
         public decimal Entertainment { get; set; }
         [NotMapped]
-        public string IncSpend { get { return @*FIXME*@} }
+        public string EntSpend { get { return @*FIXME*@} }
         public decimal Shopping { get; set; }
+        [NotMapped]
+        public string ShoSpend { get { return @*FIXME*@} }
         public decimal Medical { get; set; }
+        [NotMapped]
+        public string MedSpend { get { return @*FIXME*@} }
         public decimal Investing { get; set; }
+        [NotMapped]
+        public string InvSpend { get { return @*FIXME*@} }
         public decimal Misc { get; set; }
+        [NotMapped]
+        public string MisSpend { get { return @*FIXME*@} }
         //profile
         [AllowNull]
         public Byte[] UserImage { get; set; }
@@ -54,3 +78,4 @@ namespace BAR.Data
         public char Locale { get; set; }
     }
 }
+
