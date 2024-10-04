@@ -1,7 +1,6 @@
 @page "/budget"
 @rendermode InteractiveServer
 
-
 @*
 User can create and update their budget and categories.
 Accessible to users that are logged in.
@@ -47,6 +46,7 @@ Accessible to users that are logged in.
 @code {
     // Vars
     private decimal BdgtAmt {get; set;} = 0;
+    // TODO: pull user's settings to get their locale (currency type)
     private string userCurrencyLocale = "en-US";
     private List<(CategoryData, List<string>)> elmts = new();
     private string? err;
@@ -118,6 +118,16 @@ Accessible to users that are logged in.
     // Callback function to remove element (see CategoryElmt.razor)
     private void RemoveCategoryElmt(CategoryData del){
         foreach(var elmt in elmts){
+            try {
+                if (elmts.Count == 1){
+                    throw new Exception("You must have at least one category.");
+                }
+            }
+            catch (Exception e) {
+                err = e.Message;
+                return;
+            }
+            
             if (elmt.Item1.Equals(del)){
                 elmts.Remove(elmt);
                 break;
@@ -130,6 +140,7 @@ Accessible to users that are logged in.
         return;
     }
     
+    // Clears error message out when alert is closed
     private void ClearErr(){
         err = string.Empty;
     }
