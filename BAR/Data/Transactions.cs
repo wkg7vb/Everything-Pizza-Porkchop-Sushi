@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace BAR.Data
 {
-    public class Transactions
+    public class Transactions : IdentityUser
     {
-        [Key]
-        public required int Id { get; set; }
         public required string Category { get; set; }
         public required string Amount { get; set; }
         public required string Date { get; set; }
