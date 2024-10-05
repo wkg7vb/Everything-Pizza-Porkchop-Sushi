@@ -1,6 +1,7 @@
 using BAR.Components;
 using BAR.Components.Account;
 using BAR.Data;
+using BAR.Data.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
