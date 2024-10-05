@@ -11,9 +11,6 @@ namespace BAR.Data.Models
     // Add profile data for application users by adding properties to the ApplicationUser class
     public class ApplicationUser : IdentityUser
     {
-        [Key]
-        [ForeignKey("Id")]
-        public required string Uid { get; set; }
         //budget
         public decimal Income { get; set; }
         [NotMapped]
