@@ -1,6 +1,6 @@
 using BAR.Components.Account.Pages;
 using BAR.Components.Account.Pages.Manage;
-using BAR.Data;
+using BAR.Data.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
