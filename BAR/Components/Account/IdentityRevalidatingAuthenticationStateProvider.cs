@@ -1,4 +1,4 @@
-using BAR.Data;
+using BAR.Data.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Identity;

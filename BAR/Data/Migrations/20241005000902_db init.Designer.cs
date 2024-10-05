@@ -4,6 +4,7 @@ using BAR.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BAR.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241005000902_db init")]
+    partial class dbinit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,7 +27,7 @@ namespace BAR.Migrations
 
             modelBuilder.Entity("BAR.Data.Models.ApplicationUser", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("Uid")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AccessFailedCount")
@@ -63,6 +66,9 @@ namespace BAR.Migrations
 
                     b.Property<decimal>("Housing")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Income")
                         .HasColumnType("decimal(18,2)");
@@ -124,9 +130,9 @@ namespace BAR.Migrations
                     b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("Uid");
 
-                    b.ToTable("ApplicationUsers", (string)null);
+                    b.ToTable("ApplicationUsers");
                 });
 
             modelBuilder.Entity("BAR.Data.Models.Transaction", b =>
@@ -197,7 +203,7 @@ namespace BAR.Migrations
 
                     b.HasKey("TimeStamp");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.ToTable("Transactions");
                 });
 #pragma warning restore 612, 618
         }

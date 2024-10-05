@@ -1,4 +1,4 @@
-using BAR.Data;
+using BAR.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 
