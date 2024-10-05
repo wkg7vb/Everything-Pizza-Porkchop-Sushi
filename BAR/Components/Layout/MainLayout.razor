@@ -6,10 +6,8 @@
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
+        <Header UserFName="@UserFName"/>
+        
         <article class="content px-4">
             @Body
         </article>
@@ -21,3 +19,8 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    // TODO: pull user's name from db
+    private string UserFName = "Rootin'";
+}

@@ -1,0 +1,13 @@
+@page "/settings"
+@rendermode InteractiveServer
+
+<PageTitle>User Settings</PageTitle>
+
+<div class="d-flex flex-row justify-content-center align-items-center gap-5">
+    <ProfileAvatar UserFName="@UserFName" Size="large"/>
+    <h1>User settings</h1>
+</div>
+
+@code {
+    private string UserFName = "Rootin'";
+}
