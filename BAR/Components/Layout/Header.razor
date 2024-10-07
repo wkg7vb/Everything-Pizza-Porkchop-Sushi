@@ -13,7 +13,7 @@
                 <DropdownHeader>Hi, @UserFName!</DropdownHeader>
                 <DropdownItem To="/settings" Type="DropdownItemType.Link"><Icon Name="IconName.Gear"/> Settings</DropdownItem>
                 <DropdownDivider>Dropdown header</DropdownDivider>
-                <DropdownItem To="#" Type="DropdownItemType.Link"><Icon Name="IconName.BoxArrowDownRight" Color="IconColor.Danger"/> Log out</DropdownItem>
+                <DropdownItem Type="DropdownItemType.Button" @onclick=LogOut><Icon Name="IconName.BoxArrowDownRight" Color="IconColor.Danger"/> Log out</DropdownItem>
             </DropdownMenu>
         </Dropdown>
     </div>
@@ -26,4 +26,7 @@
     [Parameter] public string UserFName {get; set;} 
     private string AvatarColor = "#E5A000";  
 
+    private void LogOut(){
+        // TODO: implement log out functionality
+    }
 }
