@@ -1,0 +1,105 @@
+﻿@page "/loginregister"
+@layout BAR.Components.Layout.LandingLayout
+@rendermode InteractiveServer
+
+<style>
+
+body {
+  padding: 20px;
+  font: 1em Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+* {box-sizing: border-box;}
+
+p {
+  margin: 0 0 1em 0;
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+ 
+.grid {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-gap: 10px;
+    padding: 10px;
+  }
+  
+  .container {
+    width: 75%;
+    height: 15em;
+    border-radius: .5em;
+    padding: 10px;
+    justify-content: space-between;
+    align-content: space-between;
+  }
+
+  .grid-container > div {
+  background-color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  padding: 20px 0;
+  font-size: 30px;
+}
+</style>
+
+<PageTitle>Landing</PageTitle>
+
+<div class="container"> 
+
+    <div class="grid">
+        <div class="item">
+            <h1>Log In</h1>
+
+            <hr>
+
+            <label for="usn"><b>Username: </b></label>
+            <input type="username" placeholder="Username" name="usn" id="usn" required>
+
+            <label for="psw"><b>Password: </b></label>
+            <input type="password" placeholder="Password" name="psw" id="psw" required>
+            
+            <hr>
+            <p>By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p>
+
+            <button type="submit" class="loginbtn">Login</button>
+
+        </div>
+
+        <div class="item">
+            <h1>Register</h1>
+
+            <hr>
+
+            <label for="email"><b>Email: </b></label>
+            <input type="text" placeholder="Email" name="email" id="email" required>
+
+            <label for="usn"><b>Username: </b></label>
+            <input type="username" placeholder="Username" name="usn" id="usn" required>
+
+            <label for="psw"><b>Password: </b></label>
+            <input type="password" placeholder="Password" name="psw" id="psw" required>
+
+            <label for="psw-repeat"><b>Retype  Password: </b></label>
+            <input type="password" placeholder="Retype Password" name="psw-repeat" id="psw-repeat" required>
+            
+            <hr>
+
+            <button type="submit" class="registerbtn">Sign Up</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+    
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}
