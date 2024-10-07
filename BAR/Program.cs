@@ -61,7 +61,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<c_.Users.eguru.Desktop.School.capstone.Everything_Pizza_Porkchop_Sushi.Everything_Pizza_Porkchop_Sushi.BAR.Components.App>()
+app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 // Add additional endpoints required by the Identity /Account Razor components.
