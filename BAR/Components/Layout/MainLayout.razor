@@ -6,7 +6,7 @@
     </div>
 
     <main>
-        <Header UserFName="@UserFName"/>
+        <Header UserFName="@UserFName" AvatarColor="@UserAvatarColor"/>
         
         <article class="content px-4">
             @Body
@@ -21,6 +21,10 @@
 </div>
 
 @code {
-    // TODO: pull user's name from db
+    // TODO: pull user's name, avatar color, and appearance mode from db
     private string UserFName = "Rootin'";
+    private string UserAvatarColor = "#E5A000";
+    // TODO: pull in stylesheet based on this value
+    private bool UserDarkMode = false;
+
 }

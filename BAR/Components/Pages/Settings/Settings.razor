@@ -4,26 +4,46 @@
 <PageTitle>User Settings</PageTitle>
 
 <div class="d-flex flex-row justify-content-center align-items-center gap-5">
-    <ProfileAvatar UserFName="@UserFName" Size="large"/>
+    <ProfileAvatar UserFName="@UserFName" AvatarColor="@UserAvatarColor" Size="large"/>
     <h1>User settings</h1>
 </div>
 
 <div class="d-flex flex-column p-2 m-2">
     <EditForm Model="@ud">
         <h5 class="mt-4">Name:</h5>
-        <input class="p-1" id="name" @bind="userName"/>
+        <input class="p-1" id="name" disabled="@disableName" @bind="userNameInput"/>
+        <label for="name">
+            <Button Type="ButtonType.Button" Color="ButtonColor.None" Size="ButtonSize.Small" @onclick="ToggleEditName">
+                @if (disableName){
+                    <Icon Name="IconName.Pencil" Color="IconColor.Primary"/>   
+                }
+                else{
+                    <Icon Name="IconName.CheckLg" Color="IconColor.Primary"/>
+                }
+            </Button>
+        </label>
 
         <h5 class="mt-4">Email:</h5>
-        <input type="email" class="p-1" id="email" @bind="userEmail"/>
+        <input type="email" class="p-1" id="email" disabled="@disableEmail" @bind="userEmailInput"/>
+        <label for="email">
+            <Button Type="ButtonType.Button" Color="ButtonColor.None" Size="ButtonSize.Small" @onclick="ToggleEditEmail">
+                @if (disableEmail){
+                    <Icon Name="IconName.Pencil" Color="IconColor.Primary"/>   
+                }
+                else{
+                    <Icon Name="IconName.CheckLg" Color="IconColor.Primary"/>
+                }
+            </Button>
+        </label>
 
-        <Switch @bind-Value=darkMode Label="Dark mode" class="my-4"/>
+        <Switch @bind-Value=darkModeInput Label="Dark mode" class="my-4"/>
 
         <h5 class="mt-4">Currency Type:</h5>
-        <select class="mt-1 mb-1 p-1" @bind='userLocale'>
-            <option value="USD">US Dollar (USD)</option>
-            <option value="MXN">Mexican Peso (MXN)</option>
-            <option value="EUR">European Euro (EUR)</option>
-            <option value="GBP">Pound Sterling (GBP)</option>
+        <select class="mt-1 mb-1 p-1" @bind='userLocaleInput'>
+            <option value="en-US">US Dollar (USD)</option>
+            <option value="es-MX">Mexican Peso (MXN)</option>
+            <option value="en-EU">European Euro (EUR)</option>
+            <option value="en-GB">Pound Sterling (GBP)</option>
         </select>
 
         <div class="my-4">
@@ -43,7 +63,7 @@
     <BodyTemplate>
         Are you sure you want to delete your account? This will wipe all of your data and is not reversible. <br>
         Please type your username to confirm account deletion:
-        <input type="text" @bind=usernameConfirmation class="mt-2"/>
+        <input type="text" @bind=usernameConfirmationInput class="mt-2"/>
     </BodyTemplate>
     <FooterTemplate>
         <Button Color="ButtonColor.Secondary" @onclick="CancelDeleteAccount">Close</Button>
@@ -53,22 +73,56 @@
 
 @code {
     private Modal dltacct = default!;
-    // Pulled from db
+    // Pulled from db, REMOVE DEFAULTS LATER
     private string UserFName = "Rootin'";
-    private string UserLName;
+    private string UserLName = "Roo";
+    private string UserAvatarColor = "#E5A000";
+    private string UserEmail = "roo@rootin.com";
+    private string UserLocale = "es-MX";
+    private bool UserDarkMode = false;
 
     // Used to store inputs; to be used to update db on save
-    private string userName;
-    private string userEmail;
-    private bool darkMode;
-    private string userLocale;
-    private string? usernameConfirmation;
+    private string userNameInput;
+    private string userEmailInput;
+    private bool darkModeInput;
+    private string userLocaleInput;
+    private string? usernameConfirmationInput;
+    private bool disableName = true;
+    private bool disableEmail = true;
     private UserDetails ud = new UserDetails();
 
     public class UserDetails
     {
     }
 
+    // Functions
+
+    protected override void OnInitialized(){
+        // Set input values to those pulled from db
+        userNameInput = UserFName + " " + UserLName;
+        userEmailInput = UserEmail;
+        darkModeInput = UserDarkMode;
+        userLocaleInput = UserLocale;
+    }
+
+    private void ToggleEditName(){
+        if (!disableEmail) return;
+        else{
+            if (disableName){
+                disableName = false;
+            }
+            else disableName = true;
+        }
+    }
+    private void ToggleEditEmail(){
+        if (!disableName) return;
+        else{
+            if (disableEmail){
+                disableEmail = false;
+            }
+            else disableEmail = true;
+        }
+    }
     private async Task DeleteAccount()
     {
         await dltacct.ShowAsync();
