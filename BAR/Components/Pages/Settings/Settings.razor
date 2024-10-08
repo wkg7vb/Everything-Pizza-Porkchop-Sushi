@@ -8,6 +8,82 @@
     <h1>User settings</h1>
 </div>
 
+<div class="d-flex flex-column p-2 m-2">
+    <EditForm Model="@ud">
+        <h5 class="mt-4">Name:</h5>
+        <input class="p-1" id="name" @bind="userName"/>
+
+        <h5 class="mt-4">Email:</h5>
+        <input type="email" class="p-1" id="email" @bind="userEmail"/>
+
+        <Switch @bind-Value=darkMode Label="Dark mode" class="my-4"/>
+
+        <h5 class="mt-4">Currency Type:</h5>
+        <select class="mt-1 mb-1 p-1" @bind='userLocale'>
+            <option value="USD">US Dollar (USD)</option>
+            <option value="MXN">Mexican Peso (MXN)</option>
+            <option value="EUR">European Euro (EUR)</option>
+            <option value="GBP">Pound Sterling (GBP)</option>
+        </select>
+
+        <div class="my-4">
+            <Button Color="ButtonColor.Primary" To="/change-password" Type="ButtonType.Link">Change password</Button>
+        </div>
+        <div class="my-4">
+            <Button Color="ButtonColor.Danger" @onclick=DeleteAccount>Delete account</Button>
+        </div>
+        <hr class="solid">
+        <div class="my-2">
+            <Button Color="ButtonColor.Primary" Type="ButtonType.Submit" @onclick=SaveChanges>Save</Button>
+        </div>
+    </EditForm>
+</div>
+
+<Modal @ref="dltacct" Title="Delete account">
+    <BodyTemplate>
+        Are you sure you want to delete your account? This will wipe all of your data and is not reversible. <br>
+        Please type your username to confirm account deletion:
+        <input type="text" @bind=usernameConfirmation class="mt-2"/>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="CancelDeleteAccount">Close</Button>
+        <Button Color="ButtonColor.Danger" @onclick=DeleteAccountProcedure>Delete account</Button>
+    </FooterTemplate>
+</Modal>
+
 @code {
+    private Modal dltacct = default!;
+    // Pulled from db
     private string UserFName = "Rootin'";
+    private string UserLName;
+
+    // Used to store inputs; to be used to update db on save
+    private string userName;
+    private string userEmail;
+    private bool darkMode;
+    private string userLocale;
+    private string? usernameConfirmation;
+    private UserDetails ud = new UserDetails();
+
+    public class UserDetails
+    {
+    }
+
+    private async Task DeleteAccount()
+    {
+        await dltacct.ShowAsync();
+    }
+
+    private async Task CancelDeleteAccount()
+    {
+        await dltacct.HideAsync();
+    }
+
+    private void DeleteAccountProcedure(){
+        // TODO: add delete account procedure
+    }
+
+    private void SaveChanges(){
+        // TODO: add saving to db functionality
+    }
 }

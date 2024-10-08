@@ -6,7 +6,7 @@
 }
 
 <div class='bdgt-dropdown d-flex gap-2 mb-2'>
-    <select name="dsj" id="jsdfd" @bind='data.Type'>
+    <select @bind='data.Type'>
         @foreach(string cat in cats){
             <option value='@cat'>@cat</option>
         }
