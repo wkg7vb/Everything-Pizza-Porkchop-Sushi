@@ -1,0 +1,64 @@
+﻿@page "/loginregister"
+@layout BAR.Components.Layout.LandingLayout
+@rendermode InteractiveServer
+
+<PageTitle>Landing</PageTitle>
+
+<div class="container"> 
+
+    <div class="grid">
+        <div class="item1" style="width: 50%; float:left;">
+            <h1>Log In</h1>
+
+            <hr>
+
+            <label for="usn"><b>Username: </b></label>
+            <input type="username" placeholder="Username" name="usn" id="usn" required> &nbsp; <br>
+
+            <label for="psw"><b>Password: </b></label>
+            <input type="password" placeholder="Password" name="psw" id="psw" required> &nbsp; <br>
+            
+            <hr>
+
+            <button type="submit" class="loginbtn">Login</button> &nbsp; <br> <br>
+
+            <a href="url">Forgot username or password?</a>
+
+        </div> <br>
+
+        <div class="item2" style="width: 50%; float:right;">
+            <h1>Register</h1>
+
+            <hr>
+
+            <label for="email"><b>Email: </b></label>
+            <input type="text" placeholder="Email" name="email" id="email" required> &nbsp; <br>
+
+            <label for="usn"><b>Username: </b></label>
+            <input type="username" placeholder="Username" name="usn" id="usn" required> &nbsp; <br>
+
+            <label for="psw"><b>Password: </b></label>
+            <input type="password" placeholder="Password" name="psw" id="psw" required> &nbsp; <br>
+
+            <label for="psw-repeat"><b>Retype  Password: </b></label>
+            <input type="password" placeholder="Retype Password" name="psw-repeat" id="psw-repeat" required> &nbsp; <br>
+            
+            <hr>
+
+            <button type="submit" class="registerbtn">Sign Up</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+    
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}
