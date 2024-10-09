@@ -11,33 +11,36 @@
 <div class="d-flex flex-column p-2 m-2">
     <EditForm Model="@ud">
         <h5 class="mt-4">Name:</h5>
-        <input class="p-1" id="name" disabled="@disableName" @bind="userNameInput"/>
-        <label for="name">
-            <Button Type="ButtonType.Button" Color="ButtonColor.None" Size="ButtonSize.Small" @onclick="ToggleEditName">
-                @if (disableName){
-                    <Icon Name="IconName.Pencil" Color="IconColor.Primary"/>   
-                }
-                else{
-                    <Icon Name="IconName.CheckLg" Color="IconColor.Primary"/>
-                }
-            </Button>
-        </label>
+        <div class="d-flex flex-row judtify-content-center align-items-center gap-2">
+            <input class="p-1" id="name" disabled="@disableName" @bind="userNameInput"/>
+            <label for="name">
+                <Button Type="ButtonType.Button" Color="ButtonColor.None" Size="ButtonSize.Small" @onclick="ToggleEditName">
+                    @if (disableName){
+                        <Icon Name="IconName.Pencil" Color="IconColor.Primary"/>   
+                    }
+                    else{
+                        <Icon Name="IconName.CheckLg" Color="IconColor.Primary"/>
+                    }
+                </Button>
+            </label>
+        </div>
+        
 
         <h5 class="mt-4">Email:</h5>
-        <input type="email" class="p-1" id="email" disabled="@disableEmail" @bind="userEmailInput"/>
-        <label for="email">
-            <Button Type="ButtonType.Button" Color="ButtonColor.None" Size="ButtonSize.Small" @onclick="ToggleEditEmail">
-                @if (disableEmail){
-                    <Icon Name="IconName.Pencil" Color="IconColor.Primary"/>   
-                }
-                else{
-                    <Icon Name="IconName.CheckLg" Color="IconColor.Primary"/>
-                }
-            </Button>
-        </label>
-
-        <Switch @bind-Value=darkModeInput Label="Dark mode" class="my-4"/>
-
+        <div class="d-flex flex-row judtify-content-center align-items-center gap-2">
+            <input type="email" class="p-1" id="email" disabled="@disableEmail" @bind="userEmailInput"/>
+            <label for="email">
+                <Button Type="ButtonType.Button" Color="ButtonColor.None" Size="ButtonSize.Small" @onclick="ToggleEditEmail">
+                    @if (disableEmail){
+                        <Icon Name="IconName.Pencil" Color="IconColor.Primary"/>   
+                    }
+                    else{
+                        <Icon Name="IconName.CheckLg" Color="IconColor.Primary"/>
+                    }
+                </Button>
+            </label>
+        </div>
+        
         <h5 class="mt-4">Currency Type:</h5>
         <select class="mt-1 mb-1 p-1" @bind='userLocaleInput'>
             <option value="en-US">US Dollar (USD)</option>
@@ -45,6 +48,8 @@
             <option value="en-EU">European Euro (EUR)</option>
             <option value="en-GB">Pound Sterling (GBP)</option>
         </select>
+        
+        <Switch @bind-Value=darkModeInput Label="Dark mode" class="my-4"/>
 
         <div class="my-4">
             <Button Color="ButtonColor.Primary" To="/change-password" Type="ButtonType.Link">Change password</Button>
