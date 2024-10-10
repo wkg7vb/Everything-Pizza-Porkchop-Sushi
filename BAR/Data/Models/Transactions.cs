@@ -12,7 +12,7 @@ namespace BAR.Data.Models
         public required string TimeStamp { get; set; }
 
         [ForeignKey("GUID")]
-        public required string GUID { get; set; }
+        public required string guid { get; set; }
 
         [AllowedValues(
            "Housing",
