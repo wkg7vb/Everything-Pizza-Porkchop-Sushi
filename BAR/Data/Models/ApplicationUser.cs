@@ -19,18 +19,13 @@ namespace BAR.Data.Models
         public required string Password { get; set; }
 
         //profile
-        [AllowNull]
-        public byte[] UserImage { get; set; }
-
-        [AllowNull]
-        public string FName { get; set; }
-
-        [AllowNull]
-        public string LName { get; set; }
+        public byte[] UserImage { get; set; } //Placeholder - color choice
+        public required string FName { get; set; }
+        public required string LName { get; set; }
 
         //settings
         public bool Darkmode { get; set; }
-        public char Locale { get; set; }
+        public required string Locale { get; set; }
 
         //budgeting
         public decimal Income { get; set; }
