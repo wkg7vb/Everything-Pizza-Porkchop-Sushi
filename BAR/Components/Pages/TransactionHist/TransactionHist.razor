@@ -1,58 +1,60 @@
 ﻿@page "/transactions"
 @rendermode InteractiveServer
 
-@**@
+@*
+    User will be able to veiw, edit and remove transactions
+*@
 
 <PageTitle>Transaction History</PageTitle>
 
 <h1>
-    Transaction History
+    Budget
 </h1>
 
-<Grid
-      TItem="Transaction"
+<Grid TItem="Transaction"
       Class="table table-hover table-bordered table-striped"
-      DataProvider="TransactionsDataProvider"
+      DataProvider="TransactionDataProvider"
       AllowFiltering="true"
-      Responsive="true">
+      AllowPaging="true"
+      AllowSorting="true">
 
     <GridColumns>
-        <GridColumn TItem="string TimeStamp" HeaderText="Date/Time" PropertyName="TimeStamp">
+        <!--last 30 or this month-->
+        <GridColumn TItem="Transaction" HeaderText="Time/Date" PropertyName="TimeStamp" FilterOperator="FilterOperator.GreaterThanOrEquals" FilterValue="0">
             @context.TimeStamp
         </GridColumn>
-        <GridColumn TItem="string Label" HeaderText="Label" PropertyName="Label">
+
+        <GridColumn TItem="Transaction" HeaderText="Label" PropertyName="Label">
             @context.Label
         </GridColumn>
-        <GridColumn TItem="string Category" HeaderText="Category" PropertyName="Category">
+
+        <GridColumn TItem="Transaction" HeaderText="Category" PropertyName="Category">
             @context.Category
         </GridColumn>
-        <GridColumn TItem="string Amount" HeaderText="Amount" PropertyName="Amount">
+
+        <GridColumn TItem="Transaction" HeaderText="Amount" PropertyName="Amount">
             @context.Amount
         </GridColumn>
     </GridColumns>
+
 </Grid>
 
-
-<!--@code {
-    /*
+@code {
     private IEnumerable<Transaction>? transactions;
 
-    protected override void OnInitialized()
+    private async Task<GridDataProviderResult<Transaction>> TransactionDataProvider(GridDataProviderRequest<Transaction> request)
     {
-        transactions = new List<Transaction>
+        if (transactions is null) // pull only one time for client-side filtering, sorting, and paging
+            transactions = GetTransactions(); // call a service or an API to pull
 
-    new Transaction
+        return await Task.FromResult(request.ApplyTo(transactions));
+    }
+
+    private IEnumerable<Transaction> GetTransactions()
+    {
+        return new List<Transaction>
         {
-            string TimeStamp = DateTimeOffset.Now.ToString("yyyyMMddHHmmssffff"),
-            string Label = "Car Payment",
-            string Category = "Transportation",
-            string Amount = 400.00;
+            //FIXME
         };
-    };
-
-    private async Task<GridDataProviderResult<Transaction>> TransactionsDataProvider(GridDataProviderRequest<Transaction> request)
-    {
-        return await Task.FromResult(request.ApplyTo(Transactions));
-    };
-    
-}-->
+    }
+}
