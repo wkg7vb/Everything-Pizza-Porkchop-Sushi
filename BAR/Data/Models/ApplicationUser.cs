@@ -9,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace BAR.Data.Models
 {
     // Add profile data for application users by adding properties to the ApplicationUser class
-    public class ApplicationUser
+    public class ApplicationUser : IdentityUser
     {
         //id
         [Key]
