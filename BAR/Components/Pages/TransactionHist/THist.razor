@@ -1,0 +1,57 @@
+﻿@page "/transactions"
+@rendermode InteractiveServer
+
+@*
+User can create and update their budget and categories.
+Accessible to users that are logged in.
+*@
+
+<PageTitle>Transaction History</PageTitle>
+
+<h1>
+    Budget
+</h1>
+
+<Grid TItem="Transaction"
+      Class="table table-hover table-bordered table-striped"
+      DataProvider="TransactionDataProvider">
+
+    <GridColumns>
+        <GridColumn TItem="Transaction" HeaderText="Id" HeaderTextAlignment="Alignment.Center" TextAlignment="Alignment.Center">
+            @context.Id
+        </GridColumn>
+        <GridColumn TItem="Transaction" HeaderText="Employee Name">
+            @context.Name
+        </GridColumn>
+        <GridColumn TItem="Transaction" HeaderText="Designation">
+            @context.Designation
+        </GridColumn>
+        <GridColumn TItem="Transaction" HeaderText="Salary" HeaderTextAlignment="Alignment.End" TextAlignment="Alignment.End">
+            @context.Salary
+        </GridColumn>
+        <GridColumn TItem="Transaction" HeaderText="Active" HeaderTextAlignment="Alignment.Center" TextAlignment="Alignment.Center">
+            @context.IsActive
+        </GridColumn>
+    </GridColumns>
+
+</Grid>
+
+@code {
+    private IEnumerable<Transaction>? employees;
+
+    private async Task<GridDataProviderResult<Transaction>> TransactionDataProvider(GridDataProviderRequest<Transaction> request)
+    {
+        if (employees is null) // pull employees only one time for client-side filtering, sorting, and paging
+            employees = GetEmployees(); // call a service or an API to pull the employees
+
+        return await Task.FromResult(request.ApplyTo(employees));
+    }
+
+    private IEnumerable<Transaction> GetEmployees()
+    {
+        return new List<Transaction>
+        {
+            new Transaction {},
+        };
+    }
+}
