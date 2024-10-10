@@ -28,10 +28,10 @@ namespace BAR.Data.Models
            "Miscellaneous")]
         public required string Category { get; set; }
 
-        //user text input
+        //user inputs
         public required string Label { get; set; }
-        //user input amount
         public required decimal Amount { get; set; }
+
         //constructor
         public Transaction(string guid, TSingle tuple)
         {
