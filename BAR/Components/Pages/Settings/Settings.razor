@@ -24,7 +24,7 @@
                 </Button>
             </label>
         </div>
-        
+
 
         <h5 class="mt-4">Email:</h5>
         <div class="d-flex flex-row judtify-content-center align-items-center gap-2">
@@ -41,6 +41,10 @@
             </label>
         </div>
         
+        <div class="my-2">
+            <Button Color="ButtonColor.Primary" @onclick=ChangeAvatar Type="ButtonType.Button">Change avatar color</Button>
+        </div>
+
         <h5 class="mt-4">Currency Type:</h5>
         <select class="mt-1 mb-1 p-1" @bind='userLocaleInput'>
             <option value="en-US">US Dollar (USD)</option>
@@ -64,21 +68,40 @@
     </EditForm>
 </div>
 
+<Modal @ref="avtrclr" Title="Change avatar color">
+    <BodyTemplate>
+        Hi.
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="CancelChangeAvatar">Cancel</Button>
+        <Button Color="ButtonColor.Primary" @onclick=SaveChangeAvatar>Save</Button>
+    </FooterTemplate>
+</Modal>
+
 <Modal @ref="dltacct" Title="Delete account">
     <BodyTemplate>
         Are you sure you want to delete your account? This will wipe all of your data and is not reversible. <br>
         Please type your username to confirm account deletion:
         <input type="text" @bind=usernameConfirmationInput class="mt-2"/>
+        @if (usernameConfirmationInput != UserScreenname){
+            <p style="color: red;">Username does not match.</p>
+            disableDelete = true;
+        }
+        else {
+            disableDelete = false;
+        }
     </BodyTemplate>
     <FooterTemplate>
         <Button Color="ButtonColor.Secondary" @onclick="CancelDeleteAccount">Close</Button>
-        <Button Color="ButtonColor.Danger" @onclick=DeleteAccountProcedure>Delete account</Button>
+        <Button Color="ButtonColor.Danger" @onclick=DeleteAccountProcedure Disabled=@disableDelete>Delete account</Button>
     </FooterTemplate>
 </Modal>
 
 @code {
     private Modal dltacct = default!;
+    private Modal avtrclr = default!;
     // Pulled from db, REMOVE DEFAULTS LATER
+    private string UserScreenname = "RowdyRootinRoo";
     private string UserFName = "Rootin'";
     private string UserLName = "Roo";
     private string UserAvatarColor = "#E5A000";
@@ -94,6 +117,7 @@
     private string? usernameConfirmationInput;
     private bool disableName = true;
     private bool disableEmail = true;
+    private bool disableDelete = false;
     private UserDetails ud = new UserDetails();
 
     public class UserDetails
@@ -135,7 +159,22 @@
 
     private async Task CancelDeleteAccount()
     {
+        usernameConfirmationInput = string.Empty;
         await dltacct.HideAsync();
+    }
+
+    private async Task ChangeAvatar()
+    {
+        await avtrclr.ShowAsync();
+    }
+
+    private async Task CancelChangeAvatar()
+    {
+        await avtrclr.HideAsync();
+    }
+
+    private void SaveChangeAvatar(){
+        
     }
 
     private void DeleteAccountProcedure(){
