@@ -1,4 +1,4 @@
-﻿using BAR.Components.Pages.TransactionHist;
+using BAR.Components.Pages.TransactionHist;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
