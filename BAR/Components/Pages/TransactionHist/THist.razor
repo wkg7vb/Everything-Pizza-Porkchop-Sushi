@@ -14,44 +14,48 @@ Accessible to users that are logged in.
 
 <Grid TItem="Transaction"
       Class="table table-hover table-bordered table-striped"
-      DataProvider="TransactionDataProvider">
+      DataProvider="TransactionDataProvider"
+      AllowFiltering="true"
+      AllowPaging="true"
+      AllowSorting="true">
 
     <GridColumns>
-        <GridColumn TItem="Transaction" HeaderText="Id" HeaderTextAlignment="Alignment.Center" TextAlignment="Alignment.Center">
-            @context.Id
+        <!--last 30 or this month-->
+        <GridColumn TItem="Transaction" HeaderText="Time/Date" PropertyName="TimeStamp" FilterOperator="FilterOperator.GreaterThanOrEquals" FilterValue="0">
+            @context.TimeStamp
         </GridColumn>
-        <GridColumn TItem="Transaction" HeaderText="Employee Name">
-            @context.Name
+
+        <GridColumn TItem="Transaction" HeaderText="Label" PropertyName="Label">
+            @context.Label
         </GridColumn>
-        <GridColumn TItem="Transaction" HeaderText="Designation">
-            @context.Designation
+
+        <GridColumn TItem="Transaction" HeaderText="Category" PropertyName="Category">
+            @context.Category
         </GridColumn>
-        <GridColumn TItem="Transaction" HeaderText="Salary" HeaderTextAlignment="Alignment.End" TextAlignment="Alignment.End">
-            @context.Salary
-        </GridColumn>
-        <GridColumn TItem="Transaction" HeaderText="Active" HeaderTextAlignment="Alignment.Center" TextAlignment="Alignment.Center">
-            @context.IsActive
+
+        <GridColumn TItem="Transaction" HeaderText="Amount" PropertyName="Amount">
+            @context.Amount
         </GridColumn>
     </GridColumns>
 
 </Grid>
 
 @code {
-    private IEnumerable<Transaction>? employees;
+    private IEnumerable<Transaction>? transactions;
 
     private async Task<GridDataProviderResult<Transaction>> TransactionDataProvider(GridDataProviderRequest<Transaction> request)
     {
-        if (employees is null) // pull employees only one time for client-side filtering, sorting, and paging
-            employees = GetEmployees(); // call a service or an API to pull the employees
+        if (transactions is null) // pull only one time for client-side filtering, sorting, and paging
+            transactions = GetTransactions(); // call a service or an API to pull
 
-        return await Task.FromResult(request.ApplyTo(employees));
+        return await Task.FromResult(request.ApplyTo(transactions));
     }
 
-    private IEnumerable<Transaction> GetEmployees()
+    private IEnumerable<Transaction> GetTransactions()
     {
         return new List<Transaction>
         {
-            new Transaction {},
+            //FIXME
         };
     }
 }
