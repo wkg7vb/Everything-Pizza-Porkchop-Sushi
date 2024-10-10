@@ -11,7 +11,7 @@ namespace BAR.Data.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public required string TimeStamp { get; set; }
 
-        [ForeignKey("Id")]
+        [ForeignKey("GUID")]
         public required string GUID { get; set; }
 
         [AllowedValues(
