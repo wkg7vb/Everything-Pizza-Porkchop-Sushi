@@ -30,10 +30,10 @@ builder.Services.AddAuthentication(options =>
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
     })
     .AddIdentityCookies();
-//Database
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddDbContextFactory<ApplicationDbContext>((DbContextOptionsBuilder options) =>
+builder.Services.AddDbContext<ApplicationDbContext>((DbContextOptionsBuilder options) =>
     options.UseSqlServer(connectionString));
 builder.Services.AddScoped<TransactionsService>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
