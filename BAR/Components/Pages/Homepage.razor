@@ -3,7 +3,7 @@
 
 <h1 style="text-align: center; padding-bottom: 50px;">Howdy Rootin Roo!</h1>
 
-<div style="display: grid; grid-template-columns: auto auto; gap 10px;">
+<div style="display: grid; grid-template-columns: auto auto; gap 10px; text-align: center;">
     <Card Style="width:18rem;">
         <CardBody Style="text-align: center">
 
@@ -23,169 +23,101 @@
     </Card>
 </div>
 
-<h2 style="text-align: center; padding: 30px;">Demo Chart</h2>
 
-
-<DoughnutChart @ref="doughnutChart" Width="500" />
-
-<div class="mt-5">
-    <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" @onclick="async () => await RandomizeAsync()"> Randomize </Button>
-    <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" @onclick="async () => await AddDatasetAsync()"> Add Dataset </Button>
-    <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" @onclick="async () => await AddDataAsync()">Add Data</Button>
+<div style="padding-top: 50px; padding-bottom: 50px;">
+    <DoughnutChart @ref="doughnutChart" Width="500" />
 </div>
+
 
 @code {
     private DoughnutChart doughnutChart = default!;
     private DoughnutChartOptions doughnutChartOptions = default!;
+
+    // Data structure to hold chart data (labels and datasets)
     private ChartData chartData = default!;
-    private string[]? backgroundColors;
 
-    private int datasetsCount = 0;
-    private int dataLabelsCount = 0;
+    private string[] backgroundColors = ColorUtility.CategoricalTwelveColors;
 
-
+    // Random number generator for generating random data
     private Random random = new();
+
+    // Amounts for each category in both datasets
+    private List<double?> dataset1Amounts = new();
+    private List<double?> dataset2Amounts = new();
 
     protected override void OnInitialized()
     {
-        backgroundColors = ColorUtility.CategoricalTwelveColors;
-        chartData = new ChartData { Labels = GetDefaultDataLabels(4), Datasets = GetDefaultDataSets(1) };
-
+        // Initialize the chart options
         doughnutChartOptions = new();
-        doughnutChartOptions.Responsive = true;
-        doughnutChartOptions.Plugins.Title!.Text = "Monthly Stats";
+        doughnutChartOptions.Responsive = true; // Make the chart responsive
+
+        // Set the title for the chart
+        doughnutChartOptions.Plugins.Title!.Text = "Monthly Expenses";
         doughnutChartOptions.Plugins.Title.Display = true;
+
+        // Generate random amounts for two datasets
+        dataset1Amounts = GenerateRandomAmounts();
+        dataset2Amounts = GenerateRandomAmounts();
+
+        // Create chart data with labels and datasets
+        chartData = new ChartData
+            {
+                Labels = new List<string> { "Bills", "Debt", "Investing", "Education" },
+                Datasets = new List<IChartDataset>
+            {
+                new DoughnutChartDataset
+                {
+                    Label = "Amount Spent",
+                    Data = dataset1Amounts,
+                    BackgroundColor = new List<string>  //set colors for dataset
+                    {
+                        backgroundColors[0], 
+                        backgroundColors[1], 
+                        backgroundColors[2], 
+                        backgroundColors[3]  
+                    }
+                },
+                new DoughnutChartDataset
+                {
+                    Label = "Amount Left",
+                    Data = dataset2Amounts,
+                    BackgroundColor = new List<string>
+                    {
+                        backgroundColors[4], 
+                        backgroundColors[5], 
+                        backgroundColors[6],
+                        backgroundColors[7]  
+                    }
+                }
+            }
+            };
         randomMoneyAmount = $"${GetRandomMoneyAmount()}";  //initialize random money amount onto the cards
     }
 
+    // Method called after the component has rendered
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender) // Ensure the initialization only occurs once
         {
+            // Initialize the DoughnutChart with data and options
             await doughnutChart.InitializeAsync(chartData, doughnutChartOptions);
         }
+        // Call the base class implementation
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private async Task RandomizeAsync()
+    // Method to generate random amounts for each category
+    private List<double?> GenerateRandomAmounts()
     {
-        if (chartData is null || chartData.Datasets is null || !chartData.Datasets.Any()) return;
-
-        var newDatasets = new List<IChartDataset>();
-
-        foreach (var dataset in chartData.Datasets)
+        var amounts = new List<double?>();
+        for (int i = 0; i < 4; i++) // Create four random amounts
         {
-            if (dataset is DoughnutChartDataset doughnutChartDataset
-                && doughnutChartDataset is not null
-                && doughnutChartDataset.Data is not null)
-            {
-                var count = doughnutChartDataset.Data.Count;
-
-                var newData = new List<double?>();
-                for (var i = 0; i < count; i++)
-                {
-                    newData.Add(random.Next(0, 100));
-                }
-
-                doughnutChartDataset.Data = newData;
-                newDatasets.Add(doughnutChartDataset);
-            }
+            // Generate a random dollar amount between 0.00 and 1000.00 and round to two decimal places
+            double randomAmount = Math.Round(random.NextDouble() * 1000, 2);
+            amounts.Add(randomAmount);
         }
-
-        chartData.Datasets = newDatasets;
-
-        await doughnutChart.UpdateAsync(chartData, doughnutChartOptions);
+        return amounts;
     }
-
-    private async Task AddDatasetAsync()
-    {
-        if (chartData is null || chartData.Datasets is null) return;
-
-        var chartDataset = GetRandomDoughnutChartDataset();
-        chartData = await doughnutChart.AddDatasetAsync(chartData, chartDataset, doughnutChartOptions);
-    }
-
-    private async Task AddDataAsync()
-    {
-        if (dataLabelsCount >= 12)
-            return;
-
-        if (chartData is null || chartData.Datasets is null)
-            return;
-
-        var data = new List<IChartDatasetData>();
-        foreach (var dataset in chartData.Datasets)
-        {
-            if (dataset is DoughnutChartDataset doughnutChartDataset)
-            {
-                data.Add(new DoughnutChartDatasetData(doughnutChartDataset.Label, random.Next(0, 100), backgroundColors![dataLabelsCount]));
-            }
-        }
-
-        chartData = await doughnutChart.AddDataAsync(chartData, GetNextDataLabel(), data);
-
-        dataLabelsCount += 1;
-    }
-
-    #region Data Preparation
-
-    private List<IChartDataset> GetDefaultDataSets(int numberOfDatasets)
-    {
-        var datasets = new List<IChartDataset>();
-
-        for (var index = 0; index < numberOfDatasets; index++)
-        {
-            datasets.Add(GetRandomDoughnutChartDataset());
-        }
-
-        return datasets;
-    }
-
-    private DoughnutChartDataset GetRandomDoughnutChartDataset()
-    {
-        datasetsCount += 1;
-        return new() { Label = $"Team {datasetsCount}", Data = GetRandomData(), BackgroundColor = GetRandomBackgroundColors() };
-    }
-
-    private List<double?> GetRandomData()
-    {
-        var data = new List<double?>();
-        for (var index = 0; index < dataLabelsCount; index++)
-        {
-            data.Add(random.Next(0, 100));
-        }
-
-        return data;
-    }
-
-    private List<string> GetRandomBackgroundColors()
-    {
-        var colors = new List<string>();
-        for (var index = 0; index < dataLabelsCount; index++)
-        {
-            colors.Add(backgroundColors![index]);
-        }
-
-        return colors;
-    }
-
-    private List<string> GetDefaultDataLabels(int numberOfLabels)
-    {
-        var labels = new List<string>();
-        for (var index = 0; index < numberOfLabels; index++)
-        {
-            labels.Add(GetNextDataLabel());
-            dataLabelsCount += 1;
-        }
-
-        return labels;
-    }
-
-    private string GetNextDataLabel() => $"Category {dataLabelsCount + 1}";
-
-    private string GetNextDataBackgrounfColor() => backgroundColors![dataLabelsCount];
-
-    #endregion  Data Preparation
 
 
     //Random money amount generator
