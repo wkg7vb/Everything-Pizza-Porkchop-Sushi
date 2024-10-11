@@ -6,23 +6,26 @@
 <div style="display: grid; grid-template-columns: auto auto; gap 10px;">
     <Card Style="width:18rem;">
         <CardBody Style="text-align: center">
-            <CardTitle>$1000</CardTitle>
+
+            <!--Implement a temporary random function for the money amount-->
+            <CardTitle>@randomMoneyAmount</CardTitle>      
             <CardSubTitle Class="mb-2 text-muted">September Total</CardSubTitle>
         </CardBody>
     </Card>
 
     <Card Style="width:18rem;">
         <CardBody Style="text-align: center">
-            <CardTitle>$1000</CardTitle>
+
+            <!--Implement a temporary random function for the money amount-->
+            <CardTitle>@randomMoneyAmount</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Over Monthly Budget</CardSubTitle>
         </CardBody>
     </Card>
 </div>
 
-<h2 style="text-align: center; padding-bottom: 30px;">Demo Chart</h2>
+<h2 style="text-align: center; padding: 30px;">Demo Chart</h2>
 
-<p>Still not showing... :(</p>
-<!--Demo Chart code from Blazor Bootstrap site-->
+
 <DoughnutChart @ref="doughnutChart" Width="500" />
 
 <div class="mt-5">
@@ -40,6 +43,7 @@
     private int datasetsCount = 0;
     private int dataLabelsCount = 0;
 
+
     private Random random = new();
 
     protected override void OnInitialized()
@@ -49,8 +53,9 @@
 
         doughnutChartOptions = new();
         doughnutChartOptions.Responsive = true;
-        doughnutChartOptions.Plugins.Title!.Text = "2022 - Sales";
+        doughnutChartOptions.Plugins.Title!.Text = "Monthly Stats";
         doughnutChartOptions.Plugins.Title.Display = true;
+        randomMoneyAmount = $"${GetRandomMoneyAmount()}";  //initialize random money amount onto the cards
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -176,11 +181,22 @@
         return labels;
     }
 
-    private string GetNextDataLabel() => $"Product {dataLabelsCount + 1}";
+    private string GetNextDataLabel() => $"Category {dataLabelsCount + 1}";
 
     private string GetNextDataBackgrounfColor() => backgroundColors![dataLabelsCount];
 
     #endregion  Data Preparation
+
+
+    //Random money amount generator
+    private string randomMoneyAmount = "$0.00";
+    private string GetRandomMoneyAmount()
+    {
+        double randomAmount = Math.Round(random.NextDouble() * 1000, 2);
+        return randomAmount.ToString("0.00");
+    }
+
+    
 }
 
 
