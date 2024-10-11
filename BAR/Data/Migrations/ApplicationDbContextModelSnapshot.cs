@@ -126,7 +126,7 @@ namespace BAR.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApplicationUsers", (string)null);
+                    b.ToTable("ApplicationUsers");
                 });
 
             modelBuilder.Entity("BAR.Data.Models.Transaction", b =>
@@ -197,7 +197,7 @@ namespace BAR.Migrations
 
                     b.HasKey("TimeStamp");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.ToTable("Transactions");
                 });
 #pragma warning restore 612, 618
         }

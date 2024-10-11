@@ -1,0 +1,60 @@
+﻿@page "/transactions"
+@rendermode InteractiveServer
+
+@*
+    User will be able to veiw, edit and remove transactions
+*@
+
+<PageTitle>Transaction History</PageTitle>
+
+<h1>
+    Transaction History
+</h1>
+
+<Grid TItem="Transaction"
+      Class="table table-hover table-bordered table-striped"
+      DataProvider="TransactionDataProvider"
+      AllowFiltering="true"
+      AllowPaging="true"
+      AllowSorting="true">
+
+    <GridColumns>
+        <!--last 30 or this month-->
+        <GridColumn TItem="Transaction" HeaderText="Time/Date" PropertyName="TimeStamp" FilterOperator="FilterOperator.GreaterThanOrEquals" FilterValue="0">
+            @context.TimeStamp
+        </GridColumn>
+
+        <GridColumn TItem="Transaction" HeaderText="Label" PropertyName="Label">
+            @context.Label
+        </GridColumn>
+
+        <GridColumn TItem="Transaction" HeaderText="Category" PropertyName="Category">
+            @context.Category
+        </GridColumn>
+
+        <GridColumn TItem="Transaction" HeaderText="Amount" PropertyName="Amount">
+            @context.Amount
+        </GridColumn>
+    </GridColumns>
+
+</Grid>
+
+@code {
+    private IEnumerable<Transaction>? transactions;
+
+    private async Task<GridDataProviderResult<Transaction>> TransactionDataProvider(GridDataProviderRequest<Transaction> request)
+    {
+        if (transactions is null) // pull only one time for client-side filtering, sorting, and paging
+            transactions = GetTransactions(); // call a service or an API to pull
+
+        return await Task.FromResult(request.ApplyTo(transactions));
+    }
+
+    private IEnumerable<Transaction> GetTransactions()
+    {
+        return new List<Transaction>
+        {
+            //FIXME
+        };
+    }
+}
