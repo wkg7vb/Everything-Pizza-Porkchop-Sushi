@@ -16,3 +16,9 @@
     height: 256px;
     font-size: 72px;
 }
+
+.small {
+    width: 32px;
+    height: 32px;
+    font-size: 9px;    
+}

@@ -4,7 +4,8 @@
 <PageTitle>User Settings</PageTitle>
 
 <div class="d-flex flex-row justify-content-center align-items-center gap-5">
-    <ProfileAvatar UserFName="@UserFName" AvatarColor="@UserAvatarColor" Size="large"/>
+    @* TODO: change AvatarColor back to UserAvatarColor instead of selectedColor *@
+    <ProfileAvatar UserFName="@UserFName" AvatarColor="@selectedColor" Size="large"/>
     <h1>User settings</h1>
 </div>
 
@@ -41,7 +42,7 @@
             </label>
         </div>
         
-        <div class="my-2">
+        <div class="mt-4 mb-4">
             <Button Color="ButtonColor.Primary" @onclick=ChangeAvatar Type="ButtonType.Button">Change avatar color</Button>
         </div>
 
@@ -68,16 +69,35 @@
     </EditForm>
 </div>
 
+@* Change avatar color popup *@
 <Modal @ref="avtrclr" Title="Change avatar color">
     <BodyTemplate>
-        Hi.
+        <h5 class="my-2">Choose a color:</h5>
+        <div class="d-flex ">
+            @foreach (var col in colors){
+                bool selected = false;
+                ButtonColor btnclr = ButtonColor.None;
+                @if (col == selectedColor){
+                   selected = true;
+                   btnclr = ButtonColor.Primary;
+                }
+                else {
+                   selected = false;
+                   btnclr = ButtonColor.None;
+                }
+                <Button Type="ButtonType.Button" Color="@btnclr" Outline="@selected" @onclick="() => SelectColor(col)">
+                    <ProfileAvatar Size="small" AvatarColor="@col" />
+                </Button>
+            }
+        </div>
     </BodyTemplate>
     <FooterTemplate>
         <Button Color="ButtonColor.Secondary" @onclick="CancelChangeAvatar">Cancel</Button>
-        <Button Color="ButtonColor.Primary" @onclick=SaveChangeAvatar>Save</Button>
+        <Button Color="ButtonColor.Primary" @onclick=ChooseChangeAvatar>Choose</Button>
     </FooterTemplate>
 </Modal>
 
+@* Delete account popup *@
 <Modal @ref="dltacct" Title="Delete account">
     <BodyTemplate>
         Are you sure you want to delete your account? This will wipe all of your data and is not reversible. <br>
@@ -97,91 +117,4 @@
     </FooterTemplate>
 </Modal>
 
-@code {
-    private Modal dltacct = default!;
-    private Modal avtrclr = default!;
-    // Pulled from db, REMOVE DEFAULTS LATER
-    private string UserScreenname = "RowdyRootinRoo";
-    private string UserFName = "Rootin'";
-    private string UserLName = "Roo";
-    private string UserAvatarColor = "#E5A000";
-    private string UserEmail = "roo@rootin.com";
-    private string UserLocale = "es-MX";
-    private bool UserDarkMode = false;
 
-    // Used to store inputs; to be used to update db on save
-    private string userNameInput;
-    private string userEmailInput;
-    private bool darkModeInput;
-    private string userLocaleInput;
-    private string? usernameConfirmationInput;
-    private bool disableName = true;
-    private bool disableEmail = true;
-    private bool disableDelete = false;
-    private UserDetails ud = new UserDetails();
-
-    public class UserDetails
-    {
-    }
-
-    // Functions
-
-    protected override void OnInitialized(){
-        // Set input values to those pulled from db
-        userNameInput = UserFName + " " + UserLName;
-        userEmailInput = UserEmail;
-        darkModeInput = UserDarkMode;
-        userLocaleInput = UserLocale;
-    }
-
-    private void ToggleEditName(){
-        if (!disableEmail) return;
-        else{
-            if (disableName){
-                disableName = false;
-            }
-            else disableName = true;
-        }
-    }
-    private void ToggleEditEmail(){
-        if (!disableName) return;
-        else{
-            if (disableEmail){
-                disableEmail = false;
-            }
-            else disableEmail = true;
-        }
-    }
-    private async Task DeleteAccount()
-    {
-        await dltacct.ShowAsync();
-    }
-
-    private async Task CancelDeleteAccount()
-    {
-        usernameConfirmationInput = string.Empty;
-        await dltacct.HideAsync();
-    }
-
-    private async Task ChangeAvatar()
-    {
-        await avtrclr.ShowAsync();
-    }
-
-    private async Task CancelChangeAvatar()
-    {
-        await avtrclr.HideAsync();
-    }
-
-    private void SaveChangeAvatar(){
-        
-    }
-
-    private void DeleteAccountProcedure(){
-        // TODO: add delete account procedure
-    }
-
-    private void SaveChanges(){
-        // TODO: add saving to db functionality
-    }
-}
