@@ -1,19 +1,19 @@
 <div class="top-row d-flex mb-3 justify-content-between align-items-center">
     <div class="p-2">
         <a href="/">
-            <img src="/Images/Smooth-BAR-Logo-100.png" style="flaot:left">
+            <img src="/Images/Smooth-BAR-Logo-100.png">
         </a>
     </div>
     <div class="p-2"> 
         <Dropdown Color="DropdownColor.None" Style="background-color: white;">
             <DropdownToggleButton>
-                <ProfileAvatar UserFName="@UserFName"/>
+                <ProfileAvatar UserFName="@UserFName" AvatarColor="@AvatarColor"/>
             </DropdownToggleButton>
             <DropdownMenu>
                 <DropdownHeader>Hi, @UserFName!</DropdownHeader>
                 <DropdownItem To="/settings" Type="DropdownItemType.Link"><Icon Name="IconName.Gear"/> Settings</DropdownItem>
                 <DropdownDivider>Dropdown header</DropdownDivider>
-                <DropdownItem Type="DropdownItemType.Button" @onclick=LogOut><Icon Name="IconName.BoxArrowDownRight" Color="IconColor.Danger"/> Log out</DropdownItem>
+                <DropdownItem Type="DropdownItemType.Button" @onclick=LogOut><Icon Name="IconName.BoxArrowRight" Color="IconColor.Danger"/> Log out</DropdownItem>
             </DropdownMenu>
         </Dropdown>
     </div>
@@ -24,7 +24,7 @@
 
 @code {
     [Parameter] public string UserFName {get; set;} 
-    private string AvatarColor = "#E5A000";  
+    [Parameter] public string AvatarColor {get; set;}
 
     private void LogOut(){
         // TODO: implement log out functionality
