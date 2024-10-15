@@ -8,17 +8,17 @@
     </div>
 </div>
 
+ <!-- add -->
+    <div class="nav-item px-3" @onclick="OnShowModalClick">
+        <NavLink class="nav-link">
+            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Add Transaction
+        </NavLink>
+    </div>
+
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
-
-        <!-- add -->
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="add">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Add Transaction
-            </NavLink>
-        </div>
 
         <!-- home -->
         <div class="nav-item px-3">
@@ -100,5 +100,35 @@
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
+
+    private Modal addT;
+
+    private async Task OnShowModalClick()
+    {
+        await addT?.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await addT?.HideAsync();
+    }
+
 }
+
+@* Add Transaction popup *@
+<Modal @ref="addT" Title="Add Transaction">
+    <BodyTemplate> 
+        Label:
+        <input type="text" class="mt-2"/> <br>
+        Amount (selected currency):
+        <input type="text" class="mt-2"/> <br>
+        Category:
+        <input type="text" class="mt-2"/> <br>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Add</Button>
+        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Cancel</Button>
+    </FooterTemplate>
+</Modal>
+
 
