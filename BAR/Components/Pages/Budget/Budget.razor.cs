@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using BAR.Components.Pages.Budget.Modules;
 using BAR.Data.Models;
 using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
 
 namespace BAR.Components.Pages.Budget;
 
@@ -11,11 +12,13 @@ public partial class Budget
     
     // TODO: pull user's settings to get their locale (currency type)
     private ApplicationUser user = default!;
+    private string userId = string.Empty;
     [CascadingParameter]
     private HttpContext context {get; set;} = default!;
 
     [SupplyParameterFromForm]
     private InputModel Input {get; set;} = new();
+    private UserBudget bdgt;
 
     private string userCurrencyLocale {get; set;}
     private List<(CategoryData, List<string>)> elmts = new();
@@ -40,12 +43,22 @@ public partial class Budget
     // Runs when page is loaded, pseudo "constructor"-like function
     protected override async Task OnInitializedAsync()
     {
-        user = await UserAccessor.GetRequiredUserAsync(context);
-        userCurrencyLocale = user.UserLocale;
+        Input.MonthlyIncome = 0.0m;
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var claimsPrincipal = authState.User;
+        if (claimsPrincipal.Identity.IsAuthenticated){
+            user = await UserManager.GetUserAsync(claimsPrincipal);
+            userId = user.Id;
+        }
+
         // TODO: pull user data from db and populate elmts w/ CategoryData objs
-        if (false == true)
+        if (user is not null)
         {
-            return;
+            userCurrencyLocale = user.UserLocale;
+            var userBudgetAsync = await dbContext.UserBudgets.Where(p => p.UserId == userId).SingleOrDefaultAsync();
+            bdgt = userBudgetAsync;
+            bdgt.BillsUtilsAmt = 0.0m;
+            dbContext.SaveChanges();
         }
         // Initialize a generic category cell when no user data is available
         else
@@ -124,7 +137,7 @@ public partial class Budget
     }
 
     // TODO: send elmts.CategoryData and BdgtAmt to db
-    private void SaveChanges()
+    private async void SaveChanges()
     {
         return;
     }
