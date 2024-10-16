@@ -1,4 +1,5 @@
 ﻿@implements IDisposable
+@rendermode InteractiveServer
 
 @inject NavigationManager NavigationManager
 
@@ -8,17 +9,17 @@
     </div>
 </div>
 
- <!-- add -->
-    <div class="nav-item px-3" @onclick="OnShowModalClick">
-        <NavLink class="nav-link">
-            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Add Transaction
-        </NavLink>
-    </div>
-
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
+
+        <!-- add -->
+    <div class="nav-item px-3">
+        <Button class="nav-link" href="home" @onclick="OnShowModalClick">
+            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Add Transaction
+        </Button>
+    </div>
 
         <!-- home -->
         <div class="nav-item px-3">
