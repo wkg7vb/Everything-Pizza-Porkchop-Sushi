@@ -6,10 +6,12 @@ using Microsoft.Identity.Client;
 
 namespace BAR.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<UserBudget> UserBudgets {get; set;}
+        public DbSet<UserTransaction> UserTransactions { get; set; }
     }
 }

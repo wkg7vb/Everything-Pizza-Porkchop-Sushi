@@ -1,5 +1,15 @@
 ﻿@inherits LayoutComponentBase
 
+@using System.ComponentModel.DataAnnotations
+@using BAR.Components.Account
+@using Microsoft.AspNetCore.Identity
+@using BAR.Data
+@using BAR.Data.Models
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityUserAccessor UserAccessor
+
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -21,10 +31,23 @@
 </div>
 
 @code {
-    // TODO: pull user's name, avatar color, and appearance mode from db
-    private string UserFName = "Rootin'";
-    private string UserAvatarColor = "#E5A000";
+    // Local vars for userdata
+    private string UserFName;
+    private string UserAvatarColor;
     // TODO: pull in stylesheet based on this value
-    private bool UserDarkMode = false;
+    private bool UserDarkMode;
 
+    // Pull user from db
+    private ApplicationUser user = default!;
+    [CascadingParameter]
+    private HttpContext context { get; set; } = default!;
+
+
+    protected override async Task OnInitializedAsync(){
+        user = await UserAccessor.GetRequiredUserAsync(context);
+
+        UserFName = user.UserFName;
+        UserAvatarColor = user.UserAvatarColor;
+        UserDarkMode = user.UserDarkmode;
+    }
 }

@@ -1,13 +1,23 @@
+using System.ComponentModel.DataAnnotations;
 using BAR.Components.Pages.Budget.Modules;
+using BAR.Data.Models;
+using Microsoft.AspNetCore.Components;
 
 namespace BAR.Components.Pages.Budget;
 
 public partial class Budget
 {
     // Vars
-    private decimal BdgtAmt { get; set; } = 0;
+    
     // TODO: pull user's settings to get their locale (currency type)
-    private string userCurrencyLocale = "en-US";
+    private ApplicationUser user = default!;
+    [CascadingParameter]
+    private HttpContext context {get; set;} = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input {get; set;} = new();
+
+    private string userCurrencyLocale {get; set;}
     private List<(CategoryData, List<string>)> elmts = new();
     private string? err;
 
@@ -28,8 +38,10 @@ public partial class Budget
     // Functions
 
     // Runs when page is loaded, pseudo "constructor"-like function
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        user = await UserAccessor.GetRequiredUserAsync(context);
+        userCurrencyLocale = user.UserLocale;
         // TODO: pull user data from db and populate elmts w/ CategoryData objs
         if (false == true)
         {
@@ -121,5 +133,12 @@ public partial class Budget
     private void ClearErr()
     {
         err = string.Empty;
+    }
+
+    private sealed class InputModel {
+        [Required]
+        public decimal MonthlyIncome { get; set; } = 0;
+
+        public List<CategoryData> Categories {get; set;}
     }
 }

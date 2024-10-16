@@ -1,5 +1,10 @@
 @page "/budget"
+
 @rendermode InteractiveServer
+
+@inject IdentityUserAccessor UserAccessor
+@inject UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext dbContext
 
 @*
 User can create and update their budget and categories.
@@ -18,28 +23,31 @@ Accessible to users that are logged in.
     </Alert>
 }
 
-<div class='mb-3'>
-    Monthly budget (@userCurrencyLocale):
-    <CurrencyInput 
-        TValue="decimal" 
-        Locale="@userCurrencyLocale"
-        @bind-Value="@BdgtAmt" 
-        Placeholder="Enter amount"
-        ShowCurrencySymbol="true"
-        Min="0.0m"
-        MaximumFractionDigits="2"
-        />
-</div>
-   
-@foreach(var elmt in elmts){
-    <CategoryElmt data="@elmt.Item1"  cats="@elmt.Item2" RmvElmtFnc="() => RemoveCategoryElmt(elmt.Item1)" />
-}
+<EditForm Model="Input" FormName="set-budget" OnInvalidSubmit="SaveChanges" method="post">
+    <DataAnnotationsValidator />
+    <div class='mb-3'>
+        Monthly budget (@userCurrencyLocale):
+        <CurrencyInput 
+            TValue="decimal" 
+            Locale="@userCurrencyLocale"
+            @bind-Value="@Input.MonthlyIncome" 
+            Placeholder="Enter amount"
+            ShowCurrencySymbol="true"
+            Min="0.0m"
+            MaximumFractionDigits="2"
+            />
+    </div>
+    
+    @foreach(var elmt in elmts){
+        <CategoryElmt data="@elmt.Item1"  cats="@elmt.Item2" RmvElmtFnc="() => RemoveCategoryElmt(elmt.Item1)" />
+    }
 
-<div class="bdgt-add-dropdown d-flex gap-4 mb-4">
-    <button class="btn btn-primary" @onclick="AddCategoryElmt">Add more...</button>
-</div>
+    <div class="bdgt-add-dropdown d-flex gap-4 mb-4">
+        <button class="btn btn-primary" @onclick="AddCategoryElmt">Add more...</button>
+    </div>
 
-<div class="save-btn md-3">
-    <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
-</div>
+    <div class="save-btn md-3">
+        <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
+    </div>
+</EditForm>
 
