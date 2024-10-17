@@ -10,7 +10,7 @@ public class UserTransaction
     public decimal TransactionAmt { get; set; }
     public string TransasctionCategory { get; set; }
 
-    // FK from IdentityUser
+    // FK from ApplicationUser
     public string UserId { get; set; }
     public ApplicationUser User { get; set; }
 

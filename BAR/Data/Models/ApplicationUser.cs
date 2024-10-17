@@ -12,9 +12,11 @@ namespace BAR.Data.Models
     public class ApplicationUser : IdentityUser
     {
         public bool UserDarkmode { get; set; }
-        public string UserLocale { get; set; }
-        public string UserAvatarColor { get; set; }
+        public string UserLocale { get; set; } = "en-US";
+        public string UserAvatarColor { get; set; } = "#E5A000";
+        [PersonalData]
         public string? UserFName { get; set; }
+        [PersonalData]
         public string? UserLName { get; set; }
     }
 }

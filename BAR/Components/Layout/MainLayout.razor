@@ -32,22 +32,11 @@
 
 @code {
     // Local vars for userdata
-    private string UserFName;
-    private string UserAvatarColor;
+    private string UserFName = "Rootin";
+    private string UserAvatarColor = "#E5A000";
     // TODO: pull in stylesheet based on this value
-    private bool UserDarkMode;
+    private bool UserDarkMode = false;
 
     // Pull user from db
-    private ApplicationUser user = default!;
-    [CascadingParameter]
-    private HttpContext context { get; set; } = default!;
-
-
-    protected override async Task OnInitializedAsync(){
-        user = await UserAccessor.GetRequiredUserAsync(context);
-
-        UserFName = user.UserFName;
-        UserAvatarColor = user.UserAvatarColor;
-        UserDarkMode = user.UserDarkmode;
-    }
+    
 }

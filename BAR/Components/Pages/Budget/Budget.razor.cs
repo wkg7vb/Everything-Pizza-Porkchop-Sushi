@@ -9,21 +9,15 @@ namespace BAR.Components.Pages.Budget;
 public partial class Budget
 {
     // Vars
-    
-    // TODO: pull user's settings to get their locale (currency type)
+    // User vars from db
     private ApplicationUser user = default!;
     private string userId = string.Empty;
-    [CascadingParameter]
-    private HttpContext context {get; set;} = default!;
-
-    [SupplyParameterFromForm]
-    private InputModel Input {get; set;} = new();
     private UserBudget bdgt;
 
+    // Local vars
     private string userCurrencyLocale {get; set;}
-    private List<(CategoryData, List<string>)> elmts = new();
+    private List<CategoryData> elmts = new();
     private string? err;
-
     private List<string> categories = new List<string> {
         "Housing",
         "Bills/Utilities",
@@ -39,11 +33,10 @@ public partial class Budget
     };
 
     // Functions
-
     // Runs when page is loaded, pseudo "constructor"-like function
     protected override async Task OnInitializedAsync()
     {
-        Input.MonthlyIncome = 0.0m;
+        // Attain authenticaiton state and user
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var claimsPrincipal = authState.User;
         if (claimsPrincipal.Identity.IsAuthenticated){
@@ -51,44 +44,56 @@ public partial class Budget
             userId = user.Id;
         }
 
-        // TODO: pull user data from db and populate elmts w/ CategoryData objs
+        // Init local vars from db
         if (user is not null)
         {
             userCurrencyLocale = user.UserLocale;
-            var userBudgetAsync = await dbContext.UserBudgets.Where(p => p.UserId == userId).SingleOrDefaultAsync();
-            bdgt = userBudgetAsync;
-            bdgt.BillsUtilsAmt = 0.0m;
-            dbContext.SaveChanges();
+            bdgt = await dbContext.UserBudgets.SingleOrDefaultAsync(p => p.UserId == userId);
+        }
+        else throw new Exception("Invalid user.");
+        
+        // Populate elmts list from db
+        if (bdgt is not null)
+        {
+            if (bdgt.HousingAmt is not null) AddCategoryElmt(type: "Housing", amt: bdgt.HousingAmt);
+            if (bdgt.BillsUtilsAmt is not null) AddCategoryElmt(type: "Bills/Utilities", amt: bdgt.BillsUtilsAmt);
+            if (bdgt.GroceryDiningAmt is not null) AddCategoryElmt(type: "Grocery/Dining", amt: bdgt.GroceryDiningAmt);
+            if (bdgt.TransportAmt is not null) AddCategoryElmt(type: "Transportation", amt: bdgt.TransportAmt);            
+            if (bdgt.EducationAmt is not null) AddCategoryElmt(type: "Education", amt: bdgt.EducationAmt);
+            if (bdgt.DebtAmt is not null) AddCategoryElmt(type: "Debt", amt: bdgt.DebtAmt);
+            if (bdgt.EntertainmentAmt is not null) AddCategoryElmt(type: "Entertainment", amt: bdgt.EntertainmentAmt);
+            if (bdgt.ShoppingAmt is not null) AddCategoryElmt(type: "Shopping", amt: bdgt.ShoppingAmt);
+            if (bdgt.MedicalAmt is not null) AddCategoryElmt(type: "Medical", amt: bdgt.MedicalAmt);
+            if (bdgt.InvestingAmt is not null) AddCategoryElmt(type: "Investing", amt: bdgt.InvestingAmt);
+            if (bdgt.MiscAmt is not null) AddCategoryElmt(type: "Miscellaneous", amt: bdgt.MiscAmt);
+            if (elmts.Count() == 0 && bdgt.AllCategoriesNull) AddCategoryElmt();
         }
         // Initialize a generic category cell when no user data is available
         else
         {
-            CategoryData defaultData = new();
-            defaultData.Type = categories[0];
-            defaultData.Amt = 0.0m;
-            (CategoryData, List<string>) defaultElmt = (defaultData, categories);
-            elmts.Add(defaultElmt);
+            bdgt = new UserBudget{
+                UserId = userId,
+                User = user
+            };
+            await dbContext.UserBudgets.AddAsync(bdgt);
+            await dbContext.SaveChangesAsync();
         }
-
     }
 
     // Add an element into elmts to be rendered
     private void AddCategoryElmt()
     {
         CategoryData newData = new();
-        List<string> newCats = new();
-        newCats = categories.ToList();
-
         foreach (var elmt in elmts)
         {
-            if (newCats.Contains(elmt.Item1.Type))
+            if (categories.Contains(elmt.Type))
             {
-                newCats.Remove(elmt.Item1.Type);
+                categories.Remove(elmt.Type);
             }
         }
         try
         {
-            if (newCats.Count < 1)
+            if (categories.Count < 1)
             {
                 throw new Exception("You cannot add more categories.");
             }
@@ -99,15 +104,36 @@ public partial class Budget
             return;
         }
 
-        newData.Type = newCats[0];
-        (CategoryData, List<string>) newElmt = (newData, newCats);
-        elmts.Add(newElmt);
+        newData.Type = categories[0];
+        elmts.Add(newData);
     }
 
-    // TODO: overloaded function for element initialization on pageload, taking two params
-    private void AddCategoryElmt(string type, decimal amt)
+    // Overloaded function for element initialization on pageload, taking two params
+    private void AddCategoryElmt(string type, decimal? amt)
     {
-        return;
+        CategoryData newData = new CategoryData{
+            Type = type,
+            Amt = (decimal)amt
+        };
+
+        if (categories.Contains(newData.Type))
+        {
+            categories.Remove(newData.Type);
+        }
+
+        try
+        {
+            if (categories.Count < 1)
+            {
+                throw new Exception("You cannot add more categories.");
+            }
+        }
+        catch (Exception e)
+        {
+            err = e.Message;
+            return;
+        }
+        elmts.Add(newData);
     }
 
     // Callback function to remove element (see CategoryElmt.razor)
@@ -128,9 +154,10 @@ public partial class Budget
                 return;
             }
 
-            if (elmt.Item1.Equals(del))
+            if (elmt.Equals(del))
             {
                 elmts.Remove(elmt);
+                categories.Add(elmt.Type);
                 break;
             }
         }
@@ -148,10 +175,5 @@ public partial class Budget
         err = string.Empty;
     }
 
-    private sealed class InputModel {
-        [Required]
-        public decimal MonthlyIncome { get; set; } = 0;
 
-        public List<CategoryData> Categories {get; set;}
-    }
 }

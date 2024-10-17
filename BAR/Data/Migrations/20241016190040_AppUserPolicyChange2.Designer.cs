@@ -4,6 +4,7 @@ using BAR.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BAR.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241016190040_AppUserPolicyChange2")]
+    partial class AppUserPolicyChange2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,7 +74,6 @@ namespace BAR.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UserAvatarColor")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("UserDarkmode")
@@ -84,7 +86,6 @@ namespace BAR.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserLocale")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
@@ -248,9 +249,6 @@ namespace BAR.Migrations
                     b.Property<decimal?>("BillsUtilsAmt")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("DebtAmt")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal?>("EducationAmt")
                         .HasColumnType("decimal(18,2)");
 
@@ -272,7 +270,7 @@ namespace BAR.Migrations
                     b.Property<decimal?>("MiscAmt")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("MonthlyIncome")
+                    b.Property<decimal?>("MonthlyIncome")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("ShoppingAmt")

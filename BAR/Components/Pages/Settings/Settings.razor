@@ -3,11 +3,11 @@
 
 <PageTitle>User Settings</PageTitle>
 
-<div class="d-flex flex-row justify-content-center align-items-center gap-5">
-    @* TODO: change AvatarColor back to UserAvatarColor instead of selectedColor *@
+@* <div class="d-flex flex-row justify-content-center align-items-center gap-5">
+    TODO: change AvatarColor back to UserAvatarColor instead of selectedColor
     <ProfileAvatar UserFName="@UserFName" AvatarColor="@selectedColor" Size="large"/>
     <h1>User settings</h1>
-</div>
+</div> *@
 
 <div class="d-flex flex-column p-2 m-2">
     <EditForm Model="@ud">
@@ -43,7 +43,6 @@
         </div>
         
         <div class="mt-4 mb-4">
-            <Button Color="ButtonColor.Primary" @onclick=ChangeAvatar Type="ButtonType.Button">Change avatar color</Button>
         </div>
 
         <h5 class="mt-4">Currency Type:</h5>
@@ -55,6 +54,7 @@
         </select>
         
         <Switch @bind-Value=darkModeInput Label="Dark mode" class="my-4"/>
+
 
         <div class="my-4">
             <Button Color="ButtonColor.Primary" To="/change-password" Type="ButtonType.Link">Change password</Button>

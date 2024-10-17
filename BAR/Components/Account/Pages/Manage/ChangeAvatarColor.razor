@@ -1,0 +1,77 @@
+@page "/Account/Manage/ChangeAvatarColor"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using BAR.Data
+@using BAR.Data.Models
+@* TODO: fix this. Problem right now is that I need the page to be 
+interactive in order for the buttons to actually work as intended. *@
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IdentityUserAccessor UserAccessor
+@inject IdentityRedirectManager RedirectManager
+
+<form @onsubmit="OnSubmitAsync">
+    <h5 class="my-2">Choose a color:</h5>
+    <div class="d-flex ">
+        @foreach (var col in colors){
+            bool selected = false;
+            ButtonColor btnclr = ButtonColor.None;
+            @if (col == userAvatarColor){
+                selected = true;
+                btnclr = ButtonColor.Primary;
+            }
+            else {
+                selected = false;
+                btnclr = ButtonColor.None;
+            }
+            <Button Type="ButtonType.Button" Color="@btnclr" Outline="@selected" @onclick="() => SelectColor(col)">
+                <ProfileAvatar Size="profile-avatar small" AvatarColor="@col" />
+            </Button>
+        }
+    </div>
+</form>
+<Button Color="ButtonColor.Secondary" Type="ButtonType.Link" To="/Account/Manage">Cancel</Button>
+<Button Color="ButtonColor.Primary" Type="ButtonType.Submit">Save</Button>
+
+@code {
+    private string? userAvatarColor;
+    private ApplicationUser user = default!;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+    private List<string> colors = new List<string>
+    {
+        "#E5A000",
+        "#00c234",
+        "#04a9d6",
+        "#7104d6",
+        "#d602c1",
+        "#d60202",
+        "#ffff00"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        userAvatarColor = user.UserAvatarColor;
+    }
+
+    private void SelectColor(string col)
+    {
+        userAvatarColor = col;
+    }
+    private async Task OnSubmitAsync()
+    {
+        user.UserAvatarColor = userAvatarColor;
+
+        var updateResult = await UserManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+        {
+            RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to set phone number.", HttpContext);
+        }
+
+        await SignInManager.RefreshSignInAsync(user);
+        RedirectManager.RedirectTo("Account/Manage");
+    }
+}
