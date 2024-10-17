@@ -24,6 +24,12 @@ Accessible to users that are logged in.
     </Alert>
 }
 
+@if (!string.IsNullOrEmpty(msg)){
+    <Alert Color="AlertColor.Success">
+        <Icon Name="IconName.CheckCircle"/> @msg <Button Color="ButtonColor.Link" @onclick="ClearMsg"><Icon Name="IconName.X"/></Button>
+    </Alert>
+}
+
 @if (elmts.Count() > 0){
     <div class='mb-3'>
         <label class="m-1">Monthly budget:</label>
@@ -37,5 +43,5 @@ Accessible to users that are logged in.
 
 <div class="d-flex flex-column align-items-start gap-4 my-4">
     <Button Color="ButtonColor.Primary" @onclick="AddCategoryElmt">Add more...</Button>
-    <Button Color="ButtonColor.Primary" @onclick="SaveChanges">Save</Button>
+    <Button Color="ButtonColor.Primary" @onclick="SaveChangesAsync">Save</Button>
 </div>
