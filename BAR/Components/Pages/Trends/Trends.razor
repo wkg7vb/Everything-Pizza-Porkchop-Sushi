@@ -1,0 +1,91 @@
+@page "/trends"
+@rendermode InteractiveServer
+
+<h1 style="text-align: center; padding-bottom: 50px;">Trends</h1>
+
+<div class="container-fluid overflow-x-auto" style="padding-top: 50px; padding-bottom: 50px;">
+    <LineChart @ref="lineChart" Width="800" />
+</div>
+
+@code {
+
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    // Data for the chart (labels and datasets)
+    private ChartData chartData = default!;
+    private Random random = new();
+    // Called when the component is initialized
+    protected override void OnInitialized()
+    {
+        // Initialize chart data with 6 labels (Jan - June) and 4 datasets (Bills, Education, Debt, Investing)
+        chartData = new ChartData
+            {
+                Labels = new List<string> { "January", "February", "March", "April", "May", "June" },
+                Datasets = GetCategoryDataSets()
+            };
+        // Configure the chart to be responsive and set interaction mode to 'index'
+        lineChartOptions = new() { Responsive = true, Interaction = new Interaction { Mode = InteractionMode.Index } };
+        // Set the color of X-axis and Y-axis ticks
+        lineChartOptions.Scales.X!.Ticks = new ChartAxesTicks { Color = "blue" }; // X-axis ticks color
+        lineChartOptions.Scales.Y!.Ticks = new ChartAxesTicks { Color = "green" }; // Y-axis ticks color
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+    //generate data for the 4 categories: Bills, Education, Debt, and Investing
+    private List<IChartDataset> GetCategoryDataSets()
+    {
+        var datasets = new List<IChartDataset>
+        {
+            new LineChartDataset
+            {
+                Label = "Bills",
+                Data = GetRandomSpendingData(),
+                BackgroundColor = "rgba(255, 99, 132, 0.5)",  // Light red
+                BorderColor = "rgba(255, 99, 132, 1)",        // Red border
+                BorderWidth = 2
+            },
+            new LineChartDataset
+            {
+                Label = "Education",
+                Data = GetRandomSpendingData(),
+                BackgroundColor = "rgba(54, 162, 235, 0.5)",  // Light blue
+                BorderColor = "rgba(54, 162, 235, 1)",        // Blue border
+                BorderWidth = 2
+            },
+            new LineChartDataset
+            {
+                Label = "Debt",
+                Data = GetRandomSpendingData(),
+                BackgroundColor = "rgba(75, 192, 192, 0.5)",  // Light teal
+                BorderColor = "rgba(75, 192, 192, 1)",        // Teal border
+                BorderWidth = 2
+            },
+            new LineChartDataset
+            {
+                Label = "Investing",
+                Data = GetRandomSpendingData(),
+                BackgroundColor = "rgba(153, 102, 255, 0.5)",  // Light purple
+                BorderColor = "rgba(153, 102, 255, 1)",        // Purple border
+                BorderWidth = 2
+            }
+        };
+        return datasets;
+    }
+    //generate random spending data for each category over 6 months
+    private List<double?> GetRandomSpendingData()
+    {
+        var data = new List<double?>();
+        // Generate random spending amounts for the 6-month period (Jan - June)
+        for (var month = 0; month < 6; month++)
+        {
+            data.Add(random.Next(500, 5000)); // Random spending between 500 and 5000 dollars
+        }
+        return data;
+    }
+}
