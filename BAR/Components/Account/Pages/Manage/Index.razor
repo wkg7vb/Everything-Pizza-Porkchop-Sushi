@@ -12,7 +12,12 @@
 
 <PageTitle>Profile</PageTitle>
 
-<h3>Profile</h3>
+@* <h3>Profile</h3> *@
+<div class="d-flex flex-row justify-content-left align-items-center gap-5 mb-4">
+    @* TODO: change AvatarColor back to UserAvatarColor instead of selectedColor *@
+    <ProfileAvatar UserFName="@userFName" AvatarColor="@userAvatarColor" Size="profile-avatar-profile"/>
+    <h1>User profile</h1>
+</div>
 <StatusMessage />
 
 <div class="row">
@@ -25,10 +30,36 @@
                 <label for="username" class="form-label">Username</label>
             </div>
             <div class="form-decimaling mb-3">
+                <InputText @bind-Value="Input.FName" class="form-control" placeholder="Please enter your first name." />
+                <label for="first-name" class="form-label">First name</label>
+                <ValidationMessage For="() => Input.FName" class="text-danger" />
+            </div>
+            <div class="form-decimaling mb-3">
+                <InputText @bind-Value="Input.LName" class="form-control" placeholder="Please enter your last name." />
+                <label for="last-name" class="form-label">Last name</label>
+                <ValidationMessage For="() => Input.LName" class="text-danger" />
+            </div>
+            <div class="form-decimaling mb-3">
+                <h5>Currency Type:</h5>
+                <select @bind="userLocale">
+                    <option value="en-US">US Dollar (USD)</option>
+                    <option value="es-MX">Mexican Peso (MXN)</option>
+                    <option value="en-EU">European Euro (EUR)</option>
+                    <option value="en-GB">Pound Sterling (GBP)</option>
+                </select>
+            </div>
+            <div class="form-decimaling mb-3">
+                <Switch @bind-Value="Input.Darkmode" Label="Dark mode" class="my-4"/>
+            </div>
+            <div class="form-decimaling mb-3">
+                <Button Color="ButtonColor.Primary" To="/Account/Manage/ChangeAvatarColor" Type="ButtonType.Link">Change avatar color</Button>
+            </div>
+            @* Might remove, not sure if phone number is needed here *@
+            @* <div class="form-decimaling mb-3">
                 <InputText @bind-Value="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
                 <label for="phone-number" class="form-label">Phone number</label>
                 <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
-            </div>
+            </div> *@
             <button type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
         </EditForm>
     </div>
@@ -36,8 +67,14 @@
 
 @code {
     private ApplicationUser user = default!;
+
     private string? username;
     private string? phoneNumber;
+    private string? userFName;
+    private string? userAvatarColor;
+    private string? userLocale;
+    private bool userDarkmode;
+
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -50,19 +87,29 @@
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         username = await UserManager.GetUserNameAsync(user);
         phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+        userFName = user.UserFName;
+        userAvatarColor = user.UserAvatarColor;
+        userLocale = user.UserLocale;
+        userDarkmode = user.UserDarkmode;
 
+        Input.FName ??= user.UserFName;
+        Input.LName ??= user.UserLName;
         Input.PhoneNumber ??= phoneNumber;
+        Input.Darkmode = userDarkmode;
+        Input.Locale ??= userLocale;
     }
 
     private async Task OnValidSubmitAsync()
     {
-        if (Input.PhoneNumber != phoneNumber)
+        user.UserFName = Input.FName;
+        user.UserLName = Input.LName;
+        user.UserLocale = Input.Locale;
+        user.UserDarkmode = Input.Darkmode;
+
+        var updateResult = await UserManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
         {
-            var setPhoneResult = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-            if (!setPhoneResult.Succeeded)
-            {
-                RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to set phone number.", HttpContext);
-            }
+            RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to update user.", HttpContext);
         }
 
         await SignInManager.RefreshSignInAsync(user);
@@ -74,5 +121,10 @@
         [Phone]
         [Display(Name = "Phone number")]
         public string? PhoneNumber { get; set; }
+        public string? FName {get; set;}
+        public string? LName {get; set;}
+
+        public string Locale {get; set;}
+        public bool Darkmode {get; set;}
     }
 }
