@@ -1,6 +1,5 @@
 ﻿@implements IDisposable
 @rendermode InteractiveServer
-
 @inject NavigationManager NavigationManager
 
 <div class="top-row ps-3 navbar navbar-dark">
@@ -16,8 +15,8 @@
 
         <!-- add -->
     <div class="nav-item px-3">
-        <Button class="nav-link" href="home" @onclick="OnShowModalClick">
-            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Add Transaction
+        <Button class="nav-link" @onclick=AddTransaction>
+            <span class="bi bi-plus-square-fill-nav-menu"></span> Add Transaction
         </Button>
     </div>
 
@@ -84,6 +83,7 @@
 
 @code {
     private string? currentUrl;
+    private bool isModalVisible; // Track modal visibility
 
     protected override void OnInitialized()
     {
@@ -102,18 +102,17 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
-    private Modal addT;
+    required public Modal addT;
 
-    private async Task OnShowModalClick()
+    private async Task AddTransaction()
     {
-        await addT?.ShowAsync();
+        await addT.ShowAsync();
     }
 
-    private async Task OnHideModalClick()
+    private async Task CancelAddTransaction()
     {
-        await addT?.HideAsync();
+        await addT.HideAsync();
     }
-
 }
 
 @* Add Transaction popup *@
@@ -127,9 +126,11 @@
         <input type="text" class="mt-2"/> <br>
     </BodyTemplate>
     <FooterTemplate>
-        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Add</Button>
-        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Cancel</Button>
+        <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Add</Button>
+        <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Cancel</Button>
     </FooterTemplate>
 </Modal>
+
+
 
 

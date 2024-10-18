@@ -120,6 +120,18 @@
 .navbar-toggler:checked ~ .nav-scrollable {
     display: block;
 }
+.modal {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050; /* Ensure it appears above other content */
+}
+
+.modal.show {
+    display: block; /* Show when active */
+}
 
 @media (min-width: 641px) {
     .navbar-toggler {
