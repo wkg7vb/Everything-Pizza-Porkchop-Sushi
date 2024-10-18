@@ -168,7 +168,7 @@ public partial class Budget
                         bdgt.HousingAmt = null;
                     }
                     break;
-                case "Bills/Utilities":
+                case "BillsUtilsAmt":
                     if (!categories.Contains("Bills/Utilities")){
                         var data = elmts.Find(x => x.Type == "Bills/Utilities");
                         bdgt.BillsUtilsAmt = data.Amt;
@@ -177,7 +177,7 @@ public partial class Budget
                         bdgt.BillsUtilsAmt = null;
                     }
                     break;
-                case "Grocery/Dining":
+                case "GroceryDiningAmt":
                     if (!categories.Contains("Grocery/Dining")){
                         var data = elmts.Find(x => x.Type == "Grocery/Dining");
                         bdgt.GroceryDiningAmt = data.Amt;
@@ -186,7 +186,7 @@ public partial class Budget
                         bdgt.GroceryDiningAmt = null;
                     }
                     break;
-                case "Transportation":
+                case "TransportAmt":
                     if (!categories.Contains("Transportation")){
                         var data = elmts.Find(x => x.Type == "Transportation");
                         bdgt.TransportAmt = data.Amt;
@@ -195,7 +195,7 @@ public partial class Budget
                         bdgt.TransportAmt = null;
                     }
                     break;
-                case "Education":
+                case "EducationAmt":
                     if (!categories.Contains("Education")){
                         var data = elmts.Find(x => x.Type == "Education");
                         bdgt.EducationAmt = data.Amt;
@@ -204,7 +204,7 @@ public partial class Budget
                         bdgt.EducationAmt = null;
                     }
                     break;
-                case "Debt":
+                case "DebtAmt":
                     if (!categories.Contains("Debt")){
                         var data = elmts.Find(x => x.Type == "Debt");
                         bdgt.DebtAmt = data.Amt;
@@ -213,7 +213,7 @@ public partial class Budget
                         bdgt.DebtAmt = null;
                     }
                     break;
-                case "Entertainment":
+                case "EntertainmentAmt":
                     if (!categories.Contains("Entertainment")){
                         var data = elmts.Find(x => x.Type == "Entertainment");
                         bdgt.EntertainmentAmt = data.Amt;
@@ -222,7 +222,7 @@ public partial class Budget
                         bdgt.EntertainmentAmt = null;
                     }
                     break;
-                case "Shopping":
+                case "ShoppingAmt":
                     if (!categories.Contains("Shopping")){
                         var data = elmts.Find(x => x.Type == "Shopping");
                         bdgt.ShoppingAmt = data.Amt;
@@ -231,7 +231,7 @@ public partial class Budget
                         bdgt.ShoppingAmt = null;
                     }
                     break;
-                case "Medical":
+                case "MedicalAmt":
                     if (!categories.Contains("Medical")){
                         var data = elmts.Find(x => x.Type == "Medical");
                         bdgt.MedicalAmt = data.Amt;
@@ -240,7 +240,7 @@ public partial class Budget
                         bdgt.MedicalAmt = null;
                     }
                     break;
-                case "Investing":
+                case "InvestingAmt":
                     if (!categories.Contains("Investing")){
                         var data = elmts.Find(x => x.Type == "Investing");
                         bdgt.InvestingAmt = data.Amt;
@@ -249,7 +249,7 @@ public partial class Budget
                         bdgt.InvestingAmt = null;
                     }
                     break;
-                case "Miscellaneous":
+                case "MiscAmt":
                     if (!categories.Contains("Miscellaneous")){
                         var data = elmts.Find(x => x.Type == "Miscellaneous");
                         bdgt.MiscAmt = data.Amt;

@@ -31,17 +31,17 @@
             </div>
             <div class="form-decimaling mb-3">
                 <InputText @bind-Value="Input.FName" class="form-control" placeholder="Please enter your first name." />
-                <label for="phone-number" class="form-label">First name</label>
+                <label for="first-name" class="form-label">First name</label>
                 <ValidationMessage For="() => Input.FName" class="text-danger" />
             </div>
             <div class="form-decimaling mb-3">
                 <InputText @bind-Value="Input.LName" class="form-control" placeholder="Please enter your last name." />
-                <label for="phone-number" class="form-label">Last name</label>
+                <label for="last-name" class="form-label">Last name</label>
                 <ValidationMessage For="() => Input.LName" class="text-danger" />
             </div>
             <div class="form-decimaling mb-3">
                 <h5>Currency Type:</h5>
-                <select @bind='userLocale'>
+                <select @bind="userLocale">
                     <option value="en-US">US Dollar (USD)</option>
                     <option value="es-MX">Mexican Peso (MXN)</option>
                     <option value="en-EU">European Euro (EUR)</option>
@@ -49,7 +49,7 @@
                 </select>
             </div>
             <div class="form-decimaling mb-3">
-                <Switch @bind-Value=userDarkmode Label="Dark mode" class="my-4"/>
+                <Switch @bind-Value="Input.Darkmode" Label="Dark mode" class="my-4"/>
             </div>
             <div class="form-decimaling mb-3">
                 <Button Color="ButtonColor.Primary" To="/Account/Manage/ChangeAvatarColor" Type="ButtonType.Link">Change avatar color</Button>
@@ -95,19 +95,21 @@
         Input.FName ??= user.UserFName;
         Input.LName ??= user.UserLName;
         Input.PhoneNumber ??= phoneNumber;
+        Input.Darkmode = userDarkmode;
+        Input.Locale ??= userLocale;
     }
 
     private async Task OnValidSubmitAsync()
     {
         user.UserFName = Input.FName;
         user.UserLName = Input.LName;
-        user.UserLocale = userLocale;
-        user.UserDarkmode = userDarkmode;
+        user.UserLocale = Input.Locale;
+        user.UserDarkmode = Input.Darkmode;
 
         var updateResult = await UserManager.UpdateAsync(user);
         if (!updateResult.Succeeded)
         {
-            RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to set phone number.", HttpContext);
+            RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to update user.", HttpContext);
         }
 
         await SignInManager.RefreshSignInAsync(user);
@@ -121,5 +123,8 @@
         public string? PhoneNumber { get; set; }
         public string? FName {get; set;}
         public string? LName {get; set;}
+
+        public string Locale {get; set;}
+        public bool Darkmode {get; set;}
     }
 }

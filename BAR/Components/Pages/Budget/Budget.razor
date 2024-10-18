@@ -26,7 +26,7 @@ Accessible to users that are logged in.
 
 @if (!string.IsNullOrEmpty(msg)){
     <Alert Color="AlertColor.Success">
-        <Icon Name="IconName.CheckCircle"/> @msg <Button Color="ButtonColor.Link" @onclick="ClearMsg"><Icon Name="IconName.X"/></Button>
+        <Icon Name="IconName.CheckCircle"/> @msg <Button Color="ButtonColor.Link" @onclick="ClearMsg"><Icon Name="IconName.X" /></Button>
     </Alert>
 }
 

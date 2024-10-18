@@ -1,4 +1,7 @@
 @page "/Account/Manage/ChangeAvatarColor"
+@rendermode InteractiveServer
+@layout MainLayout
+
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Identity
 @using BAR.Data
@@ -8,31 +11,39 @@ interactive in order for the buttons to actually work as intended. *@
 
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
-@inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Change avatar color</PageTitle>
 
 <form @onsubmit="OnSubmitAsync">
     <h5 class="my-2">Choose a color:</h5>
-    <div class="d-flex ">
-        @foreach (var col in colors){
-            bool selected = false;
-            ButtonColor btnclr = ButtonColor.None;
-            @if (col == userAvatarColor){
-                selected = true;
-                btnclr = ButtonColor.Primary;
+    <div class="d-flex flex-column my-2">
+        <div class="flex-row my-2 mr-2">
+            @foreach (var col in colors){
+                bool selected = false;
+                ButtonColor btnclr = ButtonColor.None;
+                @if (col == userAvatarColor){
+                    selected = true;
+                    btnclr = ButtonColor.Primary;
+                }
+                else {
+                    selected = false;
+                    btnclr = ButtonColor.None;
+                }
+                <Button Type="ButtonType.Button" Color="@btnclr" Outline="@selected" @onclick="() => SelectColor(col)">
+                    <ProfileAvatar Size="profile-avatar small" AvatarColor="@col" />
+                </Button>
             }
-            else {
-                selected = false;
-                btnclr = ButtonColor.None;
-            }
-            <Button Type="ButtonType.Button" Color="@btnclr" Outline="@selected" @onclick="() => SelectColor(col)">
-                <ProfileAvatar Size="profile-avatar small" AvatarColor="@col" />
-            </Button>
-        }
+        </div>
+        <div class="flex-column my-2">
+            <Button Color="ButtonColor.Secondary" Type="ButtonType.Link" To="/Account/Manage">Cancel</Button>
+            <Button Color="ButtonColor.Primary" Type="ButtonType.Submit">Save</Button>
+        </div>
+
     </div>
 </form>
-<Button Color="ButtonColor.Secondary" Type="ButtonType.Link" To="/Account/Manage">Cancel</Button>
-<Button Color="ButtonColor.Primary" Type="ButtonType.Submit">Save</Button>
+
 
 @code {
     private string? userAvatarColor;
@@ -40,6 +51,7 @@ interactive in order for the buttons to actually work as intended. *@
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
+
     private List<string> colors = new List<string>
     {
         "#E5A000",
@@ -53,7 +65,11 @@ interactive in order for the buttons to actually work as intended. *@
 
     protected override async Task OnInitializedAsync()
     {
-        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var claimsPrincipal = authState.User;
+        if (claimsPrincipal.Identity.IsAuthenticated){
+            user = await UserManager.GetUserAsync(claimsPrincipal);
+        }
         userAvatarColor = user.UserAvatarColor;
     }
 
@@ -68,10 +84,9 @@ interactive in order for the buttons to actually work as intended. *@
         var updateResult = await UserManager.UpdateAsync(user);
         if (!updateResult.Succeeded)
         {
-            RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to set phone number.", HttpContext);
+            return;
         }
 
-        await SignInManager.RefreshSignInAsync(user);
         RedirectManager.RedirectTo("Account/Manage");
     }
 }
