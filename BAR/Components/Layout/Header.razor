@@ -1,8 +1,14 @@
+@rendermode InteractiveServer
+
 <div class="top-row d-flex mb-3 justify-content-between align-items-center">
     <div class="p-2">
         <a href="/">
             <img src="/Images/Smooth-BAR-Logo-100.png">
         </a>
+    </div>
+    <div class="add"> 
+        <Button Color="ButtonColor.Light" @onclick=AddTransaction> + Add Transaction
+        </Button>
     </div>
     <div class="p-2"> 
         <Dropdown Color="DropdownColor.None" Style="background-color: white;">
@@ -29,4 +35,32 @@
     private void LogOut(){
         // TODO: implement log out functionality
     }
+
+    private Modal addT;
+
+    private async Task AddTransaction()
+    {
+        await addT?.ShowAsync();
+    }
+
+    private async Task CancelAddTransaction()
+    {
+        await addT?.HideAsync();
+    }
 }
+
+@* Add Transaction popup *@
+<Modal @ref="addT" Title="Add Transaction">
+    <BodyTemplate> 
+        Label:
+        <input type="text" class="mt-2"/> <br>
+        Amount (selected currency):
+        <input type="text" class="mt-2"/> <br>
+        Category:
+        <input type="text" class="mt-2"/> <br>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Add</Button>
+        <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Cancel</Button>
+    </FooterTemplate>
+</Modal>
