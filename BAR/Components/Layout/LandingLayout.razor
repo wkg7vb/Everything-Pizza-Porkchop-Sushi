@@ -1,28 +1,25 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="page">
-    @*<div class="sidebar">
+    <div class="sidebar">
         <NavMenu />
-    </div>*@
+    </div>
 
     <main>
 
-        <div class="top-row d-flex mb-3 justify-content-between align-items-center">
+    <div class="top-row d-flex mb-3 justify-content-between align-items-center">
     <div class="p-2">
         <a href="/">
             <img src="/Images/Smooth-BAR-Logo-100.png">
         </a>
     </div>
-    <div> 
-        <button Color="ButtonColor.Success" Size="ButtonSize.Large">Login / Register</button>
+
     </div>
-
-</div>
-
-        <article class="content px-4">  
+        <article class="content px-4">
             @Body
         </article>
     </main>
+    
 </div>
 
 <div id="blazor-error-ui">
