@@ -7,10 +7,17 @@
 
     <main>
 
-        <div class="top-row" style="background-color: #2C3554;">
-             <img src="/Images/Smooth-BAR-Logo.png" asp-append-version="true" width="100px" style="decimal:left;"/>
-            <Button Size="ButtonSize.Large" style="decimal:right; background-color: #299871; color: white;">Login / Register</Button>
-        </div>
+        <div class="top-row d-flex mb-3 justify-content-between align-items-center">
+    <div class="p-2">
+        <a href="/">
+            <img src="/Images/Smooth-BAR-Logo-100.png">
+        </a>
+    </div>
+    <div> 
+        <button Color="ButtonColor.Success" Size="ButtonSize.Large">Login / Register</button>
+    </div>
+
+</div>
 
         <article class="content px-4">  
             @Body

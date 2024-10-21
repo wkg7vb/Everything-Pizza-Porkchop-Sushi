@@ -33,7 +33,7 @@
     .item {
       padding: 20px;
       background-color: white;
-      border: 2px solid whitesmoke;
+      font-family: "Times New Roman", Times, serif;
     }
   
     .grid-container > div {
