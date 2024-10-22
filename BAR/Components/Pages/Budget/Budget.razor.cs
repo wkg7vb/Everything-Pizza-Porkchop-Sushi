@@ -87,11 +87,11 @@ public partial class Budget
     // Add an element into elmts to be rendered
     private void AddCategoryElmt()
     {
-        CategoryData newData = new();
-        foreach (var elmt in elmts)
-        {
-            if (categories.Contains(elmt.Type)) categories.Remove(elmt.Type);
-        }
+        CategoryData newData = new CategoryData{
+            Type = categories[0],
+            Amt = 0.0m
+        };
+        if (categories.Contains(newData.Type)) categories.Remove(newData.Type);
         try
         {
             if (categories.Count < 1) throw new Exception("You cannot add more categories.");
@@ -101,8 +101,6 @@ public partial class Budget
             err = e.Message;
             return;
         }
-
-        newData.Type = categories[0];
         elmts.Add(newData);
     }
 
@@ -157,7 +155,6 @@ public partial class Budget
         PropertyInfo[] properties = bdgttype.GetProperties();
 
         foreach (PropertyInfo property in properties){
-
             switch (property.Name){
                 case "HousingAmt":
                     if (!categories.Contains("Housing")){
@@ -262,10 +259,10 @@ public partial class Budget
                     break;
             }
         }
-        try{
+        try {
             var updateResult = await dbContext.SaveChangesAsync();
         }
-        catch(Exception e){
+        catch(Exception e) {
             err = e.Message;
         }
         msg = "Your changes have been saved.";
