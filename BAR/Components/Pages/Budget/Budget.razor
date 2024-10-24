@@ -1,5 +1,11 @@
 @page "/budget"
+
 @rendermode InteractiveServer
+
+@inject IdentityUserAccessor UserAccessor
+@inject UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext dbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @*
 User can create and update their budget and categories.
@@ -18,28 +24,24 @@ Accessible to users that are logged in.
     </Alert>
 }
 
-<div class='mb-3'>
-    Monthly budget (@userCurrencyLocale):
-    <CurrencyInput 
-        TValue="decimal" 
-        Locale="@userCurrencyLocale"
-        @bind-Value="@BdgtAmt" 
-        Placeholder="Enter amount"
-        ShowCurrencySymbol="true"
-        Min="0.0m"
-        MaximumFractionDigits="2"
-        />
-</div>
-   
-@foreach(var elmt in elmts){
-    <CategoryElmt data="@elmt.Item1"  cats="@elmt.Item2" RmvElmtFnc="() => RemoveCategoryElmt(elmt.Item1)" />
+@if (!string.IsNullOrEmpty(msg)){
+    <Alert Color="AlertColor.Success">
+        <Icon Name="IconName.CheckCircle"/> @msg <Button Color="ButtonColor.Link" @onclick="ClearMsg"><Icon Name="IconName.X" /></Button>
+    </Alert>
 }
 
-<div class="bdgt-add-dropdown d-flex gap-4 mb-4">
-    <button class="btn btn-primary" @onclick="AddCategoryElmt">Add more...</button>
-</div>
+@if (elmts.Count() > 0){
+    <div class='mb-3'>
+        <label class="m-1">Monthly budget:</label>
+        <CurrencyInput TValue="decimal" Placeholder="Amount" @bind-Value="bdgt.MonthlyIncome" Locale="@userCurrencyLocale" Min="0.0m" MaximumFractionDigits="2"/>
+    </div>
+}
 
-<div class="save-btn md-3">
-    <button class="btn btn-primary" @onclick="SaveChanges">Save</button>
-</div>
+@foreach(var elmt in elmts){
+    <CategoryElmt data="@elmt"  cats="@categories" locale="@userCurrencyLocale" RmvElmtFnc="() => RemoveCategoryElmt(elmt)" />
+}
 
+<div class="d-flex flex-column align-items-start gap-4 my-4">
+    <Button Color="ButtonColor.Primary" @onclick="AddCategoryElmt">Add more...</Button>
+    <Button Color="ButtonColor.Primary" @onclick="SaveChangesAsync">Save</Button>
+</div>

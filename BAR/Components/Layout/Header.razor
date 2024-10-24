@@ -1,4 +1,5 @@
 @rendermode InteractiveServer
+@inject NavigationManager NavigationManager
 
 <div class="top-row d-flex mb-3 justify-content-between align-items-center">
     <div class="p-2">
@@ -13,13 +14,19 @@
     <div class="p-2"> 
         <Dropdown Color="DropdownColor.None" Style="background-color: white;">
             <DropdownToggleButton>
-                <ProfileAvatar UserFName="@UserFName" AvatarColor="@AvatarColor"/>
+                <ProfileAvatar UserFName="@UserFName" AvatarColor="@AvatarColor" Size="profile-avatar"/>
             </DropdownToggleButton>
             <DropdownMenu>
                 <DropdownHeader>Hi, @UserFName!</DropdownHeader>
-                <DropdownItem To="/settings" Type="DropdownItemType.Link"><Icon Name="IconName.Gear"/> Settings</DropdownItem>
+                <DropdownItem To="/Account/Manage" Type="DropdownItemType.Link"><Icon Name="IconName.Gear"/> Settings</DropdownItem>
                 <DropdownDivider>Dropdown header</DropdownDivider>
-                <DropdownItem Type="DropdownItemType.Button" @onclick=LogOut><Icon Name="IconName.BoxArrowRight" Color="IconColor.Danger"/> Log out</DropdownItem>
+                <form action="Account/Logout" method="post">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                    <button class="btn dropdown-item" type="submit">
+                    <Icon Name="IconName.BoxArrowRight" Color="IconColor.Danger"/> Log out
+                    </button>
+                </form>
             </DropdownMenu>
         </Dropdown>
     </div>
@@ -64,3 +71,24 @@
         <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Cancel</Button>
     </FooterTemplate>
 </Modal>
+
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}
+

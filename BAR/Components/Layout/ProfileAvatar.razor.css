@@ -11,10 +11,17 @@
     text-transform: uppercase;  
 }
 
-.large {
-    width: 256px;
-    height: 256px;
-    font-size: 72px;
+.profile-avatar-profile {
+    width: 128px;
+    height: 128px;          
+    border-radius: 50%;        
+    display: flex;
+    justify-content: center;   
+    align-items: center;     
+    color: white;      
+    font-size: 36px;       
+    font-weight: bold;     
+    text-transform: uppercase;  
 }
 
 .small {
