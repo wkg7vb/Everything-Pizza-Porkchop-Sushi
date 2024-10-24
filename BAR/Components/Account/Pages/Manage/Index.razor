@@ -25,34 +25,40 @@
         <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-decimaling mb-3">
-                <input type="text" value="@username" class="form-control" placeholder="Please choose your username." disabled />
+            @* Might remove, username may not be a feature *@
+            @* <div class="form-decimaling mb-3">
                 <label for="username" class="form-label">Username</label>
-            </div>
+                <input type="text" value="@username" class="form-control" placeholder="Please choose your username." disabled />
+            </div> *@
             <div class="form-decimaling mb-3">
-                <InputText @bind-Value="Input.FName" class="form-control" placeholder="Please enter your first name." />
                 <label for="first-name" class="form-label">First name</label>
+                <InputText @bind-Value="Input.FName" class="form-control" placeholder="Please enter your first name." />
                 <ValidationMessage For="() => Input.FName" class="text-danger" />
             </div>
             <div class="form-decimaling mb-3">
-                <InputText @bind-Value="Input.LName" class="form-control" placeholder="Please enter your last name." />
                 <label for="last-name" class="form-label">Last name</label>
+                <InputText @bind-Value="Input.LName" class="form-control" placeholder="Please enter your last name." />
                 <ValidationMessage For="() => Input.LName" class="text-danger" />
             </div>
             <div class="form-decimaling mb-3">
-                <h5>Currency Type:</h5>
-                <select @bind="userLocale">
-                    <option value="en-US">US Dollar (USD)</option>
-                    <option value="es-MX">Mexican Peso (MXN)</option>
-                    <option value="en-EU">European Euro (EUR)</option>
-                    <option value="en-GB">Pound Sterling (GBP)</option>
-                </select>
+                <label>
+                    Currency type: <br>
+                    <InputSelect @bind-Value="Input.Locale" class="mt-2">
+                        <option value="en-US">US Dollar (USD)</option>
+                        <option value="es-MX" checked="@(Input.Locale == "es-MX")">Mexican Peso (MXN)</option>
+                        <option value="en-EU" checked="@(Input.Locale == "es-MX")">European Euro (EUR)</option>
+                        <option value="en-GB" checked="@(Input.Locale == "es-MX")">Pound Sterling (GBP)</option>
+                    </InputSelect>
+                </label>
             </div>
             <div class="form-decimaling mb-3">
-                <Switch @bind-Value="Input.Darkmode" Label="Dark mode" class="my-4"/>
+                <label class="mx-1">
+                    <InputCheckbox @bind-Value="Input.Darkmode" class=""/>
+                    Dark mode 
+                </label>
             </div>
-            <div class="form-decimaling mb-3">
-                <Button Color="ButtonColor.Primary" To="/Account/Manage/ChangeAvatarColor" Type="ButtonType.Link">Change avatar color</Button>
+            <div class="form-decimaling mb-4">
+                <Button Color="ButtonColor.Primary" Outline="true" To="/Account/Manage/ChangeAvatarColor" Type="ButtonType.Link">Change avatar color</Button>
             </div>
             @* Might remove, not sure if phone number is needed here *@
             @* <div class="form-decimaling mb-3">
@@ -68,8 +74,8 @@
 @code {
     private ApplicationUser user = default!;
 
-    private string? username;
-    private string? phoneNumber;
+    // private string? username;
+    // private string? phoneNumber;
     private string? userFName;
     private string? userAvatarColor;
     private string? userLocale;
@@ -85,8 +91,8 @@
     protected override async Task OnInitializedAsync()
     {
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
-        username = await UserManager.GetUserNameAsync(user);
-        phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+        // username = await UserManager.GetUserNameAsync(user);
+        // phoneNumber = await UserManager.GetPhoneNumberAsync(user);
         userFName = user.UserFName;
         userAvatarColor = user.UserAvatarColor;
         userLocale = user.UserLocale;
@@ -94,8 +100,10 @@
 
         Input.FName ??= user.UserFName;
         Input.LName ??= user.UserLName;
-        Input.PhoneNumber ??= phoneNumber;
-        Input.Darkmode = userDarkmode;
+        // Input.PhoneNumber ??= phoneNumber;
+        if (Input.Locale == null){
+            Input.Darkmode = userDarkmode;
+        }
         Input.Locale ??= userLocale;
     }
 
@@ -121,9 +129,9 @@
         [Phone]
         [Display(Name = "Phone number")]
         public string? PhoneNumber { get; set; }
+
         public string? FName {get; set;}
         public string? LName {get; set;}
-
         public string Locale {get; set;}
         public bool Darkmode {get; set;}
     }
