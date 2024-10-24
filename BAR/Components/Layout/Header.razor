@@ -33,29 +33,6 @@
 
 </div>
 
-
-
-@code {
-    [Parameter] public string UserFName {get; set;} 
-    [Parameter] public string AvatarColor {get; set;}
-
-    private void LogOut(){
-        // TODO: implement log out functionality
-    }
-
-    private Modal addT;
-
-    private async Task AddTransaction()
-    {
-        await addT?.ShowAsync();
-    }
-
-    private async Task CancelAddTransaction()
-    {
-        await addT?.HideAsync();
-    }
-}
-
 @* Add Transaction popup *@
 <Modal @ref="addT" Title="Add Transaction">
     <BodyTemplate> 
@@ -72,8 +49,22 @@
     </FooterTemplate>
 </Modal>
 
+@code {
+    [Parameter] public string UserFName {get; set;} 
+    [Parameter] public string AvatarColor {get; set;}
+    private Modal addT;
     private string? currentUrl;
 
+    private async Task AddTransaction()
+    {
+        await addT?.ShowAsync();
+    }
+
+    private async Task CancelAddTransaction()
+    {
+        await addT?.HideAsync();
+    }
+    
     protected override void OnInitialized()
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
@@ -91,4 +82,9 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }
+
+
+
+    
+
 
