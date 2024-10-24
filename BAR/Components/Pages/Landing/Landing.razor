@@ -1,4 +1,4 @@
-﻿@page "/landing"
+﻿@page "/"
 @layout BAR.Components.Layout.LandingLayout
 @rendermode InteractiveServer
 
@@ -6,68 +6,59 @@
 
 <div class="container"> 
 
-    <div class="grid">
-        <div class="item">
+    <div class="row">
+        <div class="column">
             <img src="/Images/Buck-Logo.jpeg" asp-append-version="true" style="width: 50%; decimal:left;"/>
         </div>
-        <div class="item">
+        <div class="column">
             <h1>Howdy Partner!</h1>
             <h1>Ready to Budget?</h1>
         </div>
-    </div>
+    </div> <br/>
+
+    <h2>Why choose Buck-a-Roo?</h2>
 
     <div class="grid">
         <Card class="item" Style="width:18rem;">
         <CardBody>
-            <CardTitle>Card title</CardTitle>
-            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
-            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+            <CardTitle>Easy to Use</CardTitle>
+            <CardText>Whether this is your first budget or 100th, BAR will work for you.</CardText>
         </CardBody>
     </Card>
     <Card class="item" Style="width:18rem;">
         <CardBody>
-            <CardTitle>Card title</CardTitle>
-            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
-            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+            <CardTitle>Quick Set Up</CardTitle>
+            <CardText>No unessessary questions and takes 5 minutes to fully set-up.</CardText>
         </CardBody>
     </Card>
     <Card class="item" Style="width:18rem;">
         <CardBody>
-            <CardTitle>Card title</CardTitle>
-            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
-            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+            <CardTitle>No Complex Language</CardTitle>
+            <CardText>Amortization? Working capital? Fungible? Does anyone actually know what any of those mean?</CardText>
         </CardBody>
     </Card>
     <Card class="item" Style="width:18rem;">
         <CardBody>
-            <CardTitle>Card title</CardTitle>
-            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
-            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+            <CardTitle>Advanced Analysis</CardTitle>
+            <CardText>Be able to see as much or as little analysis about your spending habits.</CardText>
         </CardBody>
     </Card>
     <Card class="item" Style="width:18rem;">
         <CardBody>
-            <CardTitle>Card title</CardTitle>
-            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
-            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+            <CardTitle>100% Free</CardTitle>
+            <CardText>We don't hide anything behind a paywall.</CardText>
         </CardBody>
     </Card>
     <Card class="item" Style="width:18rem;">
         <CardBody>
-            <CardTitle>Card title</CardTitle>
-            <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
-            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Go somewhere</Button>
+            <CardTitle>Sounds too good to be true?</CardTitle>
+            <CardText>Create an account in seconds and start rounding up your budget!</CardText>
+            <Button Color="ButtonColor.Primary" To="#" Type="ButtonType.Link">Create Account</Button>
         </CardBody>
     </Card>
-    </div>
+    </div> <br/>
 </div>
 
 @code {
     
-    private int currentCount = 0;
-
-    private void IncrementCount()
-    {
-        currentCount++;
-    }
 }
