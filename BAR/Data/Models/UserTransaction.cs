@@ -8,7 +8,7 @@ public class UserTransaction
     public DateTime TransactionDateTime { get; set; }
     public string TransactionLabel { get; set; }
     public decimal TransactionAmt { get; set; }
-    public string TransasctionCategory { get; set; }
+    public string TransactionCategory { get; set; }
 
     // FK from ApplicationUser
     public string UserId { get; set; }
