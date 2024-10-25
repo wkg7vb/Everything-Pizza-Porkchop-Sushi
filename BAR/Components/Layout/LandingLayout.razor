@@ -1,5 +1,15 @@
 ﻿@inherits LayoutComponentBase
 
+@using System.ComponentModel.DataAnnotations
+@using BAR.Components.Account
+@using Microsoft.AspNetCore.Identity
+@using BAR.Data
+@using BAR.Data.Models
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityUserAccessor UserAccessor
+@inject NavigationManager NavigationManager
+
 <div class="page">
     @* <div class="sidebar">
         <NavMenu />
@@ -22,3 +32,22 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private ApplicationUser user {get; set;} = default!;
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    // On initialized checks if user is authed. If so, redirects to application
+    protected override async Task OnInitializedAsync(){
+        try {
+            user = await UserAccessor.GetRequiredUserAsync(HttpContext); 
+        }
+        catch (Exception e){
+            return;
+        }
+        if (user is not null){
+            NavigationManager.NavigateTo("/home");
+        }
+    }
+}

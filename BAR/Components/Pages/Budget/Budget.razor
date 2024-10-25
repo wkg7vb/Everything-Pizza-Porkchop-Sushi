@@ -1,6 +1,7 @@
 @page "/budget"
 
 @rendermode InteractiveServer
+@attribute [Authorize]
 
 @inject IdentityUserAccessor UserAccessor
 @inject UserManager<ApplicationUser> UserManager

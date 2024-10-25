@@ -8,6 +8,7 @@
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityUserAccessor UserAccessor
+@inject NavigationManager NavigationManager
 
 
 <div class="page">
@@ -19,7 +20,9 @@
         <Header UserFName="@UserFName" AvatarColor="@UserAvatarColor"/>
         
         <article class="content px-4">
-            @Body
+            <CascadingValue Value="user">
+                @Body
+            </CascadingValue>
         </article>
     </main>
 </div>
@@ -36,7 +39,22 @@
     private string UserAvatarColor = "#E5A000";
     // TODO: pull in stylesheet based on this value
     private bool UserDarkMode = false;
+    private ApplicationUser user {get; set;} = default!;
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
 
     // Pull user from db
-    
+    protected override async Task OnInitializedAsync(){
+        try{
+            user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        }
+        catch {
+            return;
+        }
+        if (user is not null){
+            UserFName = user!.UserFName;
+            UserDarkMode = user!.UserDarkmode;
+            UserAvatarColor = user!.UserAvatarColor;
+        }
+    }
 }

@@ -3,7 +3,7 @@
 
 <div class="top-row d-flex flex-row mb-3 justify-content-between align-items-center">
     <div class="p-2">
-        @if(Authed){
+        @if(user is not null){
             imageRedir = "/home";
         }
         else{
@@ -85,7 +85,8 @@
     private Modal addT;
     private string? currentUrl;
     private string imageRedir;
-    private bool Authed;
+    [CascadingParameter]
+    private ApplicationUser user {get; set;} = default!;
 
     private async Task AddTransaction()
     {
