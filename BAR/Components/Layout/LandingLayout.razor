@@ -6,9 +6,9 @@
 @using BAR.Data
 @using BAR.Data.Models
 
-@inject UserManager<ApplicationUser> UserManager
-@inject IdentityUserAccessor UserAccessor
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IdentityRedirectManager RedirectManager
 
 <div class="page">
     @* <div class="sidebar">
@@ -34,20 +34,22 @@
 </div>
 
 @code {
-    private ApplicationUser user {get; set;} = default!;
-    [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
+    private bool isAuthed;
 
     // On initialized checks if user is authed. If so, redirects to application
     protected override async Task OnInitializedAsync(){
+        await base.OnInitializedAsync();
         try {
-            user = await UserAccessor.GetRequiredUserAsync(HttpContext); 
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity.IsAuthenticated){
+                isAuthed = true;
+            }
         }
-        catch (Exception e){
+        catch {
             return;
         }
-        if (user is not null){
-            NavigationManager.NavigateTo("/home");
+        if (isAuthed){
+            NavigationManager.NavigateTo("/home", true);
         }
     }
 }

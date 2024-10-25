@@ -11,9 +11,9 @@ namespace BAR.Components.Pages.Budget;
 
 public partial class Budget
 {
-    // Vars
     // User vars from db (init'd inside OnInitialiedAsync)
-    private ApplicationUser user = default!;
+    [CascadingParameter]
+    private ApplicationUser user {get; set;} = default!;
     private UserBudget bdgt;
 
     // Local vars
@@ -41,13 +41,6 @@ public partial class Budget
     // TODO: look at how to prevent the render code from running twice
     protected override async Task OnInitializedAsync()
     {
-        // Attain authenticaiton state and user
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var claimsPrincipal = authState.User;
-        if (claimsPrincipal.Identity.IsAuthenticated){
-            user = await UserManager.GetUserAsync(claimsPrincipal);
-        }
-
         // Init local vars from db
         if (user is not null)
         {

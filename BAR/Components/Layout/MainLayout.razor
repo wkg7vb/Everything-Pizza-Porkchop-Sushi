@@ -7,8 +7,8 @@
 @using BAR.Data.Models
 
 @inject UserManager<ApplicationUser> UserManager
-@inject IdentityUserAccessor UserAccessor
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 
 <div class="page">
@@ -34,27 +34,45 @@
 </div>
 
 @code {
-    // Local vars for userdata
-    private string UserFName = "Rootin";
-    private string UserAvatarColor = "#E5A000";
-    // TODO: pull in stylesheet based on this value
-    private bool UserDarkMode = false;
+    // Master user from db
     private ApplicationUser user {get; set;} = default!;
     [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
+    HttpContext context {get; set;} = default!;
+    // Local vars for userdata
+    private string UserFName;
+    private string UserAvatarColor;
+    // TODO: pull in stylesheet based on this value
+    private bool UserDarkMode;
+    @* [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!; *@
 
     // Pull user from db
     protected override async Task OnInitializedAsync(){
-        try{
-            user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        await base.OnInitializedAsync();
+        try {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity.IsAuthenticated){
+                user = await UserManager.GetUserAsync(authState.User);
+            }
+            else {
+                throw new Exception("You must be logged in to see this page.");
+            }
         }
-        catch {
-            return;
+        catch (Exception e) {
+            context.Response.Cookies.Append("Identity.StatusMessage", e.Message, StatusCookieBuilder.Build(context));
         }
         if (user is not null){
-            UserFName = user!.UserFName;
-            UserDarkMode = user!.UserDarkmode;
-            UserAvatarColor = user!.UserAvatarColor;
+            UserFName = user.UserFName;
+            UserDarkMode = user.UserDarkmode;
+            UserAvatarColor = user.UserAvatarColor;
         }
     }
-}
+
+    private static readonly CookieBuilder StatusCookieBuilder = new()
+        {
+            SameSite = SameSiteMode.Strict,
+            HttpOnly = true,
+            IsEssential = true,
+            MaxAge = TimeSpan.FromSeconds(5),
+        };
+} 
