@@ -10,20 +10,19 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
 
     <main>
-        <Header UserFName="@UserFName" AvatarColor="@UserAvatarColor"/>
-        
-        <article class="content px-4">
-            <CascadingValue Value="user">
+        @if (user is not null){
+            <Header UserFName="@UserFName" AvatarColor="@UserAvatarColor"/>
+            
+            <article class="content px-4">
                 @Body
-            </CascadingValue>
-        </article>
+            </article>
+        }
     </main>
 </div>
 
@@ -36,6 +35,7 @@
 @code {
     // Master user from db
     private ApplicationUser user {get; set;} = default!;
+
     [CascadingParameter]
     HttpContext context {get; set;} = default!;
     // Local vars for userdata

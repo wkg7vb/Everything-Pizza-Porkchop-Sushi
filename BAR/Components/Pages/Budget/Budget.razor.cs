@@ -12,9 +12,8 @@ namespace BAR.Components.Pages.Budget;
 public partial class Budget
 {
     // User vars from db (init'd inside OnInitialiedAsync)
-    [CascadingParameter]
-    private ApplicationUser user {get; set;} = default!;
     private UserBudget bdgt;
+    private ApplicationUser user {get; set;} = default!;
 
     // Local vars
     private string userCurrencyLocale {get; set;}
@@ -37,44 +36,45 @@ public partial class Budget
 
     // Functions
     // Runs when page is loaded, pseudo "constructor"-like function
-    // Runs twice on interactive pages
-    // TODO: look at how to prevent the render code from running twice
     protected override async Task OnInitializedAsync()
     {
-        // Init local vars from db
+        await base.OnInitializedAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated){
+            user = await UserManager.GetUserAsync(authState.User);
+        }
         if (user is not null)
         {
             userCurrencyLocale = user.UserLocale;
             bdgt = await dbContext.UserBudgets.SingleOrDefaultAsync(p => p.UserId == user.Id);
+
+            if (bdgt is not null)
+            {
+                if (bdgt.HousingAmt is not null) AddCategoryElmt(type: "Housing", amt: bdgt.HousingAmt);
+                if (bdgt.BillsUtilsAmt is not null) AddCategoryElmt(type: "Bills/Utilities", amt: bdgt.BillsUtilsAmt);
+                if (bdgt.GroceryDiningAmt is not null) AddCategoryElmt(type: "Grocery/Dining", amt: bdgt.GroceryDiningAmt);
+                if (bdgt.TransportAmt is not null) AddCategoryElmt(type: "Transportation", amt: bdgt.TransportAmt);            
+                if (bdgt.EducationAmt is not null) AddCategoryElmt(type: "Education", amt: bdgt.EducationAmt);
+                if (bdgt.DebtAmt is not null) AddCategoryElmt(type: "Debt", amt: bdgt.DebtAmt);
+                if (bdgt.EntertainmentAmt is not null) AddCategoryElmt(type: "Entertainment", amt: bdgt.EntertainmentAmt);
+                if (bdgt.ShoppingAmt is not null) AddCategoryElmt(type: "Shopping", amt: bdgt.ShoppingAmt);
+                if (bdgt.MedicalAmt is not null) AddCategoryElmt(type: "Medical", amt: bdgt.MedicalAmt);
+                if (bdgt.InvestingAmt is not null) AddCategoryElmt(type: "Investing", amt: bdgt.InvestingAmt);
+                if (bdgt.MiscAmt is not null) AddCategoryElmt(type: "Miscellaneous", amt: bdgt.MiscAmt);
+                if (elmts.Count() == 0 && bdgt.AllCategoriesNull) AddCategoryElmt();
+            }
+            // Initialize a generic category cell when no user data is available
+            else
+            {
+                bdgt = new UserBudget{
+                    UserId = user.Id,
+                    User = user
+                };
+                await dbContext.UserBudgets.AddAsync(bdgt);
+                await dbContext.SaveChangesAsync();
+            }
         }
         else throw new Exception("Invalid user.");
-        
-        // Populate elmts list from db
-        if (bdgt is not null)
-        {
-            if (bdgt.HousingAmt is not null) AddCategoryElmt(type: "Housing", amt: bdgt.HousingAmt);
-            if (bdgt.BillsUtilsAmt is not null) AddCategoryElmt(type: "Bills/Utilities", amt: bdgt.BillsUtilsAmt);
-            if (bdgt.GroceryDiningAmt is not null) AddCategoryElmt(type: "Grocery/Dining", amt: bdgt.GroceryDiningAmt);
-            if (bdgt.TransportAmt is not null) AddCategoryElmt(type: "Transportation", amt: bdgt.TransportAmt);            
-            if (bdgt.EducationAmt is not null) AddCategoryElmt(type: "Education", amt: bdgt.EducationAmt);
-            if (bdgt.DebtAmt is not null) AddCategoryElmt(type: "Debt", amt: bdgt.DebtAmt);
-            if (bdgt.EntertainmentAmt is not null) AddCategoryElmt(type: "Entertainment", amt: bdgt.EntertainmentAmt);
-            if (bdgt.ShoppingAmt is not null) AddCategoryElmt(type: "Shopping", amt: bdgt.ShoppingAmt);
-            if (bdgt.MedicalAmt is not null) AddCategoryElmt(type: "Medical", amt: bdgt.MedicalAmt);
-            if (bdgt.InvestingAmt is not null) AddCategoryElmt(type: "Investing", amt: bdgt.InvestingAmt);
-            if (bdgt.MiscAmt is not null) AddCategoryElmt(type: "Miscellaneous", amt: bdgt.MiscAmt);
-            if (elmts.Count() == 0 && bdgt.AllCategoriesNull) AddCategoryElmt();
-        }
-        // Initialize a generic category cell when no user data is available
-        else
-        {
-            bdgt = new UserBudget{
-                UserId = user.Id,
-                User = user
-            };
-            await dbContext.UserBudgets.AddAsync(bdgt);
-            await dbContext.SaveChangesAsync();
-        }
     }
 
     // Add an element into elmts to be rendered
