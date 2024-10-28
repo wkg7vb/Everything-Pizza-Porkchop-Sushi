@@ -1,5 +1,6 @@
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="top-row d-flex mb-3 justify-content-between align-items-center">
     <div class="p-2">
@@ -36,12 +37,24 @@
 @* Add Transaction popup *@
 <Modal @ref="addT" Title="Add Transaction">
     <BodyTemplate> 
+        Date:
+        <div class="mb-3">
+            <DateInput TValue="DateOnly" @bind-Value="@date1" Placeholder="Enter Date" />
+        </div>
+            <div class="mb-3">Entered date: @date1</div> 
         Label:
         <input type="text" class="mt-2"/> <br>
-        Amount (selected currency):
-        <input type="text" class="mt-2"/> <br>
+        Amount:
+        <input type="text" class="mt-2"/> <br> <br>
         Category:
-        <input type="text" class="mt-2"/> <br>
+        <Dropdown Color="DropdownColor.Secondary">
+            <DropdownToggleButton>Add Category</DropdownToggleButton>
+            <DropdownMenu>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Food</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">ETC</DropdownItem>
+            </DropdownMenu>
+        </Dropdown> <br>
     </BodyTemplate>
     <FooterTemplate>
         <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Add</Button>
@@ -50,7 +63,7 @@
 </Modal>
 
 @code {
-    [Parameter] public string UserFName {get; set;} 
+   [Parameter] public string UserFName {get; set;} 
     [Parameter] public string AvatarColor {get; set;}
     private Modal addT;
     private string? currentUrl;
@@ -64,6 +77,8 @@
     {
         await addT?.HideAsync();
     }
+
+    private DateOnly date1 = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
     
     protected override void OnInitialized()
     {
@@ -81,6 +96,9 @@
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
+
+    // Vars
+    // database stuff still tbd
 }
 
 
