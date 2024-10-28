@@ -1,0 +1,76 @@
+@page "/transactions"
+@rendermode InteractiveServer
+
+@*
+    User will be able to veiw, edit and remove UserTransactions
+*@
+
+<PageTitle>Transaction History</PageTitle>
+
+<h1>
+    Transaction History
+</h1>
+
+<Grid TItem="UserTransaction"
+      Class="table table-hover table-bordered table-striped"
+      DataProvider="UserTransactionDataProvider"
+      AllowFiltering="true"
+      AllowPaging="true"
+      AllowSorting="true">
+
+    <GridColumns>
+        <!--last 30 or this month-->
+        <GridColumn TItem="UserTransaction" HeaderText="Time/Date" PropertyName="TimeStamp" FilterOperator="FilterOperator.GreaterThanOrEquals" FilterValue="0">
+            @context.TransactionDateTime
+        </GridColumn>
+
+        <GridColumn TItem="UserTransaction" HeaderText="Label" PropertyName="Label">
+            @context.TransactionLabel
+        </GridColumn>
+
+        <GridColumn TItem="UserTransaction" HeaderText="Category" PropertyName="Category">
+            @context.TransactionCategory
+        </GridColumn>
+
+        <GridColumn TItem="UserTransaction" HeaderText="Amount" PropertyName="Amount">
+            @context.TransactionAmt
+        </GridColumn>
+    </GridColumns>
+
+</Grid>
+
+@code {
+    private IEnumerable<UserTransaction>? UserTransactions;
+
+
+
+    private async Task<GridDataProviderResult<UserTransaction>> UserTransactionDataProvider(GridDataProviderRequest<UserTransaction> request)
+
+    {
+
+        if (UserTransactions is null) // pull only one time for client-side filtering, sorting, and paging
+
+            UserTransactions = GetUserTransactions(); // call a service or an API to pull
+
+
+
+        return await Task.FromResult(request.ApplyTo(UserTransactions));
+
+    }
+
+
+
+    private IEnumerable<UserTransaction> GetUserTransactions()
+
+    {
+
+        return new List<UserTransaction>
+
+        {
+
+            //FIXME
+
+        };
+
+    }
+}
