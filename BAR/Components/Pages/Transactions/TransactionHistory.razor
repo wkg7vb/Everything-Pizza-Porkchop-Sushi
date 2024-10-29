@@ -1,3 +1,9 @@
+@using BAR.Data
+@using BAR.Data.Models;
+@using BAR.Data.Services;
+@using BAR.Data.Controllers;
+@using BAR.Data.Interfaces;
+
 @page "/transactions"
 @rendermode InteractiveServer
 
@@ -11,66 +17,58 @@
     Transaction History
 </h1>
 
-<Grid TItem="UserTransaction"
-      Class="table table-hover table-bordered table-striped"
-      DataProvider="UserTransactionDataProvider"
-      AllowFiltering="true"
-      AllowPaging="true"
-      AllowSorting="true">
+@if (UserTransactions == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Label</th>
+                <th>Amount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var UserTransaction in UserTransactions)
+            {
+                <tr>
+                    <td>@UserTransaction.TransactionDateTime</td>
+                    <td>@UserTransaction.TransactionCategory</td>
+                    <td>@UserTransaction.TransactionLabel</td>
+                    <td>@UserTransaction.TransactionAmt</td>
+                    <td>
+                        <button class="btn btn-edit btn-sm" @onclick="() => UpdateModal(UserTransaction.TransactionId)">Update</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteConfirm(UserTransaction.TransactionId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-    <GridColumns>
-        <!--last 30 or this month-->
-        <GridColumn TItem="UserTransaction" HeaderText="Time/Date" PropertyName="TimeStamp" FilterOperator="FilterOperator.GreaterThanOrEquals" FilterValue="0">
-            @context.TransactionDateTime
-        </GridColumn>
-
-        <GridColumn TItem="UserTransaction" HeaderText="Label" PropertyName="Label">
-            @context.TransactionLabel
-        </GridColumn>
-
-        <GridColumn TItem="UserTransaction" HeaderText="Category" PropertyName="Category">
-            @context.TransactionCategory
-        </GridColumn>
-
-        <GridColumn TItem="UserTransaction" HeaderText="Amount" PropertyName="Amount">
-            @context.TransactionAmt
-        </GridColumn>
-    </GridColumns>
-
-</Grid>
+    <ConfirmDialog @ref="deltrans"/>
+}
 
 @code {
-    private IEnumerable<UserTransaction>? UserTransactions;
+    private List<UserTransaction> UserTransactions;
 
-
-
-    private async Task<GridDataProviderResult<UserTransaction>> UserTransactionDataProvider(GridDataProviderRequest<UserTransaction> request)
-
+    protected async Task OnInitiallizedAsync()
     {
+        UserTransactions = await GetTransactions();
+    }
 
-        if (UserTransactions is null) // pull only one time for client-side filtering, sorting, and paging
-
-            UserTransactions = GetUserTransactions(); // call a service or an API to pull
-
-
-
-        return await Task.FromResult(request.ApplyTo(UserTransactions));
+    private void UpdateModal(UserTransaction transaction)
+    {
+        _dbContext.UserTransactions.Add(transaction);
 
     }
 
-
-
-    private IEnumerable<UserTransaction> GetUserTransactions()
-
+    private async Task DeleteTransaction(int TID)
     {
-
-        return new List<UserTransaction>
-
-        {
-
-            //FIXME
-
-        };
-
+        await TransactoinManager
     }
 }
