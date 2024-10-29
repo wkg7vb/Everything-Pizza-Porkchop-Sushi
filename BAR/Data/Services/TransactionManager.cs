@@ -42,7 +42,7 @@ namespace BAR.Data.Services
             try
             {
                 UserTransaction? transaction = _dbContext.UserTransactions.Find(tid);
-                if (_dbContext.UserTransactions != null)
+                if (transaction != null)
                 {
                     return transaction;
                 }
