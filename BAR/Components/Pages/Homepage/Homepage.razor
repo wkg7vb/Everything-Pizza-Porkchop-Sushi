@@ -1,0 +1,35 @@
+﻿@page "/home"
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+<h1 style="text-align: center; padding-bottom: 50px;">Howdy Rootin Roo!</h1>
+
+<div style="display: grid; grid-template-columns: auto auto; gap 10px; text-align: center;">
+    <Card Style="width:18rem;">
+        <CardBody Style="text-align: center">
+
+            <!--Implement a temporary random function for the money amount-->
+            <CardTitle>@randomMoneyAmount</CardTitle>      
+            <CardSubTitle Class="mb-2 text-muted">September Total</CardSubTitle>
+        </CardBody>
+    </Card>
+
+    <Card Style="width:18rem;">
+        <CardBody Style="text-align: center">
+
+            <!--Implement a temporary random function for the money amount-->
+            <CardTitle>@randomMoneyAmount</CardTitle>
+            <CardSubTitle Class="mb-2 text-muted">Over Monthly Budget</CardSubTitle>
+        </CardBody>
+    </Card>
+</div>
+
+
+<div style="padding-top: 50px; padding-bottom: 50px;">
+    <DoughnutChart @ref="doughnutChart" Width="500" />
+</div>
+
+
+
+
+
