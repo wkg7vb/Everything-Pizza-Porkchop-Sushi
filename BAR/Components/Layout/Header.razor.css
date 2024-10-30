@@ -1,12 +1,22 @@
 .top-row {
     background-color: #2C3554;
-    border-bottom: 1px solid #2C3554;
+    border-bottom: 1px solid #1e2335;
     height: 128px;
     width: 100%;
+}
+
+.center-col{
+    flex: 1;
 }
 
 .add {
     text-align: right; 
     width: 100%;
-    padding-right: 50px;
+    padding-right: 25px;
+}
+
+.register {
+    text-align: right; 
+    width: 100%;
+    padding-right: 25px;
 }
