@@ -72,12 +72,16 @@ else
     //dependency injection
     private readonly TransactionManager transactionManager;
 
+    public TransactionHistory()
+    {
+        transactionManager = _transactionManager;
+    }
+
     [Inject] ToastService toastService { get; set; } = default!;
 
     //methods
     protected override async Task OnInitializedAsync()
     {
-        AddSingle();
         userTransactions = await transactionManager.GetTransactions();
     }
 
