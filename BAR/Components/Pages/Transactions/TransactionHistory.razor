@@ -3,7 +3,12 @@
 @using BAR.Data.Services;
 @using Microsoft.AspNetCore.Http;
 @using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Identity;
 @inject ITransaction TransactionManager;
+@inject UserManager<ApplicationUser> UserManager;
+@inject ApplicationDbContext dbContext;
+@inject AuthenticationStateProvider AuthenticationStateProvider;
+@attribute [Authorize];
 
 @page "/transactions"
 @rendermode InteractiveServer
@@ -74,7 +79,12 @@ else
     //methods
     protected override async Task OnInitializedAsync()
     {
-        AddSingle();
+        await base.OnInitializedAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            user = await UserManager.GetUserAsync(authState.User);
+        }
         userTransactions = await TransactionManager.GetTransactions();
     }
 
@@ -117,14 +127,13 @@ else
     private async void AddSingle()
     {
         UserTransaction temp = new UserTransaction();
-        temp.TransactionId = 0;
+
         temp.TransactionDateTime = new DateTime(2024, 10, 31);
         temp.TransactionLabel = "Rent";
         temp.TransactionAmt = 700.0m;
         temp.TransactionCategory = "Housing";
 
-        var uid = "94f203fb - 03d3 - 480c - b12f - 2313bd37e55e";
-        temp.UserId = uid;
+        temp.UserId = user.Id;
         temp.User = user;
 
         await TransactionManager.AddTransaction(temp);
