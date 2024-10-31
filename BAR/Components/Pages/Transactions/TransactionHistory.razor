@@ -19,6 +19,8 @@
     Transaction History
 </h1>
 
+@* Transactions List*@
+
 @if (userTransactions == null)
 {
     <p><em>Loading...</em></p>
@@ -44,26 +46,37 @@ else
                     <td>@UserTransaction.TransactionLabel</td>
                     <td>@UserTransaction.TransactionAmt</td>
                     <td>
-                        <button class="btn btn-edit btn-sm" @onclick="() => UpdateModal(UserTransaction)">Update</button>
-                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteConfirm(UserTransaction.TransactionId)">Delete</button>
+                        <button class="btn btn-edit btn-sm" @onclick="() => ShowUpdateModal(UserTransaction)">Update</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => ShowDeleteConfirm(UserTransaction.TransactionId)">Delete</button>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 
+    @* Update Transaction Modal *@
     <Modal @ref="updatemodal"/>
 
+    @* Delete Transaction Dialog *@
     <ConfirmDialog @ref="deletedialog"/>
 }
 
 @code {
     //vars
     private List<UserTransaction> userTransactions;
+    
+    
 
-    private ConfirmDialog deletedialog = default!;
 
-    private Modal updatemodal = default!;
+    //dependency injection
+    private readonly TransactionManager _transactionManager;
+
+    public TransactionHistory(TransactionManager TransactionManager)
+    {
+        _transactionManager = TransactionManager;
+    }
+
+    [Inject] ToastService ToastService { get; set; } = default!;
 
     //methods
     protected override async Task OnInitializedAsync()
@@ -77,14 +90,32 @@ else
         userTransactions = await TransactionManager.GetTransactions();
     }
 
-    //ui
-    private void UpdateModal(UserTransaction transaction)
+    //update modal
+    private Modal updatemodal = default!;
+    private void ShowUpdateModal(UserTransaction transaction)
     {
 
     }
 
-    private void DeleteConfirm(int TID)
+    //delete dialog
+    private ConfirmDialog deletedialog = default!;
+    private async void ShowDeleteConfirm(int tid)
     {
-        
+        var confirmation = await deletedialog.ShowAsync(
+            title: "Are you sure you want to delete this transaction?",
+            message1: "This action cannot be undone.",
+            message2: "Do you want to proceed?");
+
+        if (confirmation)
+        {
+            //delete transaction
+            await TransactionManager.DeleteTransaction(tid);
+            ToastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
+        }
+        else
+        {
+            // do nothing
+            ToastService.Notify(new ToastMessage(ToastType.Secondary, $"Transaction not deleted."));
+        }
     }
 }
