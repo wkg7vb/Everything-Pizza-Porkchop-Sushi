@@ -4,7 +4,7 @@
 @using BAR.Data.Interfaces;
 @using Microsoft.AspNetCore.Http;
 @using Microsoft.AspNetCore.Mvc;
-@inject TransactionManager transactionManager;
+@inject TransactionManager _transactionManager;
 
 @page "/transactions"
 @rendermode InteractiveServer
@@ -70,9 +70,9 @@ else
     private List<UserTransaction> userTransactions;
 
     //dependency injection
-    private readonly TransactionManager _transactionManager;
+    private readonly TransactionManager transactionManager;
 
-    [Inject] ToastService ToastService { get; set; } = default!;
+    [Inject] ToastService toastService { get; set; } = default!;
 
     //methods
     protected override async Task OnInitializedAsync()
@@ -107,12 +107,12 @@ else
         {
             //delete transaction
             await transactionManager.DeleteTransaction(tid);
-            ToastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
+            toastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
         }
         else
         {
             // do nothing
-            ToastService.Notify(new ToastMessage(ToastType.Secondary, $"Transaction not deleted."));
+            toastService.Notify(new ToastMessage(ToastType.Secondary, $"Transaction not deleted."));
         }
     }
 
@@ -127,7 +127,7 @@ else
         temp.TransactionCategory = "Housing";
 
         var uid = "94f203fb - 03d3 - 480c - b12f - 2313bd37e55e";
-        temp.UserId = uid;
+        temp.UserId = default!;
         temp.User = default!;
 
         await transactionManager.AddTransaction(temp);
