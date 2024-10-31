@@ -74,6 +74,7 @@ else
     //methods
     protected override async Task OnInitializedAsync()
     {
+        AddSingle();
         userTransactions = await TransactionManager.GetTransactions();
     }
 
@@ -123,8 +124,8 @@ else
         temp.TransactionCategory = "Housing";
 
         var uid = "94f203fb - 03d3 - 480c - b12f - 2313bd37e55e";
-        temp.UserId = default!;
-        temp.User = default!;
+        temp.UserId = uid;
+        temp.User = user;
 
         await TransactionManager.AddTransaction(temp);
     }
