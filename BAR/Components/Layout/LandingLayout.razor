@@ -1,20 +1,25 @@
 ﻿@inherits LayoutComponentBase
 
+@using System.ComponentModel.DataAnnotations
+@using BAR.Components.Account
+@using Microsoft.AspNetCore.Identity
+@using BAR.Data
+@using BAR.Data.Models
+
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IdentityRedirectManager RedirectManager
+
 <div class="page">
-    <div class="sidebar">
+    @* <div class="sidebar">
         <NavMenu />
-    </div>
+    </div> *@
 
     <main>
+        <Header />
+        @* <div class="top-row d-flex mb-3 justify-content-between align-items-center">
+        </div> *@
 
-    <div class="top-row d-flex mb-3 justify-content-between align-items-center">
-    <div class="p-2">
-        <a href="/">
-            <img src="/Images/Smooth-BAR-Logo-100.png">
-        </a>
-    </div>
-
-    </div>
         <article class="content px-4">
             @Body
         </article>
@@ -27,3 +32,24 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private bool isAuthed;
+
+    // On initialized checks if user is authed. If so, redirects to application
+    protected override async Task OnInitializedAsync(){
+        await base.OnInitializedAsync();
+        try {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity.IsAuthenticated){
+                isAuthed = true;
+            }
+        }
+        catch {
+            return;
+        }
+        if (isAuthed){
+            NavigationManager.NavigateTo("/home", true);
+        }
+    }
+}

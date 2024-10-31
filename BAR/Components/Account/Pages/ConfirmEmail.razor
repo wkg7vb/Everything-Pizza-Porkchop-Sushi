@@ -14,6 +14,12 @@
 <h1>Confirm email</h1>
 <StatusMessage Message="@statusMessage" />
 
+@if (statusMessage == "Thank you for confirming your email."){
+    <Button Type="ButtonType.Link" To="Account/Login" Color="ButtonColor.Primary">
+        Login
+    </Button>
+}
+
 @code {
     private string? statusMessage;
 
