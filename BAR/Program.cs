@@ -2,9 +2,11 @@ using BAR.Components;
 using BAR.Components.Account;
 using BAR.Data;
 using BAR.Data.Models;
+using BAR.Data.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using BAR.Components.Pages.Transactions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,8 +33,21 @@ builder.Services.AddAuthentication(options =>
     .AddIdentityCookies();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+//dbContexts
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+builder.Services.AddDbContext<TransactionDbContext>(options =>
+   options.UseSqlServer(connectionString));
+
+//services registration
+builder.Services.AddScoped<TransactionManager>();
+
+builder.Services.AddScoped<TransactionHistory>();
+
+builder.Services.AddTransient<ITransaction, TransactionManager>();
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)

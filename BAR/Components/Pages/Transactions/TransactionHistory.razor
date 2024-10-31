@@ -1,3 +1,15 @@
+@using BAR.Data
+@using BAR.Data.Models;
+@using BAR.Data.Services;
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Identity;
+@inject ITransaction TransactionManager;
+@inject UserManager<ApplicationUser> UserManager;
+@inject ApplicationDbContext dbContext;
+@inject AuthenticationStateProvider AuthenticationStateProvider;
+@attribute [Authorize];
+
 @page "/transactions"
 @rendermode InteractiveServer
 
@@ -11,66 +23,119 @@
     Transaction History
 </h1>
 
-<Grid TItem="UserTransaction"
-      Class="table table-hover table-bordered table-striped"
-      DataProvider="UserTransactionDataProvider"
-      AllowFiltering="true"
-      AllowPaging="true"
-      AllowSorting="true">
+@* Transactions List*@
 
-    <GridColumns>
-        <!--last 30 or this month-->
-        <GridColumn TItem="UserTransaction" HeaderText="Time/Date" PropertyName="TimeStamp" FilterOperator="FilterOperator.GreaterThanOrEquals" FilterValue="0">
-            @context.TransactionDateTime
-        </GridColumn>
+@if (userTransactions == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Label</th>
+                <th>Amount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var UserTransaction in userTransactions)
+            {
+                @if(UserTransaction.UserId == user.Id)
+                {
+                    <tr>
+                        <td>@UserTransaction.TransactionDateTime</td>
+                        <td>@UserTransaction.TransactionCategory</td>
+                        <td>@UserTransaction.TransactionLabel</td>
+                        <td>@UserTransaction.TransactionAmt</td>
+                        <td>
+                            <button class="btn btn-edit btn-sm" @onclick="() => ShowUpdateModal(UserTransaction)">Update</button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => ShowDeleteConfirm(UserTransaction.TransactionId)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 
-        <GridColumn TItem="UserTransaction" HeaderText="Label" PropertyName="Label">
-            @context.TransactionLabel
-        </GridColumn>
+    @* Update Transaction Modal *@
+    <Modal @ref="updatemodal"/>
 
-        <GridColumn TItem="UserTransaction" HeaderText="Category" PropertyName="Category">
-            @context.TransactionCategory
-        </GridColumn>
-
-        <GridColumn TItem="UserTransaction" HeaderText="Amount" PropertyName="Amount">
-            @context.TransactionAmt
-        </GridColumn>
-    </GridColumns>
-
-</Grid>
+    @* Delete Transaction Dialog *@
+    <ConfirmDialog @ref="deletedialog"/>
+}
 
 @code {
-    private IEnumerable<UserTransaction>? UserTransactions;
+    //vars
+    private ApplicationUser user = default!;
+    private List<UserTransaction> userTransactions = default!;
 
+    //dependency injection
+    [Inject] ToastService toastService { get; set; } = default!;
 
-
-    private async Task<GridDataProviderResult<UserTransaction>> UserTransactionDataProvider(GridDataProviderRequest<UserTransaction> request)
-
+    //methods
+    protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            user = await UserManager.GetUserAsync(authState.User);
+        }
+        userTransactions = await TransactionManager.GetTransactions();
+    }
 
-        if (UserTransactions is null) // pull only one time for client-side filtering, sorting, and paging
+    private async Task DelTrans(int tid)
+    {
+        await TransactionManager.DeleteTransaction(tid);
+        userTransactions = await TransactionManager.GetTransactions();
+    }
 
-            UserTransactions = GetUserTransactions(); // call a service or an API to pull
-
-
-
-        return await Task.FromResult(request.ApplyTo(UserTransactions));
+    //update modal
+    private Modal updatemodal = default!;
+    private void ShowUpdateModal(UserTransaction transaction)
+    {
 
     }
 
-
-
-    private IEnumerable<UserTransaction> GetUserTransactions()
-
+    //delete dialog
+    private ConfirmDialog deletedialog = default!;
+    private async void ShowDeleteConfirm(int tid)
     {
+        var confirmation = await deletedialog.ShowAsync(
+            title: "Are you sure you want to delete this transaction?",
+            message1: "This action cannot be undone.",
+            message2: "Do you want to proceed?");
 
-        return new List<UserTransaction>
-
+        if (confirmation)
         {
+            //delete transaction
+            await TransactionManager.DeleteTransaction(tid);
+            toastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
+        }
+        else
+        {
+            // do nothing
+            toastService.Notify(new ToastMessage(ToastType.Secondary, $"Transaction not deleted."));
+        }
+    }
 
-            //FIXME
+    //for devs only do not call
+    private async void AddSingle()
+    {
+        UserTransaction temp = new UserTransaction();
 
-        };
+        temp.TransactionDateTime = new DateTime(2024, 10, 31);
+        temp.TransactionLabel = "Rent";
+        temp.TransactionAmt = 700.0m;
+        temp.TransactionCategory = "Housing";
 
+        temp.UserId = user.Id;
+        temp.User = user;
+
+        await TransactionManager.AddTransaction(temp);
     }
 }
