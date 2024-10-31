@@ -1,10 +1,10 @@
 @using BAR.Data
 @using BAR.Data.Models;
 @using BAR.Data.Services;
-@using BAR.Data.Controllers;
 @using BAR.Data.Interfaces;
 @using Microsoft.AspNetCore.Http;
 @using Microsoft.AspNetCore.Mvc;
+@inject TransactionManager TransactionManager;
 
 @page "/transactions"
 @rendermode InteractiveServer
@@ -44,7 +44,7 @@ else
                     <td>@UserTransaction.TransactionLabel</td>
                     <td>@UserTransaction.TransactionAmt</td>
                     <td>
-                        <button class="btn btn-edit btn-sm" @onclick="() => UpdateModal(UserTransaction.TransactionId)">Update</button>
+                        <button class="btn btn-edit btn-sm" @onclick="() => UpdateModal(UserTransaction)">Update</button>
                         <button class="btn btn-danger btn-sm" @onclick="() => DeleteConfirm(UserTransaction.TransactionId)">Delete</button>
                     </td>
                 </tr>
@@ -66,8 +66,14 @@ else
     private Modal updatemodal = default!;
 
     //methods
-    protected async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
+        userTransactions = await TransactionManager.GetTransactions();
+    }
+
+    private async Task DelTrans(int tid)
+    {
+        await TransactionManager.DeleteTransaction(tid);
         userTransactions = await TransactionManager.GetTransactions();
     }
 
@@ -77,20 +83,8 @@ else
 
     }
 
-    private async Task DeleteConfirm(int TID)
+    private void DeleteConfirm(int TID)
     {
-        var confirmation = await deletedialog.ShowAsync(
-            title: "Are you sure you want to delete this transaciton?",
-            message1: "This transaction cannot be recovered.",
-            message2: "Do you want to proceed?");
-
-        if (confirmation)
-        {
-            DeleteTransaction(TID);
-        }
-        else
-        {
-            //close dialog and do nothing
-        }
+        
     }
 }

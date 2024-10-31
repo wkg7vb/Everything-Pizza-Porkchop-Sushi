@@ -1,92 +1,51 @@
 ﻿using BAR.Data.Interfaces;
 using BAR.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 
 namespace BAR.Data.Services
 {
     public class TransactionManager : ITransaction
     {
-        readonly ApplicationDbContext _dbContext = new();
-        public TransactionManager(ApplicationDbContext dbContext)
+        private readonly TransactionDbContext _dbContext;
+        public TransactionManager(TransactionDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public List<UserTransaction> GetTransactions()
+        public async Task<List<UserTransaction>> GetTransactions()
         {
-            try
-            {
-                return _dbContext.UserTransactions.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            return await _dbContext.Transactions.ToListAsync();
         }
 
-        public void AddTransaction(UserTransaction transaction)
+        public async Task<UserTransaction> GetTransaction(int tid)
         {
-            try
+            var transaction = await _dbContext.Transactions.FindAsync(tid);
+            if (transaction == null)
             {
-                _dbContext.UserTransactions.Add(transaction);
-                _dbContext.SaveChanges();
+                throw new Exception("Transaction Not Found");
             }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            return transaction;
         }
 
-        public UserTransaction GetTransaction(int tid)
+        public async Task AddTransaction(UserTransaction transaction)
         {
-            try
-            {
-                UserTransaction? transaction = _dbContext.UserTransactions.Find(tid);
-                if (transaction != null)
-                {
-                    return transaction;
-                }
-                else
-                {
-                    throw new ArgumentNullException();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            _dbContext.Transactions.Add(transaction);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void UpdateTransaction(UserTransaction transaction)
+        public async Task UpdateTransaction(UserTransaction transaction)
         {
-            try
-            {
-                _dbContext.Entry(transaction).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                _dbContext.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            _dbContext.Entry(transaction).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
         }
-        public void DeleteTransaction(int tid)
+        public async Task DeleteTransaction(int tid)
         {
-            try
+            var transaction = await _dbContext.Transactions.FindAsync(tid);
+            if(transaction == null)
             {
-                UserTransaction? transaction = _dbContext.UserTransactions.Find(tid);
-                if(transaction != null)
-                {
-                    _dbContext.UserTransactions.Remove(transaction);
-                    _dbContext.SaveChanges();
-                }
-                else
-                {
-                    throw new ArgumentNullException();
-                }
-            }
-            catch
-            {
-                throw;
+                _dbContext.Transactions.Remove(transaction);
+                await _dbContext.SaveChangesAsync();
             }
         }
     }

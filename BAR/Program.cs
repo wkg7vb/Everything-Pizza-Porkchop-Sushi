@@ -36,6 +36,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddDbContext<TransactionDbContext>(c =>
+    c.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddTransient<ITransaction, TransactionManager>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();

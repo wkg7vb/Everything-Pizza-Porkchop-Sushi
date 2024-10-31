@@ -2,10 +2,10 @@
 {
     public interface ITransaction
     {
-        public List<UserTransaction> GetTransactions();
-        public UserTransaction GetTransaction(int tid);
-        public void AddTransaction(UserTransaction transaction);
-        public void UpdateTransaction(UserTransaction transaction);
-        public void DeleteTransaction(int tid);
+        Task<List<UserTransaction>> GetTransactions();
+        Task<UserTransaction> GetTransaction(int tid);
+        Task AddTransaction(UserTransaction transaction);
+        Task UpdateTransaction(UserTransaction transaction);
+        Task DeleteTransaction(int tid);
     }
 }
