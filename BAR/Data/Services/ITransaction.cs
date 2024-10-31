@@ -1,4 +1,4 @@
-﻿namespace BAR.Data.Interfaces
+﻿namespace BAR.Data.Services
 {
     public interface ITransaction
     {

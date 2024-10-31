@@ -1,5 +1,4 @@
-﻿using BAR.Data.Interfaces;
-using BAR.Data.Models;
+﻿using BAR.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 

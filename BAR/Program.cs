@@ -2,7 +2,6 @@ using BAR.Components;
 using BAR.Components.Account;
 using BAR.Data;
 using BAR.Data.Models;
-using BAR.Data.Interfaces;
 using BAR.Data.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
