@@ -4,7 +4,7 @@
 @using BAR.Data.Interfaces;
 @using Microsoft.AspNetCore.Http;
 @using Microsoft.AspNetCore.Mvc;
-@inject TransactionManager TransactionManager;
+@inject TransactionManager transactionManager;
 
 @page "/transactions"
 @rendermode InteractiveServer
@@ -40,16 +40,19 @@ else
         <tbody>
             @foreach (var UserTransaction in userTransactions)
             {
-                <tr>
-                    <td>@UserTransaction.TransactionDateTime</td>
-                    <td>@UserTransaction.TransactionCategory</td>
-                    <td>@UserTransaction.TransactionLabel</td>
-                    <td>@UserTransaction.TransactionAmt</td>
-                    <td>
-                        <button class="btn btn-edit btn-sm" @onclick="() => ShowUpdateModal(UserTransaction)">Update</button>
-                        <button class="btn btn-danger btn-sm" @onclick="() => ShowDeleteConfirm(UserTransaction.TransactionId)">Delete</button>
-                    </td>
-                </tr>
+                @if(UserTransaction.UserId == user.Id)
+                {
+                    <tr>
+                        <td>@UserTransaction.TransactionDateTime</td>
+                        <td>@UserTransaction.TransactionCategory</td>
+                        <td>@UserTransaction.TransactionLabel</td>
+                        <td>@UserTransaction.TransactionAmt</td>
+                        <td>
+                            <button class="btn btn-edit btn-sm" @onclick="() => ShowUpdateModal(UserTransaction)">Update</button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => ShowDeleteConfirm(UserTransaction.TransactionId)">Delete</button>
+                        </td>
+                    </tr>
+                }
             }
         </tbody>
     </table>
@@ -63,31 +66,25 @@ else
 
 @code {
     //vars
+    private ApplicationUser user = default!;
     private List<UserTransaction> userTransactions;
-    
-    
-
 
     //dependency injection
     private readonly TransactionManager _transactionManager;
-
-    public TransactionHistory(TransactionManager TransactionManager)
-    {
-        _transactionManager = TransactionManager;
-    }
 
     [Inject] ToastService ToastService { get; set; } = default!;
 
     //methods
     protected override async Task OnInitializedAsync()
     {
-        userTransactions = await TransactionManager.GetTransactions();
+        AddSingle();
+        userTransactions = await transactionManager.GetTransactions();
     }
 
     private async Task DelTrans(int tid)
     {
-        await TransactionManager.DeleteTransaction(tid);
-        userTransactions = await TransactionManager.GetTransactions();
+        await transactionManager.DeleteTransaction(tid);
+        userTransactions = await transactionManager.GetTransactions();
     }
 
     //update modal
@@ -109,7 +106,7 @@ else
         if (confirmation)
         {
             //delete transaction
-            await TransactionManager.DeleteTransaction(tid);
+            await transactionManager.DeleteTransaction(tid);
             ToastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
         }
         else
@@ -117,5 +114,22 @@ else
             // do nothing
             ToastService.Notify(new ToastMessage(ToastType.Secondary, $"Transaction not deleted."));
         }
+    }
+
+    //for devs only do not call
+    private async void AddSingle()
+    {
+        UserTransaction temp = new UserTransaction();
+        temp.TransactionId = 0;
+        temp.TransactionDateTime = new DateTime(2024, 10, 31);
+        temp.TransactionLabel = "Rent";
+        temp.TransactionAmt = 700.0m;
+        temp.TransactionCategory = "Housing";
+
+        var uid = "94f203fb - 03d3 - 480c - b12f - 2313bd37e55e";
+        temp.UserId = uid;
+        temp.User = default!;
+
+        await transactionManager.AddTransaction(temp);
     }
 }
