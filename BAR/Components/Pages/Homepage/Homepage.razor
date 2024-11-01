@@ -1,0 +1,44 @@
+﻿@page "/home"
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+<h1 style="text-align: center; padding-bottom: 50px;">Howdy @userFirstName @userLastName!</h1>
+
+<div style="display: grid; grid-template-columns: repeat(3,1fr); gap 10px; text-align: center;">
+
+    <!--Monthly Budget Total-->
+    <Card Style="width:18rem;">
+        <CardBody Style="text-align: center">
+
+            <CardTitle>@monthlyBudgetTotal.ToString("C")</CardTitle>
+            <CardSubTitle Class="mb-2 text-muted">Monthly Budget Total</CardSubTitle>
+        </CardBody>
+    </Card>
+
+    <!--Monthly Total Spent-->
+    <Card Style="width:18rem;">
+        <CardBody Style="text-align: center">
+
+            <CardTitle>$0.00</CardTitle>
+            <CardSubTitle Class="mb-2 text-muted">Monthly Total Spent</CardSubTitle>
+        </CardBody>
+    </Card>
+
+    <!--Over Monthly Budget-->
+    <Card Style="width:18rem;">
+        <CardBody Style="text-align: center">
+            <CardTitle>$0.00</CardTitle>
+            <CardSubTitle Class="mb-2 text-muted">Over Monthly Budget</CardSubTitle>
+        </CardBody>
+    </Card>
+</div>
+
+<!--Donut Chart-->
+<div style="padding-top: 50px; padding-bottom: 50px;">
+    <DoughnutChart @ref="doughnutChart" Width="500" />
+</div>
+
+
+
+
+
