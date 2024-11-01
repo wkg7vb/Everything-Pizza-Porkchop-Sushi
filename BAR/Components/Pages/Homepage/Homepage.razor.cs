@@ -6,6 +6,7 @@ using BAR.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace BAR.Components.Pages.Homepage
 {
@@ -13,6 +14,9 @@ namespace BAR.Components.Pages.Homepage
     {
         [Inject]
         private ApplicationDbContext DbContext { get; set; } = default!;
+
+        [Inject]
+        private UserManager<ApplicationUser> UserManager { get; set; } = default!;
 
         [Inject]
         private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
@@ -33,7 +37,12 @@ namespace BAR.Components.Pages.Homepage
         private List<double?> dataset1Amounts = new();
         private List<double?> dataset2Amounts = new();
 
+        //card vars
         private decimal monthlyBudgetTotal;
+
+        //user's first name vars
+        private string userFirstName = "Partner";
+        private string userLastName = "";
 
         protected override async Task OnInitializedAsync()
         {
@@ -82,7 +91,30 @@ namespace BAR.Components.Pages.Homepage
             }
             };
             randomMoneyAmount = $"${GetRandomMoneyAmount()}";  //initialize random money amount onto the cards
+            await GetUserNames();
             await CalculateMonthlyBudgetTotal();
+        }
+
+        //get the user's first/last name so the welcome screen displays their name
+        private async Task GetUserNames()
+        {
+            // Get the current user's authentication state
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            // Retrieve the user's ID
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId != null)
+            {
+                // Fetch the user from the database
+                var applicationUser = await UserManager.FindByIdAsync(userId);
+                if (applicationUser != null)
+                {
+                    userFirstName = applicationUser.UserFName ?? "Partner"; // Use "Partner" if the first name is null
+                    userLastName = applicationUser.UserLName ?? ""; // Use empty string if last name is null
+                }
+            }
         }
 
         private async Task CalculateMonthlyBudgetTotal()

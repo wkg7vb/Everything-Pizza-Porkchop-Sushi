@@ -2,9 +2,9 @@
 @rendermode InteractiveServer
 @attribute [Authorize]
 
-<h1 style="text-align: center; padding-bottom: 50px;">Howdy Rootin Roo!</h1>
+<h1 style="text-align: center; padding-bottom: 50px;">Howdy @userFirstName @userLastName!</h1>
 
-<div style="display: grid; grid-template-columns: auto auto; gap 10px; text-align: center;">
+<div style="display: grid; grid-template-columns: repeat(3,1fr); gap 10px; text-align: center;">
 
     <!--Monthly Budget Total-->
     <Card Style="width:18rem;">
