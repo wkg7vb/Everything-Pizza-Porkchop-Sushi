@@ -40,7 +40,7 @@ namespace BAR.Data.Services
         }
         public async Task DeleteTransaction(UserTransaction transaction)
         {
-            if(transaction == null)
+            if(transaction != null)
             {
                 _dbContext.Transactions.Remove(transaction);
                 await _dbContext.SaveChangesAsync();
