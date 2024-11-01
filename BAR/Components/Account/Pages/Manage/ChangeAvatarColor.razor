@@ -11,8 +11,9 @@ interactive in order for the buttons to actually work as intended. *@
 
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
-@inject IdentityRedirectManager RedirectManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
 
 <PageTitle>Change avatar color</PageTitle>
 
@@ -87,6 +88,6 @@ interactive in order for the buttons to actually work as intended. *@
             return;
         }
 
-        RedirectManager.RedirectTo("Account/Manage");
+        NavigationManager.NavigateTo("Account/Manage");
     }
 }
