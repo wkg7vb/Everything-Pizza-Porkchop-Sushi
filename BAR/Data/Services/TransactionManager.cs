@@ -38,9 +38,8 @@ namespace BAR.Data.Services
             _dbContext.Entry(transaction).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             await _dbContext.SaveChangesAsync();
         }
-        public async Task DeleteTransaction(int tid)
+        public async Task DeleteTransaction(UserTransaction transaction)
         {
-            var transaction = await _dbContext.Transactions.FindAsync(tid);
             if(transaction == null)
             {
                 _dbContext.Transactions.Remove(transaction);

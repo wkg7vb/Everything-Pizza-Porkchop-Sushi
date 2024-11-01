@@ -6,6 +6,6 @@
         Task<UserTransaction> GetTransaction(int tid);
         Task AddTransaction(UserTransaction transaction);
         Task UpdateTransaction(UserTransaction transaction);
-        Task DeleteTransaction(int tid);
+        Task DeleteTransaction(UserTransaction transaction);
     }
 }
