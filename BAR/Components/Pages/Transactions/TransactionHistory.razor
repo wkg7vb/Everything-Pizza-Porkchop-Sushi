@@ -26,50 +26,42 @@
 </h1>
 
 @* Transactions List*@
+<h1>
+    SINGLE click a transaction to EDIT it.
+    DOUBLE click a transaction to DELETE it.
+</h1>
 
-@if (userTransactions == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Label</th>
-                <th>Amount</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            
-            @foreach (var UserTransaction in userTransactions)
-            {
-                @if(UserTransaction.UserId == user.Id)
-                {
-                    <tr>
-                        <td>@UserTransaction.TransactionDateTime</td>
-                        <td>@UserTransaction.TransactionCategory</td>
-                        <td>@UserTransaction.TransactionLabel</td>
-                        <td>@UserTransaction.TransactionAmt</td>
-                        <td>
-                            <button class="btn btn-edit btn-sm" @onclick="() => ShowUpdateModal(UserTransaction)">Update</button>
-                            <button class="btn btn-danger btn-sm" @onclick="() => ShowDeleteConfirm(UserTransaction)">Delete</button>
-                        </td>
-                    </tr>
-                }
-            }
-        </tbody>
-    </table>
+    <Grid TItem="UserTransaction"
+        DataProvider="TransactionDataProvider"
+        Class="table table-hover"
+        AllowSorting="true"
+        AllowPaging="true"
+        PageSize="10"
+        AllowRowClick="true"
+        OnRowClick="ShowUpdateModal"
+        OnRowDoubleClick="ShowDeleteConfirm"
+        Responsive="true">
+        <GridColumns>
+            <GridColumn TItem="UserTransaction" HeaderText="Date/Time">
+                @context.TransactionDateTime
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Category">
+                @context.TransactionCategory
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Label">
+                @context.TransactionLabel
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Amount">
+                @context.TransactionAmt
+            </GridColumn>
+        </GridColumns>
+    </Grid>
 
     @* Update Transaction Modal *@
     <Modal ref="updatemodal"/>
 
     @* Delete Transaction Dialog *@
     <ConfirmDialog @ref="deletedialog"/>
-}
 
 @code {
     //vars
@@ -88,30 +80,39 @@ else
         {
             user = await UserManager.GetUserAsync(authState.User);
         }
-        userTransactions = await TransactionManager.GetTransactions();
+        userTransactions = await TransactionManager.GetTransactions(user.Id);
+    }
+
+    private async Task<GridDataProviderResult<UserTransaction>> TransactionDataProvider(GridDataProviderRequest<UserTransaction> request)
+    {
+        if (userTransactions is null)
+        {
+            userTransactions = await TransactionManager.GetTransactions(user.Id);
+        }
+        return await Task.FromResult(request.ApplyTo(userTransactions));
     }
 
     //update modal
     private Modal updatemodal = default!;
-    private async void ShowUpdateModal(UserTransaction transaction)
+    private async Task ShowUpdateModal(GridRowEventArgs<UserTransaction> transaction)
     {
 
     }
 
     //delete dialog
     private ConfirmDialog deletedialog = default!;
-    private async void ShowDeleteConfirm(UserTransaction transaction)
+    private async Task ShowDeleteConfirm(GridRowEventArgs<UserTransaction> transaction)
     {
         var confirmation = await deletedialog.ShowAsync(
             title: "Delete Transaction?",
-            message1: transaction.TransactionLabel.ToString(),
-            message2: transaction.TransactionAmt.ToString());
+            message1: transaction.Item.TransactionLabel.ToString(),
+            message2: transaction.Item.TransactionAmt.ToString());
 
         if (confirmation)
         {
             //delete transaction
-            await TransactionManager.DeleteTransaction(transaction);
-            userTransactions = await TransactionManager.GetTransactions();
+            await TransactionManager.DeleteTransaction(transaction.Item);
+            userTransactions = await TransactionManager.GetTransactions(transaction.Item.UserId);
             toastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
         }
         else
