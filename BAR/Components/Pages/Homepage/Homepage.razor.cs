@@ -1,9 +1,23 @@
+using System.Net.Http.Headers;
+using BAR.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using BlazorBootstrap;
+using BAR.Data;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components;
+using System.Security.Claims;
 
 namespace BAR.Components.Pages.Homepage
 {
     public partial class Homepage
     {
+        [Inject]
+        private ApplicationDbContext DbContext { get; set; } = default!;
+
+        [Inject]
+        private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+
+
         private DoughnutChart doughnutChart = default!;
         private DoughnutChartOptions doughnutChartOptions = default!;
 
@@ -19,7 +33,9 @@ namespace BAR.Components.Pages.Homepage
         private List<double?> dataset1Amounts = new();
         private List<double?> dataset2Amounts = new();
 
-        protected override void OnInitialized()
+        private decimal monthlyBudgetTotal;
+
+        protected override async Task OnInitializedAsync()
         {
             // Initialize the chart options
             doughnutChartOptions = new();
@@ -66,6 +82,48 @@ namespace BAR.Components.Pages.Homepage
             }
             };
             randomMoneyAmount = $"${GetRandomMoneyAmount()}";  //initialize random money amount onto the cards
+            await CalculateMonthlyBudgetTotal();
+        }
+
+        private async Task CalculateMonthlyBudgetTotal()
+        {
+            // Get the current user's authentication state
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            // Retrieve the user's ID
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId != null)
+            {
+                var userBudget = await DbContext.UserBudgets
+                    .Where(b => b.UserId == userId) // Filter by the current user
+                    .FirstOrDefaultAsync();
+
+                if (userBudget != null)
+                {
+                    monthlyBudgetTotal =
+                        (userBudget.HousingAmt ?? 0) +
+                        (userBudget.BillsUtilsAmt ?? 0) +
+                        (userBudget.GroceryDiningAmt ?? 0) +
+                        (userBudget.TransportAmt ?? 0) +
+                        (userBudget.EducationAmt ?? 0) +
+                        (userBudget.DebtAmt ?? 0) +
+                        (userBudget.EntertainmentAmt ?? 0) +
+                        (userBudget.ShoppingAmt ?? 0) +
+                        (userBudget.MedicalAmt ?? 0) +
+                        (userBudget.InvestingAmt ?? 0) +
+                        (userBudget.MiscAmt ?? 0);
+                }
+                else
+                {
+                    monthlyBudgetTotal = 0; // Set to zero if no budget found
+                }
+            }
+            else
+            {
+                monthlyBudgetTotal = 0; // Handle case where user ID is null
+            }
         }
 
         // Method called after the component has rendered
