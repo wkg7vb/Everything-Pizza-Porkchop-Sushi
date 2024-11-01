@@ -44,10 +44,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @if (user.Id == "54fb3251-9304-4342-87aa-36d7ffc08334" && userTransactions != null)@* Rootin Roo's UserId hardcoded *@
-            {
-                AddSeedData();
-            }
+            
             @foreach (var UserTransaction in userTransactions)
             {
                 @if(UserTransaction.UserId == user.Id)
@@ -122,109 +119,5 @@ else
             // do nothing
             toastService.Notify(new ToastMessage(ToastType.Secondary, $"Transaction not deleted."));
         }
-    }
-
-    //for devs only do not call normally
-    private async Task AddSeedData()
-    {
-        UserTransaction temp = new UserTransaction();
-        temp.TransactionDateTime = new DateTime(2024, 10, 1);
-        temp.TransactionLabel = "Rent";
-        temp.TransactionAmt = 700.0m;
-        temp.TransactionCategory = "Housing";
-        temp.UserId = user.Id;
-        temp.User = user;
-        await TransactionManager.AddTransaction(temp);
-        userTransactions = await TransactionManager.GetTransactions();
-    
-        UserTransaction temp1 = new UserTransaction();
-        temp1.TransactionDateTime = new DateTime(2024, 10, 14);
-        temp1.TransactionLabel = "Takeout";
-        temp1.TransactionAmt = 25.0m;
-        temp1.TransactionCategory = "Grocery/Dining";
-        temp1.UserId = user.Id;
-        temp1.User = user;
-        await TransactionManager.AddTransaction(temp1);
-        userTransactions = await TransactionManager.GetTransactions();
-    
-        UserTransaction temp2 = new UserTransaction();
-        temp2.TransactionDateTime = new DateTime(2024, 10, 31);
-        temp2.TransactionLabel = "Student Loan";
-        temp2.TransactionAmt = 100.0m;
-        temp2.TransactionCategory = "Education";
-        temp2.UserId = user.Id;
-        temp2.User = user;
-        await TransactionManager.AddTransaction(temp2);
-        userTransactions = await TransactionManager.GetTransactions();
-    
-        UserTransaction temp3 = new UserTransaction();
-        temp3.TransactionDateTime = new DateTime(2024, 10, 31);
-        temp3.TransactionLabel = "Movie Date";
-        temp3.TransactionAmt = 40.0m;
-        temp3.TransactionCategory = "Entertainment";
-        temp3.UserId = user.Id;
-        temp3.User = user;
-        await TransactionManager.AddTransaction(temp3);
-        userTransactions = await TransactionManager.GetTransactions();
-    
-        UserTransaction temp4 = new UserTransaction();
-        temp4.TransactionDateTime = new DateTime(2024, 10, 31);
-        temp4.TransactionLabel = "Fall Fashion Festival";
-        temp4.TransactionAmt = 700.0m;
-        temp4.TransactionCategory = "Shopping";
-        temp4.UserId = user.Id;
-        temp4.User = user;
-        await TransactionManager.AddTransaction(temp4);
-        userTransactions = await TransactionManager.GetTransactions();
-    
-        UserTransaction temp5 = new UserTransaction();
-        temp5.TransactionDateTime = new DateTime(2024, 10, 31);
-        temp5.TransactionLabel = "Insurance";
-        temp5.TransactionAmt = 100.0m;
-        temp5.TransactionCategory = "Transportation";
-        temp5.UserId = user.Id;
-        temp5.User = user;
-        await TransactionManager.AddTransaction(temp5);
-        userTransactions = await TransactionManager.GetTransactions();
-    
-        UserTransaction temp6 = new UserTransaction();
-        temp6.TransactionDateTime = new DateTime(2024, 10, 31);
-        temp6.TransactionLabel = "Insurance";
-        temp6.TransactionAmt = 300.0m;
-        temp6.TransactionCategory = "Medical";
-        temp6.UserId = user.Id;
-        temp6.User = user;
-        await TransactionManager.AddTransaction(temp6);
-        userTransactions = await TransactionManager.GetTransactions();
-    
-        UserTransaction temp7 = new UserTransaction();
-        temp7.TransactionDateTime = new DateTime(2024, 10, 31);
-        temp7.TransactionLabel = "Bonds";
-        temp7.TransactionAmt = 100.0m;
-        temp7.TransactionCategory = "Investing";
-        temp7.UserId = user.Id;
-        temp7.User = user;
-        await TransactionManager.AddTransaction(temp7);
-        userTransactions = await TransactionManager.GetTransactions();
-    
-        UserTransaction temp8 = new UserTransaction();
-        temp8.TransactionDateTime = new DateTime(2024, 10, 27);
-        temp8.TransactionLabel = "Gas";
-        temp8.TransactionAmt = 20.0m;
-        temp8.TransactionCategory = "Transportation";
-        temp8.UserId = user.Id;
-        temp8.User = user;
-        await TransactionManager.AddTransaction(temp8);
-        userTransactions = await TransactionManager.GetTransactions();
-    
-        UserTransaction temp9 = new UserTransaction();
-        temp9.TransactionDateTime = new DateTime(2024, 10, 31);
-        temp9.TransactionLabel = "Halloween Candy";
-        temp9.TransactionAmt = 50.0m;
-        temp9.TransactionCategory = "Miscellaneous";
-        temp9.UserId = user.Id;
-        temp9.User = user;
-        await TransactionManager.AddTransaction(temp9);
-        userTransactions = await TransactionManager.GetTransactions();
     }
 }
