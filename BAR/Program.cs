@@ -38,9 +38,6 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddDbContext<TransactionDbContext>(options =>
-   options.UseSqlServer(connectionString));
-
 //services registration
 builder.Services.AddScoped<TransactionManager>();
 
