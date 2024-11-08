@@ -44,6 +44,7 @@ namespace BAR.Components.Pages.Homepage
         private string userFirstName = "Partner";
         private string userLastName = "";
 
+
         protected override async Task OnInitializedAsync()
         {
             // Initialize the chart options

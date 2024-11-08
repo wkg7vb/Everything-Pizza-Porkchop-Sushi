@@ -2,7 +2,16 @@
 @rendermode InteractiveServer
 @attribute [Authorize]
 
-<h1 style="text-align: center; padding-bottom: 50px;">Howdy @userFirstName @userLastName!</h1>
+<h1 style="text-align: center; padding-bottom: 50px;">
+    @if (string.IsNullOrWhiteSpace(userFirstName) && string.IsNullOrWhiteSpace(userLastName))
+    {
+        <text>Howdy Partner!</text>
+    }
+    else
+    {
+        <text>Howdy @userFirstName @userLastName!</text>
+    }
+</h1>
 
 <div style="display: grid; grid-template-columns: repeat(3,1fr); gap 10px; text-align: center;">
 
