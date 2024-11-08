@@ -95,6 +95,7 @@
     //vars
     private ApplicationUser user = default!;
     private List<UserTransaction> userTransactions = default!;
+    private readonly ApplicationDbContext = context;
     private DateOnly date1 = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
 
     //dependency injection
@@ -125,12 +126,21 @@
     private Modal updatemodal = default!;
     private async Task ShowUpdateModal(GridRowEventArgs<UserTransaction> transaction)
     {
-        await updatemodal?.ShowAsync();
+        updatemodal?.ShowAsync();
     }
 
-    private async Task UpdateFromModal()
+    private async Task UpdateFromModal(GridRowEventArgs<UserTransaction> transaction)
     {
-        
+        UserTransaction temp = new UserTransaction();
+        temp.TransactionDateTime = new DateTime(2024, 10, 31);
+        temp.TransactionLabel = "Rent";
+        temp.TransactionAmt = 700.0m;
+        temp.TransactionCategory = "Housing";
+
+        temp.UserId = user.Id;
+        temp.User = user;
+
+        userTransactions = await TransactionManager.UpdateTransaction(temp);
     }
 
     //delete dialog
