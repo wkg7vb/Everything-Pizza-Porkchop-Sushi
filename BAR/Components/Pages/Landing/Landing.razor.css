@@ -8,7 +8,25 @@
   p {
     margin: 0 0 1em 0;
   }
-  
+
+ /* Container for the footer */
+ .foot-div {
+  margin-left: 0;
+  padding: 0 !important;
+}
+
+/* Styling for the image inside the footer */
+.foot {
+  width: 100%;            /* Image will scale to the full width of the container */
+  height: auto;           /* Maintain aspect ratio */
+  max-height: 100%;       /* Ensure the image doesn't grow larger than the container's height */
+  object-fit: cover;      /* Scale the image to cover the container, cropping if necessary */
+  display: block;         /* Remove any space below the image */
+  margin: 0;              /* Remove any margin applied to the image */
+  padding: 0;             /* Remove any padding on the image */
+  margin-left: 0;
+}
+
   .flex {
     display: flex;
     flex-wrap: wrap;
