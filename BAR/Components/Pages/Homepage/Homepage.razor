@@ -43,6 +43,29 @@
     </Card>
 </div>
 
+<!--List of Recent Transactions-->
+<div style="padding-top: 50px;">
+    <h3 style="padding: 20px">Recent Transactions</h3>
+    <Grid TItem="UserTransaction"
+          Class="table table-hover table-bordered table-striped"
+          DataProvider="TransactionsDataProvider">
+        <GridColumns>
+            <GridColumn TItem="UserTransaction" HeaderText="Date" HeaderTextAlignment="Alignment.Center">
+                @context.TransactionDateTime.ToShortDateString()
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Label">
+                @context.TransactionLabel
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Amount" HeaderTextAlignment="Alignment.Center">
+                @context.TransactionAmt.ToString("C")
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
+                @context.TransactionCategory
+            </GridColumn>
+        </GridColumns>
+    </Grid>
+</div>
+
 <!--Donut Chart-->
 <div style="padding-top: 50px; padding-bottom: 50px;">
     <DoughnutChart @ref="doughnutChart" Width="500" />
