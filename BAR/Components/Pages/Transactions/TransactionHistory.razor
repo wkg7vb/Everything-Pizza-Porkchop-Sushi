@@ -60,7 +60,33 @@
     </Grid>
 
     @* Update Transaction Modal *@
-    <Modal ref="updatemodal"/>
+    <Modal ref="updatemodal" Title="Update Transaction">
+        <BodyTemplate>
+            Date:
+            <div class="mb-3">
+                <DateInput TValue="DateOnly" @bind-Value="@date1" Placeholder="Enter Date" />
+            </div>
+            <div class="mb-3">Entered date: @date1</div>
+            Label:
+            <input type="text" class="mt-2" /> <br>
+            Amount:
+            <input type="text" class="mt-2" /> <br> <br>
+            Category:
+            <Dropdown Color="DropdownColor.Secondary">
+                <DropdownToggleButton>Add Category</DropdownToggleButton>
+                <DropdownMenu>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Food</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">ETC</DropdownItem>
+                </DropdownMenu>
+            </Dropdown> <br>
+        </BodyTemplate>
+        <FooterTemplate>
+            <Button Color="ButtonColor.Secondary" @onclick="UpdateFromModal">Add</Button>
+            <Button Color="ButtonColor.Secondary" @onclick="CancelButton">Cancel</Button>
+        </FooterTemplate>
+    </Modal>
+
 
     @* Delete Transaction Dialog *@
     <ConfirmDialog @ref="deletedialog"/>
@@ -69,6 +95,7 @@
     //vars
     private ApplicationUser user = default!;
     private List<UserTransaction> userTransactions = default!;
+    private DateOnly date1 = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
 
     //dependency injection
     [Inject] ToastService toastService { get; set; } = default!;
@@ -98,7 +125,12 @@
     private Modal updatemodal = default!;
     private async Task ShowUpdateModal(GridRowEventArgs<UserTransaction> transaction)
     {
+        await updatemodal?.ShowAsync();
+    }
 
+    private async Task UpdateFromModal()
+    {
+        
     }
 
     //delete dialog
@@ -122,5 +154,11 @@
             // do nothing
             toastService.Notify(new ToastMessage(ToastType.Secondary, $"Transaction not deleted."));
         }
+    }
+
+    //cancel by doing nothing
+    private async Task CancelButton()
+    {
+        await updatemodal?.HideAsync();
     }
 }
