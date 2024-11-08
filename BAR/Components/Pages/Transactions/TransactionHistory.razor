@@ -64,7 +64,7 @@
         <BodyTemplate>
             Date:
             <div class="mb-3">
-                <DateInput TValue="DateOnly" @bind-Value="@date1" Placeholder="Enter Date" />
+                <DateInput TValue="DateTime" @bind-Value="@date" Placeholder="Enter Date" />
             </div>
             <div class="mb-3">Entered date: @date1</div>
             Label:
@@ -95,7 +95,6 @@
     //vars
     private ApplicationUser user = default!;
     private List<UserTransaction> userTransactions = default!;
-    private readonly ApplicationDbContext = context;
     private DateOnly date1 = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
 
     //dependency injection
@@ -129,18 +128,19 @@
         updatemodal?.ShowAsync();
     }
 
-    private async Task UpdateFromModal(GridRowEventArgs<UserTransaction> transaction)
+    private async Task UpdateFromModal(GridRowEventArgs<UserTransaction> transaction1)
     {
-        UserTransaction temp = new UserTransaction();
-        temp.TransactionDateTime = new DateTime(2024, 10, 31);
-        temp.TransactionLabel = "Rent";
-        temp.TransactionAmt = 700.0m;
-        temp.TransactionCategory = "Housing";
+        UserTransaction transaction = transaction1;
+        transaction.TransactionDateTime = date;
+        transaction.TransactionLabel = "Rent";
+        transaction.TransactionAmt = 700.0m;
+        transaction.TransactionCategory = "Housing";
 
-        temp.UserId = user.Id;
-        temp.User = user;
+        transaction.UserId = user.Id;
+        transaction.User = user;
 
-        userTransactions = await TransactionManager.UpdateTransaction(temp);
+        await TransactionManager.UpdateTransaction(transaction);
+        userTransactions = await TransactionManager.GetTransactions(transaction.Item.UserId);
     }
 
     //delete dialog
