@@ -39,6 +39,7 @@ namespace BAR.Components.Pages.Homepage
 
         //card vars
         private decimal monthlyBudgetTotal;
+        private decimal monthlyIncome;
 
         //user's first name vars
         private string userFirstName = "Partner";
@@ -134,6 +135,7 @@ namespace BAR.Components.Pages.Homepage
 
                 if (userBudget != null)
                 {
+                    monthlyIncome = userBudget.MonthlyIncome;
                     monthlyBudgetTotal =
                         (userBudget.HousingAmt ?? 0) +
                         (userBudget.BillsUtilsAmt ?? 0) +
@@ -150,11 +152,13 @@ namespace BAR.Components.Pages.Homepage
                 else
                 {
                     monthlyBudgetTotal = 0; // Set to zero if no budget found
+                    monthlyIncome = 0;
                 }
             }
             else
             {
                 monthlyBudgetTotal = 0; // Handle case where user ID is null
+                monthlyIncome = 0;
             }
         }
 

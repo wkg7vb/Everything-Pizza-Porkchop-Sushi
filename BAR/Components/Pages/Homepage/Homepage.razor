@@ -2,7 +2,17 @@
 @rendermode InteractiveServer
 @attribute [Authorize]
 
-<h1 style="text-align: center; padding-bottom: 50px;">Howdy @userFirstName @userLastName!</h1>
+<!--if there is no name present in DB, Partner will be displayed instead of the user's name-->
+<h1 style="text-align: center; padding-bottom: 50px;">
+    @if (string.IsNullOrWhiteSpace(userFirstName) && string.IsNullOrWhiteSpace(userLastName))
+    {
+        <text>Howdy Partner!</text>
+    }
+    else
+    {
+        <text>Howdy @userFirstName @userLastName!</text>
+    }
+</h1>
 
 <div style="display: grid; grid-template-columns: repeat(3,1fr); gap 10px; text-align: center;">
 
@@ -10,7 +20,7 @@
     <Card Style="width:18rem;">
         <CardBody Style="text-align: center">
 
-            <CardTitle>@monthlyBudgetTotal.ToString("C")</CardTitle>
+            <CardTitle>@monthlyBudgetTotal.ToString("C") / @monthlyIncome.ToString("C")</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Monthly Budget Total</CardSubTitle>
         </CardBody>
     </Card>
