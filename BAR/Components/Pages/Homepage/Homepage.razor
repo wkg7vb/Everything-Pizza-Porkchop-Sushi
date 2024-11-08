@@ -2,7 +2,17 @@
 @rendermode InteractiveServer
 @attribute [Authorize]
 
-<h1 style="text-align: center; padding-bottom: 50px;">Howdy @userFirstName @userLastName!</h1>
+<!--if there is no name present in DB, Partner will be displayed instead of the user's name-->
+<h1 style="text-align: center; padding-bottom: 50px;">
+    @if (string.IsNullOrWhiteSpace(userFirstName) && string.IsNullOrWhiteSpace(userLastName))
+    {
+        <text>Howdy Partner!</text>
+    }
+    else
+    {
+        <text>Howdy @userFirstName @userLastName!</text>
+    }
+</h1>
 
 <div style="display: grid; grid-template-columns: repeat(3,1fr); gap 10px; text-align: center;">
 
@@ -10,7 +20,7 @@
     <Card Style="width:18rem;">
         <CardBody Style="text-align: center">
 
-            <CardTitle>@monthlyBudgetTotal.ToString("C")</CardTitle>
+            <CardTitle>@monthlyBudgetTotal.ToString("C") / @monthlyIncome.ToString("C")</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Monthly Budget Total</CardSubTitle>
         </CardBody>
     </Card>
@@ -31,6 +41,29 @@
             <CardSubTitle Class="mb-2 text-muted">Over Monthly Budget</CardSubTitle>
         </CardBody>
     </Card>
+</div>
+
+<!--List of Recent Transactions-->
+<div style="padding-top: 50px;">
+    <h3 style="padding: 20px">Recent Transactions</h3>
+    <Grid TItem="UserTransaction"
+          Class="table table-hover table-bordered table-striped"
+          DataProvider="TransactionsDataProvider">
+        <GridColumns>
+            <GridColumn TItem="UserTransaction" HeaderText="Date" HeaderTextAlignment="Alignment.Center">
+                @context.TransactionDateTime.ToShortDateString()
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Label">
+                @context.TransactionLabel
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Amount" HeaderTextAlignment="Alignment.Center">
+                @context.TransactionAmt.ToString("C")
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
+                @context.TransactionCategory
+            </GridColumn>
+        </GridColumns>
+    </Grid>
 </div>
 
 <!--Donut Chart-->
