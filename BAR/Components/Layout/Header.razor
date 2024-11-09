@@ -82,9 +82,9 @@
         </div>
         <div class="mb-3">Entered date: @date</div>
         Label:
-        <input type="text" class="mt-2" id="label" /> <br>
+        <input type="text" class="mt-2" @bind-value="label" /> <br>
         Amount:
-        <input type="text" class="mt-2" id="amount" /> <br> <br>
+        <input type="text" class="mt-2" @bind-value="amount" /> <br> <br>
         Category:
         <Dropdown Color="DropdownColor.Secondary">
             <DropdownToggleButton @bind-Value="@category">Add Category</DropdownToggleButton>
