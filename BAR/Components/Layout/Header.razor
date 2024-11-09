@@ -27,7 +27,7 @@
         <AuthorizeView>
             <Authorized>
                 <div class="add"> 
-                    <Button Color="ButtonColor.Success" @onclick=AddTransaction> + Add Transaction</Button>
+                    <Button Color="ButtonColor.Success" @onclick=AddNewTransaction> + Add Transaction</Button>
                 </div>
             </Authorized>
             <NotAuthorized>
@@ -137,7 +137,7 @@
         await TransactionManager.AddTransaction(transaction);
     }
 
-    private async Task AddTransaction()
+    private async Task AddNewTransaction()
     {
         await addmodal?.ShowAsync();
     }
