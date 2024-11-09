@@ -83,7 +83,7 @@
         </BodyTemplate>
         <FooterTemplate>
             <Button Color="ButtonColor.Secondary" @onClick="UpdateFromModal">Update</Button>
-            <Button Color="ButtonColor.Secondary" @onClick="CancelButton">Cancel</Button>
+            <Button Color="ButtonColor.Secondary" @onClick="CancelUpdateModal">Cancel</Button>
         </FooterTemplate>
     </Modal>
 
@@ -126,9 +126,14 @@
 
     //update modal
     private Modal updatemodal = default!;
-    private async Task ShowUpdateModal(GridRowEventArgs<UserTransaction> transaction)
+    private async Task ShowUpdateModal()
     {
         updatemodal?.ShowAsync();
+    }
+
+    private async Task CancelUpdateModal()
+    {
+        updatemodal?.HideAsync();
     }
 
     private async Task UpdateFromModal(GridRowEventArgs<UserTransaction> transaction)
