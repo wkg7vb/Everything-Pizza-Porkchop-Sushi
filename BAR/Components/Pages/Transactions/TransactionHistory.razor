@@ -68,9 +68,9 @@
             </div>
             <div class="mb-3">Entered date: @date</div>
             Label:
-            <input type="text" class="mt-2" id="label" /> <br>
+            <input type="text" class="mt-2" @bind-value="label" /> <br>
             Amount:
-            <input type="text" class="mt-2" id="amount"/> <br> <br>
+            <input type="text" class="mt-2" @bind-value="amount"/> <br> <br>
             Category:
             <Dropdown Color="DropdownColor.Secondary">
                 <DropdownToggleButton @bind-Value="@category">Add Category</DropdownToggleButton>
@@ -82,7 +82,7 @@
             </Dropdown> <br>
         </BodyTemplate>
         <FooterTemplate>
-            <Button Color="ButtonColor.Secondary" @onClick="UpdateFromModal">Add</Button>
+            <Button Color="ButtonColor.Secondary" @onClick="UpdateFromModal">Update</Button>
             <Button Color="ButtonColor.Secondary" @onClick="CancelButton">Cancel</Button>
         </FooterTemplate>
     </Modal>
@@ -96,8 +96,8 @@
     private ApplicationUser user = default!;
     private List<UserTransaction> userTransactions = default!;
     private DateOnly date = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
-    private String category = default!;
-    private String label = default!;
+    private string category = default!;
+    private string label = default!;
     private decimal amount = default!;
 
     //dependency injection

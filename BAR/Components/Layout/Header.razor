@@ -1,5 +1,14 @@
+@using BAR.Data;
+@using BAR.Data.Models;
+@using BAR.Data.Services;
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Identity;
 @rendermode InteractiveServer
-@inject NavigationManager NavigationManager
+@inject NavigationManager NavigationManager;
+@inject ITransaction TransactionManager;
+@inject UserManager<ApplicationUser> UserManager;
+@inject ApplicationDbContext dbContext;
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="top-row d-flex flex-row mb-3 justify-content-between align-items-center">
@@ -65,20 +74,20 @@
 </div>
 
 @* Add Transaction popup *@
-<Modal @ref="addT" Title="Add Transaction">
-    <BodyTemplate> 
+<Modal ref="addmodal" Title="Add Transaction">
+    <BodyTemplate>
         Date:
         <div class="mb-3">
-            <DateInput TValue="DateOnly" @bind-Value="@date1" Placeholder="Enter Date" />
+            <DateInput TValue="DateOnly" @bind-Value="@date" Placeholder="Enter Date" />
         </div>
-            <div class="mb-3">Entered date: @date1</div> 
+        <div class="mb-3">Entered date: @date</div>
         Label:
-        <input type="text" class="mt-2"/> <br>
+        <input type="text" class="mt-2" id="label" /> <br>
         Amount:
-        <input type="text" class="mt-2"/> <br> <br>
+        <input type="text" class="mt-2" id="amount" /> <br> <br>
         Category:
         <Dropdown Color="DropdownColor.Secondary">
-            <DropdownToggleButton>Add Category</DropdownToggleButton>
+            <DropdownToggleButton @bind-Value="@category">Add Category</DropdownToggleButton>
             <DropdownMenu>
                 <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
                 <DropdownItem To="#" Type="DropdownItemType.Link">Food</DropdownItem>
@@ -87,17 +96,46 @@
         </Dropdown> <br>
     </BodyTemplate>
     <FooterTemplate>
-        <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Add</Button>
-        <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Cancel</Button>
+        <Button Color="ButtonColor.Secondary" @onClick="AddFromModal">Add</Button>
+        <Button Color="ButtonColor.Secondary" @onClick="CancelButton">Cancel</Button>
     </FooterTemplate>
 </Modal>
 
 @code {
-   [Parameter] public string UserFName {get; set;} 
+    [Parameter] public string UserFName {get; set;} 
     [Parameter] public string AvatarColor {get; set;}
     private Modal addT;
     private string? currentUrl;
     private string imageRedir;
+    private string category;
+    private string label;
+    private decimal amount;
+    private DateOnly date;
+    private ApplicationUser user = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            user = await UserManager.GetUserAsync(authState.User);
+        }
+    }
+
+    private async Task AddFromModal()
+    {
+        UserTransaction transaction = new UserTransaction();
+        transaction.TransactionDateOnly = date;
+        transaction.TransactionLabel = label;
+        transaction.TransactionAmt = amount;
+        transaction.TransactionCategory = category;
+
+        transaction.UserId = user.Id;
+        transaction.User = user;
+
+        await TransactionManager.AddTransaction(transaction);
+    }
 
     private async Task AddTransaction()
     {
