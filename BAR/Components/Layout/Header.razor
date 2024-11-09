@@ -104,7 +104,7 @@
 @code {
     [Parameter] public string UserFName {get; set;} 
     [Parameter] public string AvatarColor {get; set;}
-    private Modal addT;
+    private Modal addmodal;
     private string? currentUrl;
     private string imageRedir;
     private string category;
@@ -139,12 +139,12 @@
 
     private async Task AddTransaction()
     {
-        await addT?.ShowAsync();
+        await addmodal?.ShowAsync();
     }
 
     private async Task CancelAddTransaction()
     {
-        await addT?.HideAsync();
+        await addmodal?.HideAsync();
     }
 
     private DateOnly date1 = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
