@@ -64,16 +64,16 @@
         <BodyTemplate>
             Date:
             <div class="mb-3">
-                <DateInput TValue="DateTime" @bind-Value="@date" Placeholder="Enter Date" />
+                <DateInput TValue="DateOnly" @bind-Value="@date" Placeholder="Enter Date" />
             </div>
-            <div class="mb-3">Entered date: @date1</div>
+            <div class="mb-3">Entered date: @date</div>
             Label:
-            <input type="text" class="mt-2" /> <br>
+            <input type="text" class="mt-2" id="label" /> <br>
             Amount:
-            <input type="text" class="mt-2" /> <br> <br>
+            <input type="text" class="mt-2" id="amount"/> <br> <br>
             Category:
             <Dropdown Color="DropdownColor.Secondary">
-                <DropdownToggleButton>Add Category</DropdownToggleButton>
+                <DropdownToggleButton @bind-Value="@category">Add Category</DropdownToggleButton>
                 <DropdownMenu>
                     <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
                     <DropdownItem To="#" Type="DropdownItemType.Link">Food</DropdownItem>
@@ -82,8 +82,8 @@
             </Dropdown> <br>
         </BodyTemplate>
         <FooterTemplate>
-            <Button Color="ButtonColor.Secondary" @onclick="UpdateFromModal">Add</Button>
-            <Button Color="ButtonColor.Secondary" @onclick="CancelButton">Cancel</Button>
+            <Button Color="ButtonColor.Secondary" @onClick="UpdateFromModal">Add</Button>
+            <Button Color="ButtonColor.Secondary" @onClick="CancelButton">Cancel</Button>
         </FooterTemplate>
     </Modal>
 
@@ -95,7 +95,10 @@
     //vars
     private ApplicationUser user = default!;
     private List<UserTransaction> userTransactions = default!;
-    private DateOnly date1 = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
+    private DateOnly date = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
+    private String category = default!;
+    private String label = default!;
+    private decimal amount = default!;
 
     //dependency injection
     [Inject] ToastService toastService { get; set; } = default!;
@@ -128,18 +131,17 @@
         updatemodal?.ShowAsync();
     }
 
-    private async Task UpdateFromModal(GridRowEventArgs<UserTransaction> transaction1)
+    private async Task UpdateFromModal(GridRowEventArgs<UserTransaction> transaction)
     {
-        UserTransaction transaction = transaction1;
-        transaction.TransactionDateTime = date;
-        transaction.TransactionLabel = "Rent";
-        transaction.TransactionAmt = 700.0m;
-        transaction.TransactionCategory = "Housing";
+        transaction.Item.TransactionDateOnly = date;
+        transaction.Item.TransactionLabel = label;
+        transaction.Item.TransactionAmt = amount;
+        transaction.Item.TransactionCategory = category;
 
-        transaction.UserId = user.Id;
-        transaction.User = user;
+        transaction.Item.UserId = user.Id;
+        transaction.Item.User = user;
 
-        await TransactionManager.UpdateTransaction(transaction);
+        await TransactionManager.UpdateTransaction(transaction.Item);
         userTransactions = await TransactionManager.GetTransactions(transaction.Item.UserId);
     }
 
