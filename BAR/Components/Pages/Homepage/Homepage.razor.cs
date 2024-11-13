@@ -58,43 +58,65 @@ namespace BAR.Components.Pages.Homepage
             doughnutChartOptions.Plugins.Title!.Text = "Monthly Expenses";
             doughnutChartOptions.Plugins.Title.Display = true;
 
-            // Generate random amounts for two datasets
-            dataset1Amounts = GenerateRandomAmounts();
-            dataset2Amounts = GenerateRandomAmounts();
+            
+
+            // Create chart data with labels and datasets
+            // Load the actual data into dataset amounts
+            await LoadChartDataAsync();
 
             // Create chart data with labels and datasets
             chartData = new ChartData
             {
-                Labels = new List<string> { "Bills", "Debt", "Investing", "Education" },
+                Labels = new List<string>
+        {
+            "Housing", "Bills/Utilities", "Groceries/Dining", "Transportation",
+            "Education", "Debt", "Entertainment", "Shopping",
+            "Medical", "Investing", "Miscellaneous"
+        },
                 Datasets = new List<IChartDataset>
+        {
+            new DoughnutChartDataset
             {
-                new DoughnutChartDataset
-                {
-                    Label = "Amount Spent",
-                    Data = dataset1Amounts,
-                    BackgroundColor = new List<string>  //set colors for dataset
-                    {
-                        backgroundColors[0],
-                        backgroundColors[1],
-                        backgroundColors[2],
-                        backgroundColors[3]
-                    }
-                },
-                new DoughnutChartDataset
-                {
-                    Label = "Amount Left",
-                    Data = dataset2Amounts,
-                    BackgroundColor = new List<string>
-                    {
-                        backgroundColors[4],
-                        backgroundColors[5],
-                        backgroundColors[6],
-                        backgroundColors[7]
-                    }
-                }
+                Label = "Amount Spent",
+                Data = dataset1Amounts,
+                BackgroundColor = new List<string> // Set specific colors for each category
+            {
+                "#0fb5ae",
+                "#4046ca",
+                "#f68511",
+                "#de3d82",
+                "#7e84fa",
+                "#72e06a",
+                "#147af3",
+                "#7326d3",
+                "#e8c600",
+                "#cb5d00",
+                "#008f5d"
             }
+            },
+            new DoughnutChartDataset
+            {
+                Label = "Amount Remaining",
+                Data = dataset2Amounts,
+                BackgroundColor = new List<string> // Set specific colors for each category
+            {
+                "#0fb5ae",
+                "#4046ca",
+                "#f68511",
+                "#de3d82",
+                "#7e84fa",
+                "#72e06a",
+                "#147af3",
+                "#7326d3",
+                "#e8c600",
+                "#cb5d00",
+                "#008f5d"
+            }
+            }
+        }
             };
-            randomMoneyAmount = $"${GetRandomMoneyAmount()}";  //initialize random money amount onto the cards
+
+
             await GetUserNames();
             await CalculateMonthlyBudgetTotal();
         }
@@ -203,26 +225,72 @@ namespace BAR.Components.Pages.Homepage
             await base.OnAfterRenderAsync(firstRender);
         }
 
-        // Method to generate random amounts for each category
-        private List<double?> GenerateRandomAmounts()
+        private async Task LoadChartDataAsync()
         {
-            var amounts = new List<double?>();
-            for (int i = 0; i < 4; i++) // Create four random amounts
+            // Get the current user's authentication state
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null) return;
+
+            // Fetch budget categories and amounts
+            var budget = await DbContext.UserBudgets
+                .Where(b => b.UserId == userId)
+                .FirstOrDefaultAsync();
+
+            if (budget != null)
             {
-                // Generate a random dollar amount between 0.00 and 1000.00 and round to two decimal places
-                double randomAmount = Math.Round(random.NextDouble() * 1000, 2);
-                amounts.Add(randomAmount);
-            }
-            return amounts;
-        }
-
-
-        //Random money amount generator
-        private string randomMoneyAmount = ".00";
-        private string GetRandomMoneyAmount()
+                // Populate dataset1Amounts with budget amounts (Amount Remaining)
+                dataset2Amounts = new List<double?>
         {
-            double randomAmount = Math.Round(random.NextDouble() * 1000, 2);
-            return randomAmount.ToString("0.00");
+            (double?)budget.HousingAmt,
+            (double?)budget.BillsUtilsAmt,
+            (double?)budget.GroceryDiningAmt,
+            (double?)budget.TransportAmt,
+            (double?)budget.EducationAmt,
+            (double?)budget.DebtAmt,
+            (double?)budget.EntertainmentAmt,
+            (double?)budget.ShoppingAmt,
+            (double?)budget.MedicalAmt,
+            (double?)budget.InvestingAmt,
+            (double?)budget.MiscAmt
+        };
+            }
+
+            // Fetch recent transaction amounts by category
+            var transactions = await DbContext.UserTransactions
+                .Where(t => t.UserId == userId)
+                .ToListAsync();
+
+            // Aggregate transactions by category
+            var transactionSums = transactions
+                .GroupBy(t => t.TransactionCategory)
+                .ToDictionary(
+                    g => g.Key,
+                    g => (double?)g.Sum(t => t.TransactionAmt)
+                );
+
+            // Populate dataset1Amounts with the amount spent (the difference is the remaining amount)
+            dataset1Amounts = new List<double?>
+    {
+        // Subtract the spent amount from the budget amount to get the remaining amount
+        (double?)(transactionSums.GetValueOrDefault("Housing", 0)),
+        (double?)(transactionSums.GetValueOrDefault("Bills/Utilities", 0)),
+        (double?)(transactionSums.GetValueOrDefault("Grocery/Dining", 0)),
+        (double?)(transactionSums.GetValueOrDefault("Transportation", 0)),
+        (double?)(transactionSums.GetValueOrDefault("Education", 0)),
+        (double?)(transactionSums.GetValueOrDefault("Debt", 0)),
+        (double?)(transactionSums.GetValueOrDefault("Entertainment", 0)),
+        (double?)(transactionSums.GetValueOrDefault("Shopping", 0)),
+        (double?)(transactionSums.GetValueOrDefault("Medical", 0)),
+        (double?)(transactionSums.GetValueOrDefault("Investing", 0)),
+        (double?)(transactionSums.GetValueOrDefault("Misc", 0))
+    };
+
+            // Now, subtract the spent amount from the budgeted amount to get the remaining amount for each category
+            dataset2Amounts = dataset2Amounts
+                .Select((amount, index) => amount - dataset1Amounts[index]) // Calculate remaining by subtracting spent from budgeted
+                .ToList();
         }
 
 
