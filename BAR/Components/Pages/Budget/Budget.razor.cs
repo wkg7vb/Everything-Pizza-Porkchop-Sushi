@@ -84,7 +84,6 @@ public partial class Budget
             Type = categories[0],
             Amt = 0.0m
         };
-        if (categories.Contains(newData.Type)) categories.Remove(newData.Type);
         try
         {
             if (categories.Count < 1) throw new Exception("You cannot add more categories.");
@@ -95,6 +94,7 @@ public partial class Budget
             return;
         }
         elmts.Add(newData);
+        UpdateCategories();
     }
 
     // Overloaded function for element initialization on pageload, taking two params
@@ -104,7 +104,6 @@ public partial class Budget
             Type = type,
             Amt = (decimal)amt
         };
-        if (categories.Contains(newData.Type)) categories.Remove(newData.Type);
         try
         {
             if (categories.Count < 1) throw new Exception("You cannot add more categories.");
@@ -115,6 +114,7 @@ public partial class Budget
             return;
         }
         elmts.Add(newData);
+        UpdateCategories();
     }
 
     // Callback function to remove element (see CategoryElmt.razor)
@@ -135,8 +135,29 @@ public partial class Budget
             if (elmt.Equals(del))
             {
                 elmts.Remove(elmt);
-                categories.Add(elmt.Type);
+                UpdateCategories();
                 break;
+            }
+        }
+    }
+
+    private void UpdateCategories(){
+        categories = new List<string>{
+        "Housing",
+        "Bills/Utilities",
+        "Grocery/Dining",
+        "Transportation",
+        "Education",
+        "Debt",
+        "Entertainment",
+        "Shopping",
+        "Medical",
+        "Investing",
+        "Miscellaneous"
+    };
+        foreach (var col in elmts){
+            if (categories.Contains(col.Type)){
+                categories.Remove(col.Type);
             }
         }
     }
