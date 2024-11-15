@@ -20,6 +20,19 @@ public partial class Budget
     private List<CategoryData> elmts = new();
     private string? err;
     private string? msg;
+    private readonly Dictionary<string, string> categoryColumnNames = new Dictionary<string, string>{
+        {"Housing", "HousingAmt"},
+        {"Bills/Utilities", "BillsUtilsAmt"},
+        {"Grocery/Dining", "GroceryDiningAmt"},
+        {"Transportation", "TransportAmt"},
+        {"Education", "EducationAmt"},
+        {"Debt", "DebtAmt"},
+        {"Entertainment", "EntertainmentAmt"},
+        {"Shopping", "ShoppingAmt"},
+        {"Medical", "MedicalAmt"},
+        {"Investing", "InvestingAmt"},
+        {"Miscellaneous", "MiscAmt"}
+    };
     private List<string> categories = new List<string> {
         "Housing",
         "Bills/Utilities",
@@ -141,20 +154,9 @@ public partial class Budget
         }
     }
 
+    // Update categories list to reflect what categories are in use and which aren't
     private void UpdateCategories(){
-        categories = new List<string>{
-        "Housing",
-        "Bills/Utilities",
-        "Grocery/Dining",
-        "Transportation",
-        "Education",
-        "Debt",
-        "Entertainment",
-        "Shopping",
-        "Medical",
-        "Investing",
-        "Miscellaneous"
-    };
+        categories = categoryColumnNames.Keys.ToList();
         foreach (var col in elmts){
             if (categories.Contains(col.Type)){
                 categories.Remove(col.Type);
@@ -162,114 +164,36 @@ public partial class Budget
         }
     }
 
-    // TODO: send elmts.CategoryData and BdgtAmt to db
+    // Saves the user's input data to their UserBudget in the db
     private async void SaveChangesAsync()
     {
+        UpdateCategories();
         Type bdgttype = bdgt.GetType();
         PropertyInfo[] properties = bdgttype.GetProperties();
 
         foreach (PropertyInfo property in properties){
             switch (property.Name){
-                case "HousingAmt":
-                    if (!categories.Contains("Housing")){
-                        var data = elmts.Find(x => x.Type == "Housing");
-                        bdgt.HousingAmt = data.Amt;
-                    }
-                    else  {
-                        bdgt.HousingAmt = null;
-                    }
-                    break;
-                case "BillsUtilsAmt":
-                    if (!categories.Contains("Bills/Utilities")){
-                        var data = elmts.Find(x => x.Type == "Bills/Utilities");
-                        bdgt.BillsUtilsAmt = data.Amt;
-                    }
-                    else  {
-                        bdgt.BillsUtilsAmt = null;
-                    }
-                    break;
-                case "GroceryDiningAmt":
-                    if (!categories.Contains("Grocery/Dining")){
-                        var data = elmts.Find(x => x.Type == "Grocery/Dining");
-                        bdgt.GroceryDiningAmt = data.Amt;
-                    }
-                    else  {
-                        bdgt.GroceryDiningAmt = null;
-                    }
-                    break;
-                case "TransportAmt":
-                    if (!categories.Contains("Transportation")){
-                        var data = elmts.Find(x => x.Type == "Transportation");
-                        bdgt.TransportAmt = data.Amt;
-                    }
-                    else  {
-                        bdgt.TransportAmt = null;
-                    }
-                    break;
-                case "EducationAmt":
-                    if (!categories.Contains("Education")){
-                        var data = elmts.Find(x => x.Type == "Education");
-                        bdgt.EducationAmt = data.Amt;
-                    }
-                    else  {
-                        bdgt.EducationAmt = null;
-                    }
-                    break;
-                case "DebtAmt":
-                    if (!categories.Contains("Debt")){
-                        var data = elmts.Find(x => x.Type == "Debt");
-                        bdgt.DebtAmt = data.Amt;
-                    }
-                    else  {
-                        bdgt.DebtAmt = null;
-                    }
-                    break;
-                case "EntertainmentAmt":
-                    if (!categories.Contains("Entertainment")){
-                        var data = elmts.Find(x => x.Type == "Entertainment");
-                        bdgt.EntertainmentAmt = data.Amt;
-                    }
-                    else  {
-                        bdgt.EntertainmentAmt = null;
-                    }
-                    break;
-                case "ShoppingAmt":
-                    if (!categories.Contains("Shopping")){
-                        var data = elmts.Find(x => x.Type == "Shopping");
-                        bdgt.ShoppingAmt = data.Amt;
-                    }
-                    else  {
-                        bdgt.ShoppingAmt = null;
-                    }
-                    break;
-                case "MedicalAmt":
-                    if (!categories.Contains("Medical")){
-                        var data = elmts.Find(x => x.Type == "Medical");
-                        bdgt.MedicalAmt = data.Amt;
-                    }
-                    else  {
-                        bdgt.MedicalAmt = null;
-                    }
-                    break;
-                case "InvestingAmt":
-                    if (!categories.Contains("Investing")){
-                        var data = elmts.Find(x => x.Type == "Investing");
-                        bdgt.InvestingAmt = data.Amt;
-                    }
-                    else  {
-                        bdgt.InvestingAmt = null;
-                    }
-                    break;
-                case "MiscAmt":
-                    if (!categories.Contains("Miscellaneous")){
-                        var data = elmts.Find(x => x.Type == "Miscellaneous");
-                        bdgt.MiscAmt = data.Amt;
-                    }
-                    else  {
-                        bdgt.MiscAmt = null;
-                    }
+                // Skip if not user-changed values
+                case "BudgetId":
+                case "UserId":
+                case "User":
+                case "AllCategoriesNull":
+                case "MonthlyIncome":
                     break;
                 default:
+                    // Check if category is not used, and if so null value in UserBudget
+                    bool shouldBreak = false;
+                    foreach (var cat in categories){
+                        if (categoryColumnNames[cat] == property.Name){
+                            property.SetValue(bdgt, null);
+                            shouldBreak = true;
+                            break;
+                        }
+                    }
+                    if (shouldBreak) break;
+                    // Get CategoryData from elmts and update bdgt with correct Amt
+                    var data = elmts.Find(x => categoryColumnNames[x.Type] == property.Name);
+                    property.SetValue(bdgt, data.Amt);
                     break;
             }
         }
