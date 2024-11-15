@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using BAR.Components.Pages.Budget.Modules;
 using BAR.Data.Models;
+using BlazorBootstrap;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -12,14 +13,14 @@ namespace BAR.Components.Pages.Budget;
 public partial class Budget
 {
     // User vars from db (init'd inside OnInitialiedAsync)
-    private UserBudget bdgt;
-    private ApplicationUser user {get; set;} = default!;
+    private UserBudget? bdgt;
+    private ApplicationUser? user {get; set;} = default!;
+
+    [Inject] ToastService toastService {get; set;} = default!;
 
     // Local vars
-    private string userCurrencyLocale {get; set;}
+    private string userCurrencyLocale {get; set;} = "";
     private List<CategoryData> elmts = new();
-    private string? err;
-    private string? msg;
     private readonly Dictionary<string, string> categoryColumnNames = new Dictionary<string, string>{
         {"Housing", "HousingAmt"},
         {"Bills/Utilities", "BillsUtilsAmt"},
@@ -33,27 +34,23 @@ public partial class Budget
         {"Investing", "InvestingAmt"},
         {"Miscellaneous", "MiscAmt"}
     };
-    private List<string> categories = new List<string> {
-        "Housing",
-        "Bills/Utilities",
-        "Grocery/Dining",
-        "Transportation",
-        "Education",
-        "Debt",
-        "Entertainment",
-        "Shopping",
-        "Medical",
-        "Investing",
-        "Miscellaneous"
-    };
+    private List<string> categories = new();
+
 
     // Functions
-    // Runs when page is loaded, pseudo "constructor"-like function
+    // Initialize local categories list
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        categories = categoryColumnNames.Keys.ToList();
+    }
+
+    // Runs when page is loaded, pseudo "constructor"-like function to pull data and fill page with respective elements
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity.IsAuthenticated){
+        if (authState.User.Identity!.IsAuthenticated){
             user = await UserManager.GetUserAsync(authState.User);
         }
         if (user is not null)
@@ -63,17 +60,17 @@ public partial class Budget
 
             if (bdgt is not null)
             {
-                if (bdgt.HousingAmt is not null) AddCategoryElmt(type: "Housing", amt: bdgt.HousingAmt);
-                if (bdgt.BillsUtilsAmt is not null) AddCategoryElmt(type: "Bills/Utilities", amt: bdgt.BillsUtilsAmt);
-                if (bdgt.GroceryDiningAmt is not null) AddCategoryElmt(type: "Grocery/Dining", amt: bdgt.GroceryDiningAmt);
-                if (bdgt.TransportAmt is not null) AddCategoryElmt(type: "Transportation", amt: bdgt.TransportAmt);            
-                if (bdgt.EducationAmt is not null) AddCategoryElmt(type: "Education", amt: bdgt.EducationAmt);
-                if (bdgt.DebtAmt is not null) AddCategoryElmt(type: "Debt", amt: bdgt.DebtAmt);
-                if (bdgt.EntertainmentAmt is not null) AddCategoryElmt(type: "Entertainment", amt: bdgt.EntertainmentAmt);
-                if (bdgt.ShoppingAmt is not null) AddCategoryElmt(type: "Shopping", amt: bdgt.ShoppingAmt);
-                if (bdgt.MedicalAmt is not null) AddCategoryElmt(type: "Medical", amt: bdgt.MedicalAmt);
-                if (bdgt.InvestingAmt is not null) AddCategoryElmt(type: "Investing", amt: bdgt.InvestingAmt);
-                if (bdgt.MiscAmt is not null) AddCategoryElmt(type: "Miscellaneous", amt: bdgt.MiscAmt);
+                if (bdgt.HousingAmt is not null) AddCategoryElmt(type: "Housing", amt: (decimal)bdgt.HousingAmt);
+                if (bdgt.BillsUtilsAmt is not null) AddCategoryElmt(type: "Bills/Utilities", amt: (decimal)bdgt.BillsUtilsAmt);
+                if (bdgt.GroceryDiningAmt is not null) AddCategoryElmt(type: "Grocery/Dining", amt: (decimal)bdgt.GroceryDiningAmt);
+                if (bdgt.TransportAmt is not null) AddCategoryElmt(type: "Transportation", amt: (decimal)bdgt.TransportAmt);            
+                if (bdgt.EducationAmt is not null) AddCategoryElmt(type: "Education", amt: (decimal)bdgt.EducationAmt);
+                if (bdgt.DebtAmt is not null) AddCategoryElmt(type: "Debt", amt: (decimal)bdgt.DebtAmt);
+                if (bdgt.EntertainmentAmt is not null) AddCategoryElmt(type: "Entertainment", amt: (decimal)bdgt.EntertainmentAmt);
+                if (bdgt.ShoppingAmt is not null) AddCategoryElmt(type: "Shopping", amt: (decimal)bdgt.ShoppingAmt);
+                if (bdgt.MedicalAmt is not null) AddCategoryElmt(type: "Medical", amt: (decimal)bdgt.MedicalAmt);
+                if (bdgt.InvestingAmt is not null) AddCategoryElmt(type: "Investing", amt: (decimal)bdgt.InvestingAmt);
+                if (bdgt.MiscAmt is not null) AddCategoryElmt(type: "Miscellaneous", amt: (decimal)bdgt.MiscAmt);
                 if (elmts.Count() == 0 && bdgt.AllCategoriesNull) AddCategoryElmt();
             }
             // Initialize a generic category cell when no user data is available
@@ -87,7 +84,10 @@ public partial class Budget
                 await dbContext.SaveChangesAsync();
             }
         }
-        else throw new Exception("Invalid user.");
+        else try { throw new Exception("Invalid user."); }
+        catch {
+            NavigationManager.NavigateTo("/Account/Login");
+        }
     }
 
     // Add an element into elmts to be rendered
@@ -103,7 +103,9 @@ public partial class Budget
         }
         catch (Exception e)
         {
-            err = e.Message;
+            toastService.Notify(
+                new ToastMessage(ToastType.Danger, e.Message)
+            );
             return;
         }
         elmts.Add(newData);
@@ -111,11 +113,11 @@ public partial class Budget
     }
 
     // Overloaded function for element initialization on pageload, taking two params
-    private void AddCategoryElmt(string type, decimal? amt)
+    private void AddCategoryElmt(string type, decimal amt)
     {
         CategoryData newData = new CategoryData{
             Type = type,
-            Amt = (decimal)amt
+            Amt = amt
         };
         try
         {
@@ -123,7 +125,9 @@ public partial class Budget
         }
         catch (Exception e)
         {
-            err = e.Message;
+            toastService.Notify(
+                new ToastMessage(ToastType.Danger, e.Message)
+            );
             return;
         }
         elmts.Add(newData);
@@ -141,7 +145,9 @@ public partial class Budget
             }
             catch (Exception e)
             {
-                err = e.Message;
+                toastService.Notify(
+                    new ToastMessage(ToastType.Danger, e.Message)
+                );
                 return;
             }
 
@@ -168,12 +174,11 @@ public partial class Budget
     private async void SaveChangesAsync()
     {
         UpdateCategories();
-        Type bdgttype = bdgt.GetType();
+        Type bdgttype = bdgt!.GetType();
         PropertyInfo[] properties = bdgttype.GetProperties();
 
         foreach (PropertyInfo property in properties){
             switch (property.Name){
-                // Skip if not user-changed values
                 case "BudgetId":
                 case "UserId":
                 case "User":
@@ -181,7 +186,6 @@ public partial class Budget
                 case "MonthlyIncome":
                     break;
                 default:
-                    // Check if category is not used, and if so null value in UserBudget
                     bool shouldBreak = false;
                     foreach (var cat in categories){
                         if (categoryColumnNames[cat] == property.Name){
@@ -191,29 +195,21 @@ public partial class Budget
                         }
                     }
                     if (shouldBreak) break;
-                    // Get CategoryData from elmts and update bdgt with correct Amt
                     var data = elmts.Find(x => categoryColumnNames[x.Type] == property.Name);
-                    property.SetValue(bdgt, data.Amt);
+                    property.SetValue(bdgt, data!.Amt);
                     break;
             }
         }
         try {
             var updateResult = await dbContext.SaveChangesAsync();
         }
-        catch(Exception e) {
-            err = e.Message;
+        catch {
+            toastService.Notify(
+                new ToastMessage(ToastType.Danger, "An error occurred while saving your changes.")
+            );
         }
-        msg = "Your changes have been saved.";
-    }
-
-    // Clears error out when alert is closed
-    private void ClearErr()
-    {
-        err = string.Empty;
-    }
-    // Clear message out when alert is closed
-    private void ClearMsg()
-    {
-        msg = string.Empty;
+        toastService.Notify(
+                new ToastMessage(ToastType.Success, "Your changes have been saved.")
+            );
     }
 }
