@@ -40,6 +40,8 @@ namespace BAR.Components.Pages.Homepage
         //card vars
         private decimal monthlyBudgetTotal;
         private decimal monthlyIncome;
+        private decimal monthlyTotalSpent = 0.00m;
+        private decimal overMonthlyBudget = 0.00m;
 
         //user's first name vars
         private string userFirstName = "Partner";
@@ -58,7 +60,7 @@ namespace BAR.Components.Pages.Homepage
             doughnutChartOptions.Plugins.Title!.Text = "Monthly Expenses";
             doughnutChartOptions.Plugins.Title.Display = true;
 
-            
+
 
             // Create chart data with labels and datasets
             // Load the actual data into dataset amounts
@@ -119,6 +121,7 @@ namespace BAR.Components.Pages.Homepage
 
             await GetUserNames();
             await CalculateMonthlyBudgetTotal();
+            await CalculateFinancials();
         }
 
         // Data provider for the Grid component displaying transactions
@@ -202,16 +205,42 @@ namespace BAR.Components.Pages.Homepage
                 }
                 else
                 {
-                    monthlyBudgetTotal = 0; // Set to zero if no budget found
+                    monthlyBudgetTotal = 0; 
                     monthlyIncome = 0;
                 }
             }
             else
             {
-                monthlyBudgetTotal = 0; // Handle case where user ID is null
+                monthlyBudgetTotal = 0; 
                 monthlyIncome = 0;
             }
         }
+
+        private async Task CalculateFinancials()
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId != null)
+            {
+                // Fetch user's transactions for the current month
+                var transactions = await DbContext.UserTransactions
+                    .Where(t => t.UserId == userId && t.TransactionDateTime.Month == DateTime.Now.Month)
+                    .ToListAsync();
+
+                // Calculate the total spent in the current month
+                monthlyTotalSpent = transactions.Sum(t => t.TransactionAmt);
+
+                // Calculate if the user is over budget
+                overMonthlyBudget = monthlyTotalSpent > monthlyBudgetTotal ? monthlyTotalSpent - monthlyBudgetTotal : 0.00m;
+            }
+            else
+            {
+                monthlyTotalSpent = 0.00m;
+                overMonthlyBudget = 0.00m;
+            }
+        }
+
 
         // Method called after the component has rendered
         protected override async Task OnAfterRenderAsync(bool firstRender)
