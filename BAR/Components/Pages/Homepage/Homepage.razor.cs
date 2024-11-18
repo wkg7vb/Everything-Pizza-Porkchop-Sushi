@@ -118,7 +118,6 @@ namespace BAR.Components.Pages.Homepage
         }
             };
 
-
             await GetUserNames();
             await CalculateCardFinancials();
         }
@@ -255,19 +254,19 @@ namespace BAR.Components.Pages.Homepage
             {
                 // Populate dataset1Amounts with budget amounts (Amount Remaining)
                 dataset2Amounts = new List<double?>
-        {
-            (double?)budget.HousingAmt,
-            (double?)budget.BillsUtilsAmt,
-            (double?)budget.GroceryDiningAmt,
-            (double?)budget.TransportAmt,
-            (double?)budget.EducationAmt,
-            (double?)budget.DebtAmt,
-            (double?)budget.EntertainmentAmt,
-            (double?)budget.ShoppingAmt,
-            (double?)budget.MedicalAmt,
-            (double?)budget.InvestingAmt,
-            (double?)budget.MiscAmt
-        };
+                {
+                    (double?)budget.HousingAmt,
+                    (double?)budget.BillsUtilsAmt,
+                    (double?)budget.GroceryDiningAmt,
+                    (double?)budget.TransportAmt,
+                    (double?)budget.EducationAmt,
+                    (double?)budget.DebtAmt,
+                    (double?)budget.EntertainmentAmt,
+                    (double?)budget.ShoppingAmt,
+                    (double?)budget.MedicalAmt,
+                    (double?)budget.InvestingAmt,
+                    (double?)budget.MiscAmt
+                };
             }
 
             // Fetch recent transaction amounts by category
@@ -285,20 +284,20 @@ namespace BAR.Components.Pages.Homepage
 
             // Populate dataset1Amounts with the amount spent (the difference is the remaining amount)
             dataset1Amounts = new List<double?>
-    {
-        // Subtract the spent amount from the budget amount to get the remaining amount
-        (double?)(transactionSums.GetValueOrDefault("Housing", 0)),
-        (double?)(transactionSums.GetValueOrDefault("Bills/Utilities", 0)),
-        (double?)(transactionSums.GetValueOrDefault("Grocery/Dining", 0)),
-        (double?)(transactionSums.GetValueOrDefault("Transportation", 0)),
-        (double?)(transactionSums.GetValueOrDefault("Education", 0)),
-        (double?)(transactionSums.GetValueOrDefault("Debt", 0)),
-        (double?)(transactionSums.GetValueOrDefault("Entertainment", 0)),
-        (double?)(transactionSums.GetValueOrDefault("Shopping", 0)),
-        (double?)(transactionSums.GetValueOrDefault("Medical", 0)),
-        (double?)(transactionSums.GetValueOrDefault("Investing", 0)),
-        (double?)(transactionSums.GetValueOrDefault("Misc", 0))
-    };
+            {
+                // Subtract the spent amount from the budget amount to get the remaining amount
+                (double?)(transactionSums.GetValueOrDefault("Housing", 0)),
+                (double?)(transactionSums.GetValueOrDefault("Bills/Utilities", 0)),
+                (double?)(transactionSums.GetValueOrDefault("Grocery/Dining", 0)),
+                (double?)(transactionSums.GetValueOrDefault("Transportation", 0)),
+                (double?)(transactionSums.GetValueOrDefault("Education", 0)),
+                (double?)(transactionSums.GetValueOrDefault("Debt", 0)),
+                (double?)(transactionSums.GetValueOrDefault("Entertainment", 0)),
+                (double?)(transactionSums.GetValueOrDefault("Shopping", 0)),
+                (double?)(transactionSums.GetValueOrDefault("Medical", 0)),
+                (double?)(transactionSums.GetValueOrDefault("Investing", 0)),
+                (double?)(transactionSums.GetValueOrDefault("Misc", 0))
+            };
 
             // Now, subtract the spent amount from the budgeted amount to get the remaining amount for each category
             dataset2Amounts = dataset2Amounts
