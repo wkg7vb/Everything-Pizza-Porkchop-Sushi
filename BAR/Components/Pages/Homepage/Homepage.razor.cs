@@ -120,7 +120,6 @@ namespace BAR.Components.Pages.Homepage
 
 
             await GetUserNames();
-            await CalculateMonthlyBudgetTotal();
             await CalculateFinancials();
         }
 
@@ -172,14 +171,11 @@ namespace BAR.Components.Pages.Homepage
             }
         }
 
-        private async Task CalculateMonthlyBudgetTotal()
+        private async Task CalculateFinancials()
         {
-            // Get the current user's authentication state
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
-
-            // Retrieve the user's ID
-            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId != null)
             {
@@ -205,24 +201,10 @@ namespace BAR.Components.Pages.Homepage
                 }
                 else
                 {
-                    monthlyBudgetTotal = 0; 
+                    monthlyBudgetTotal = 0;
                     monthlyIncome = 0;
                 }
-            }
-            else
-            {
-                monthlyBudgetTotal = 0; 
-                monthlyIncome = 0;
-            }
-        }
 
-        private async Task CalculateFinancials()
-        {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId != null)
-            {
                 // Fetch user's transactions for the current month
                 var transactions = await DbContext.UserTransactions
                     .Where(t => t.UserId == userId && t.TransactionDateTime.Month == DateTime.Now.Month)
@@ -238,6 +220,8 @@ namespace BAR.Components.Pages.Homepage
             {
                 monthlyTotalSpent = 0.00m;
                 overMonthlyBudget = 0.00m;
+                monthlyBudgetTotal = 0;
+                monthlyIncome = 0;
             }
         }
 
