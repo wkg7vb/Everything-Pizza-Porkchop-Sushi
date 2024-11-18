@@ -120,7 +120,7 @@ namespace BAR.Components.Pages.Homepage
 
 
             await GetUserNames();
-            await CalculateFinancials();
+            await CalculateCardFinancials();
         }
 
         // Data provider for the Grid component displaying transactions
@@ -171,7 +171,7 @@ namespace BAR.Components.Pages.Homepage
             }
         }
 
-        private async Task CalculateFinancials()
+        private async Task CalculateCardFinancials()
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
