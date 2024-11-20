@@ -28,10 +28,6 @@ namespace BAR.Components.Pages.Homepage
         // Data structure to hold chart data (labels and datasets)
         private ChartData chartData = default!;
 
-        private string[] backgroundColors = ColorUtility.CategoricalTwelveColors;
-
-        // Random number generator for generating random data
-        private Random random = new();
 
         // Amounts for each category in both datasets
         private List<double?> dataset1Amounts = new();
@@ -130,7 +126,7 @@ namespace BAR.Components.Pages.Homepage
             return user.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
-        // Data provider for the Grid component displaying transactions
+        // Data provider for the Grid component displaying list of recent transactions
         private async Task<GridDataProviderResult<UserTransaction>> TransactionsDataProvider(GridDataProviderRequest<UserTransaction> request)
         {
             if (transactions == null) // Fetch transactions only once to optimize
@@ -171,7 +167,7 @@ namespace BAR.Components.Pages.Homepage
                 }
             }
         }
-
+        //calculate the amounts for each card component
         private async Task CalculateCardFinancials()
         {
             var userId = await GetCurrentUserIdAsync();
@@ -228,11 +224,9 @@ namespace BAR.Components.Pages.Homepage
         // Method called after the component has rendered
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender) // Ensure the initialization only occurs once
-            {
-                // Initialize the DoughnutChart with data and options
-                await doughnutChart.InitializeAsync(chartData, doughnutChartOptions);
-            }
+            // Always initialize the DoughnutChart with data and options
+            await doughnutChart.InitializeAsync(chartData, doughnutChartOptions);
+
             // Call the base class implementation
             await base.OnAfterRenderAsync(firstRender);
         }
