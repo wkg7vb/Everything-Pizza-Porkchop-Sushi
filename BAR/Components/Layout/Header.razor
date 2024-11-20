@@ -74,7 +74,7 @@
 </div>
 
 @* Add Transaction popup *@
-<Modal @ref="addmodal" Title="Add Transaction">
+<Modal @ref="addmodal" Title="Add Transaction" IsVerticallyCentered="true">
     <BodyTemplate>
         Date:
         <div class="mb-3">
@@ -87,8 +87,8 @@
         <input type="text" class="mt-2" @bind-value="amount" /> <br> <br>
         Category:
         <Dropdown Color="DropdownColor.Secondary">
-            <DropdownToggleButton>Add Category</DropdownToggleButton>
-            <DropdownMenu @bind-value="category">
+            <DropdownToggleButton>Select Category</DropdownToggleButton>
+            <DropdownMenu>
                 <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
                 <DropdownItem To="#" Type="DropdownItemType.Link">Bills/Utilities</DropdownItem>
                 <DropdownItem To="#" Type="DropdownItemType.Link">Grocery/Dining</DropdownItem>
