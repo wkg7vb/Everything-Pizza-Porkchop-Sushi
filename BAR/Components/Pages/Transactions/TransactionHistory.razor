@@ -75,15 +75,23 @@
             <Dropdown Color="DropdownColor.Secondary">
                 <DropdownToggleButton @bind-Value="@category">Add Category</DropdownToggleButton>
                 <DropdownMenu>
-                    <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
-                    <DropdownItem To="#" Type="DropdownItemType.Link">Food</DropdownItem>
-                    <DropdownItem To="#" Type="DropdownItemType.Link">ETC</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Bills/Utilities</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Grocery/Dining</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Transportation</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Education</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Debt</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Entertainment</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Shopping</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Medical</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Investing</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Miscellaneous</DropdownItem>
                 </DropdownMenu>
             </Dropdown> <br>
         </BodyTemplate>
         <FooterTemplate>
-            <Button Color="ButtonColor.Secondary" @onClick="UpdateFromModal">Update</Button>
-            <Button Color="ButtonColor.Secondary" @onClick="CancelUpdateModal">Cancel</Button>
+            <Button Color="ButtonColor.Secondary" @onclick="UpdateFromModal">Update</Button>
+            <Button Color="ButtonColor.Secondary" @onclick="CancelUpdateModal">Cancel</Button>
         </FooterTemplate>
     </Modal>
 
@@ -99,6 +107,7 @@
     private string category = default!;
     private string label = default!;
     private decimal amount = default!;
+    private UserTransaction transactionToUpdate;
 
     //dependency injection
     [Inject] ToastService toastService { get; set; } = default!;
@@ -126,8 +135,9 @@
 
     //update modal
     private Modal updatemodal = default!;
-    private async Task ShowUpdateModal()
+    private async Task ShowUpdateModal(GridRowEventArgs<UserTransaction> transaction)
     {
+        transactionToUpdate = transaction.Item;
         updatemodal?.ShowAsync();
     }
 
@@ -136,18 +146,18 @@
         updatemodal?.HideAsync();
     }
 
-    private async Task UpdateFromModal(GridRowEventArgs<UserTransaction> transaction)
+    private async Task UpdateFromModal()
     {
-        transaction.Item.TransactionDateTime = date;
-        transaction.Item.TransactionLabel = label;
-        transaction.Item.TransactionAmt = amount;
-        transaction.Item.TransactionCategory = category;
+        transactionToUpdate.TransactionDateTime = date;
+        transactionToUpdate.TransactionLabel = label;
+        transactionToUpdate.TransactionAmt = amount;
+        transactionToUpdate.TransactionCategory = category;
 
-        transaction.Item.UserId = user.Id;
-        transaction.Item.User = user;
+        transactionToUpdate.UserId = user.Id;
+        transactionToUpdate.User = user;
 
-        await TransactionManager.UpdateTransaction(transaction.Item);
-        userTransactions = await TransactionManager.GetTransactions(transaction.Item.UserId);
+        await TransactionManager.UpdateTransaction(transactionToUpdate);
+        userTransactions = await TransactionManager.GetTransactions(user.Id);
     }
 
     //delete dialog
