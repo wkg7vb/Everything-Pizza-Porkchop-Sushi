@@ -70,7 +70,20 @@
             Amount:
             <input type="text" class="mt-2" @bind-value="amount"/> <br> <br>
             Category:
-            <Dropdown Color="DropdownColor.Secondary">
+            <InputSelect @bind-value="category">
+                <option value="Housing">Housing</option>
+                <option value="Bills/Utilities">Bills/Utilities</option>
+                <option value="Grocery/Dining">Grocery/Dining</option>
+                <option value="Transportation">Transportation</option>
+                <option value="Education">Education</option>
+                <option value="Debt">Debt</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Medical">Medical</option>
+                <option value="Investing">Investing</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+            </InputSelect>
+            @*<Dropdown Color="DropdownColor.Secondary">
                 <DropdownToggleButton>Select Category</DropdownToggleButton>
                 <DropdownMenu>
                     <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
@@ -85,7 +98,7 @@
                     <DropdownItem To="#" Type="DropdownItemType.Link">Investing</DropdownItem>
                     <DropdownItem To="#" Type="DropdownItemType.Link">Miscellaneous</DropdownItem>
                 </DropdownMenu>
-            </Dropdown> <br>
+            </Dropdown> <br>*@
         </BodyTemplate>
         <FooterTemplate>
             <Button Color="ButtonColor.Secondary" @onclick="UpdateFromModal">Update</Button>
@@ -156,6 +169,7 @@
 
         await TransactionManager.UpdateTransaction(transactionToUpdate);
         userTransactions = await TransactionManager.GetTransactions(user.Id);
+        updatemodal?.HideAsync();
     }
 
     //delete dialog
