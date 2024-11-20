@@ -15,9 +15,7 @@
 @page "/transactions"
 @rendermode InteractiveServer
 
-@*
-    User will be able to veiw, edit and remove UserTransactions
-*@
+@* User will be able to veiw, edit and remove UserTransactions *@
 
 <PageTitle>Transaction History</PageTitle>
 
@@ -25,7 +23,7 @@
     Transaction History
 </h1>
 
-@* Transactions List*@
+@* Transactions List *@
 <h3>
     SINGLE click a transaction to EDIT it.
 </h3>
@@ -75,17 +73,17 @@
             <Dropdown Color="DropdownColor.Secondary">
                 <DropdownToggleButton @bind-Value="@category">Add Category</DropdownToggleButton>
                 <DropdownMenu>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Bills/Utilities</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Grocery/Dining</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Transportation</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Education</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Debt</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Entertainment</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Shopping</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Medical</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Investing</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Miscellaneous</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Bills/Utilities</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Grocery/Dining</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Transportation</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Education</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Debt</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Entertainment</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Shopping</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Medical</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Investing</DropdownItem>
+                    <DropdownItem To="#" Type="DropdownItemType.Link">Miscellaneous</DropdownItem>
                 </DropdownMenu>
             </Dropdown> <br>
         </BodyTemplate>

@@ -87,8 +87,8 @@
         <input type="text" class="mt-2" @bind-value="amount" /> <br> <br>
         Category:
         <Dropdown Color="DropdownColor.Secondary">
-            <DropdownToggleButton @bind-Value="@category">Add Category</DropdownToggleButton>
-            <DropdownMenu>
+            <DropdownToggleButton>Add Category</DropdownToggleButton>
+            <DropdownMenu @bind-value="category">
                 <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
                 <DropdownItem To="#" Type="DropdownItemType.Link">Bills/Utilities</DropdownItem>
                 <DropdownItem To="#" Type="DropdownItemType.Link">Grocery/Dining</DropdownItem>
@@ -104,8 +104,8 @@
         </Dropdown> <br>
     </BodyTemplate>
     <FooterTemplate>
-        <Button Color="ButtonColor.Secondary" @onClick="AddFromModal">Add</Button>
-        <Button Color="ButtonColor.Secondary" @onClick="CancelAddTransaction">Cancel</Button>
+        <Button Color="ButtonColor.Secondary" @onclick="AddFromModal">Add</Button>
+        <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Cancel</Button>
     </FooterTemplate>
 </Modal>
 
@@ -177,9 +177,3 @@
     // Vars
     // database stuff still tbd
 }
-
-
-
-    
-
-
