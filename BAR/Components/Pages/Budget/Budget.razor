@@ -28,7 +28,7 @@ Accessible to users that are logged in.
     </div>
 
     @foreach(var elmt in elmts){
-        <CategoryElmt data="@elmt"  cats="@categories" locale="@userCurrencyLocale" RmvElmtFnc="() => RemoveCategoryElmt(elmt)" />
+        <CategoryElmt data="@elmt"  cats="@categories" locale="@userCurrencyLocale" RmvElmtFnc="() => RemoveCategoryElmt(elmt)" OnChngFnc="() => OnCategoryDataChange()" />
     }
 }
 

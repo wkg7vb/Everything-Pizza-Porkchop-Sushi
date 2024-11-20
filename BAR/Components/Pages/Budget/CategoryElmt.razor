@@ -4,6 +4,7 @@
     [Parameter] public string locale {get; set;} = "en-US";
 
     [Parameter] public EventCallback RmvElmtFnc {get; set;}
+    [Parameter] public Action OnChngFnc {get; set;}
 
     private List<string> _cats = new();
     protected override void OnParametersSet(){
@@ -13,11 +14,20 @@
 }
 
 <div class='bdgt-dropdown d-flex gap-2 mb-2'>
-    <select @bind='data.Type'>
+    <select @bind:get="data.Type" @bind:set="OnChange">
         @foreach(string _cat in _cats){
-            <option value='@_cat'>@_cat</option>
+            if (data.Type == _cat){ isSelected = true; } else isSelected = false;
+            <option value='@_cat' selected="@isSelected">@_cat</option>
         }
     </select>
     <CurrencyInput TValue="decimal" Placeholder="Amount" @bind-Value="data.Amt" Locale="@locale" Min="0.0m" MaximumFractionDigits="2"/>
     <Button Color="ButtonColor.Danger" Size="ButtonSize.Small" @onclick="RmvElmtFnc">Remove</Button>
 </div> 
+
+@code {
+    bool isSelected;
+    private void OnChange(string value){
+        data.Type = value;
+        OnChngFnc();
+    }
+}

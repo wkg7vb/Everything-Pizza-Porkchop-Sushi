@@ -93,6 +93,7 @@ public partial class Budget
     // Add an element into elmts to be rendered
     private void AddCategoryElmt()
     {
+        UpdateCategories();
         CategoryData newData = new CategoryData{
             Type = categories[0],
             Amt = 0.0m
@@ -211,5 +212,12 @@ public partial class Budget
         toastService.Notify(
                 new ToastMessage(ToastType.Success, "Your changes have been saved.")
             );
+    }
+
+    private Task OnCategoryDataChange()
+    {
+        UpdateCategories();
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 }
