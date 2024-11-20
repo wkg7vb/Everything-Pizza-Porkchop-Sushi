@@ -131,7 +131,7 @@
     private string category;
     private string label;
     private decimal amount;
-    private DateTime date;
+    private DateTime date = DateTime.Now.AddDays(0);
     private ApplicationUser user = default!;
 
     protected override async Task OnInitializedAsync()

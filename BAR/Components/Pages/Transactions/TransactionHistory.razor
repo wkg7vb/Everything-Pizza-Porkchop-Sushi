@@ -66,11 +66,11 @@
             </div>
             <div class="mb-3">Entered date: @date</div>
             Label:
-            <input type="text" class="mt-2" @bind-value="label" /> <br>
+            <input type="text" class="mt-2" @bind-value="label" PlaceHolder="@label"/> <br>
             Amount:
-            <input type="text" class="mt-2" @bind-value="amount"/> <br> <br>
+            <input type="text" class="mt-2" @bind-value="amount" PlaceHolder="@label" /> <br> <br>
             Category:
-            <InputSelect @bind-value="category">
+            <InputSelect @bind-value="category" PlaceHolder="@category">
                 <option value="Housing">Housing</option>
                 <option value="Bills/Utilities">Bills/Utilities</option>
                 <option value="Grocery/Dining">Grocery/Dining</option>
@@ -149,12 +149,16 @@
     private async Task ShowUpdateModal(GridRowEventArgs<UserTransaction> transaction)
     {
         transactionToUpdate = transaction.Item;
-        updatemodal?.ShowAsync();
+        date = transactionToUpdate.TransactionDateTime;
+        label = transactionToUpdate.TransactionLabel;
+        amount = transactionToUpdate.TransactionAmt;
+        category = transactionToUpdate.TransactionCategory;
+        await updatemodal?.ShowAsync();
     }
 
     private async Task CancelUpdateModal()
     {
-        updatemodal?.HideAsync();
+        await updatemodal?.HideAsync();
     }
 
     private async Task UpdateFromModal()
