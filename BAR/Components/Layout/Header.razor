@@ -9,7 +9,7 @@
 @inject ITransaction TransactionManager;
 @inject UserManager<ApplicationUser> UserManager;
 @inject ApplicationDbContext dbContext;
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider;
 
 <div class="top-row d-flex flex-row mb-3 justify-content-between align-items-center">
     <div class="p-2">
@@ -55,7 +55,7 @@
                                 <AntiforgeryToken />
                                 <input type="hidden" name="ReturnUrl" value="@currentUrl" />
                                 <button class="btn dropdown-item" type="submit">
-                                <Icon Name="IconName.BoxArrowRight" Color="IconColor.Danger"/> Log out
+                                    <Icon Name="IconName.BoxArrowRight" Color="IconColor.Danger"/> Log out
                                 </button>
                             </form>
                         </DropdownMenu>
@@ -117,9 +117,10 @@
         </Dropdown> <br> *@
     </BodyTemplate>
     <FooterTemplate>
-        <Button Color="ButtonColor.Secondary" @onclick="AddFromModal">Add</Button>
+        <Button Color="ButtonColor.Primary" @onclick="AddFromModal">Add</Button>
         <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Cancel</Button>
     </FooterTemplate>
+    @*FIXME add verification that all fields are filled with toast if they are not*@
 </Modal>
 
 @code {
@@ -157,10 +158,15 @@
 
         await TransactionManager.AddTransaction(transaction);
         await addmodal?.HideAsync();
+        //FIXME Refresh grid
     }
 
     private async Task AddNewTransaction()
     {
+        date = DateTime.Now.AddDays(0);
+        label = "";
+        amount = 0.0m;
+        category = "Housing";
         await addmodal?.ShowAsync();
     }
 

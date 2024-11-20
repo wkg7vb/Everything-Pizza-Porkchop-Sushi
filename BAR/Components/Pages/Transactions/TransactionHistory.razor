@@ -25,21 +25,17 @@
 
 @* Transactions List *@
 <h3>
-    SINGLE click a transaction to EDIT it.
-</h3>
-<h3>
-    DOUBLE click a transaction to DELETE it.
+    Click a transaction to edit or delete it.
 </h3>
 
     <Grid TItem="UserTransaction"
         DataProvider="TransactionDataProvider"
-        Class="table table-hover"
+        Class="table table-hover table-striped"
         AllowSorting="true"
         AllowPaging="true"
         PageSize="10"
         AllowRowClick="true"
         OnRowClick="ShowUpdateModal"
-        OnRowDoubleClick="ShowDeleteConfirm"
         Responsive="true">
         <GridColumns>
             <GridColumn TItem="UserTransaction" HeaderText="Date/Time">
@@ -101,9 +97,11 @@
             </Dropdown> <br>*@
         </BodyTemplate>
         <FooterTemplate>
-            <Button Color="ButtonColor.Secondary" @onclick="UpdateFromModal">Update</Button>
+            <Button Color="ButtonColor.Primary" @onclick="UpdateFromModal">Update</Button>
+            <Button Color="ButtonColor.Danger" @onclick="ShowDeleteConfirm">Delete</Button>
             <Button Color="ButtonColor.Secondary" @onclick="CancelUpdateModal">Cancel</Button>
         </FooterTemplate>
+        @*FIXME add verification that all fields are filled with toast if they are not*@
     </Modal>
 
 
@@ -174,22 +172,25 @@
         await TransactionManager.UpdateTransaction(transactionToUpdate);
         userTransactions = await TransactionManager.GetTransactions(user.Id);
         updatemodal?.HideAsync();
+        //FIXME refresh grid
     }
 
     //delete dialog
     private ConfirmDialog deletedialog = default!;
-    private async Task ShowDeleteConfirm(GridRowEventArgs<UserTransaction> transaction)
+    private async Task ShowDeleteConfirm()
     {
         var confirmation = await deletedialog.ShowAsync(
             title: "Delete Transaction?",
-            message1: transaction.Item.TransactionLabel.ToString(),
-            message2: transaction.Item.TransactionAmt.ToString());
+            message1: transactionToUpdate.TransactionLabel.ToString(),
+            message2: transactionToUpdate.TransactionAmt.ToString());
 
         if (confirmation)
         {
             //delete transaction
-            await TransactionManager.DeleteTransaction(transaction.Item);
-            userTransactions = await TransactionManager.GetTransactions(transaction.Item.UserId);
+            await TransactionManager.DeleteTransaction(transactionToUpdate);
+            await updatemodal.HideAsync();
+            userTransactions = await TransactionManager.GetTransactions(user.Id);
+            //FIXME refresh grid
             toastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
         }
         else
