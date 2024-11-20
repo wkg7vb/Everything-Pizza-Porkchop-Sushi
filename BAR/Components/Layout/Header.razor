@@ -78,7 +78,7 @@
     <BodyTemplate>
         Date:
         <div class="mb-3">
-            <DateInput TValue="DateOnly" @bind-Value="@date" Placeholder="Enter Date" />
+            <DateInput TValue="DateTime" @bind-Value="@date" Placeholder="Enter Date" />
         </div>
         <div class="mb-3">Entered date: @date</div>
         Label:
@@ -110,7 +110,7 @@
     private string category;
     private string label;
     private decimal amount;
-    private DateOnly date;
+    private DateTime date;
     private ApplicationUser user = default!;
 
     protected override async Task OnInitializedAsync()
@@ -126,7 +126,7 @@
     private async Task AddFromModal()
     {
         UserTransaction transaction = new UserTransaction();
-        transaction.TransactionDateOnly = date;
+        transaction.TransactionDateTime = date;
         transaction.TransactionLabel = label;
         transaction.TransactionAmt = amount;
         transaction.TransactionCategory = category;

@@ -64,7 +64,7 @@
         <BodyTemplate>
             Date:
             <div class="mb-3">
-                <DateInput TValue="DateOnly" @bind-Value="@date" Placeholder="Enter Date" />
+                <DateInput TValue="DateTime" @bind-Value="@date" Placeholder="Enter Date" />
             </div>
             <div class="mb-3">Entered date: @date</div>
             Label:
@@ -95,7 +95,7 @@
     //vars
     private ApplicationUser user = default!;
     private List<UserTransaction> userTransactions = default!;
-    private DateOnly date = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
+    private DateTime date = DateTime.Now.AddDays(0);
     private string category = default!;
     private string label = default!;
     private decimal amount = default!;
@@ -138,7 +138,7 @@
 
     private async Task UpdateFromModal(GridRowEventArgs<UserTransaction> transaction)
     {
-        transaction.Item.TransactionDateOnly = date;
+        transaction.Item.TransactionDateTime = date;
         transaction.Item.TransactionLabel = label;
         transaction.Item.TransactionAmt = amount;
         transaction.Item.TransactionCategory = category;
