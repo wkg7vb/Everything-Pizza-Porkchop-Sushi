@@ -46,6 +46,7 @@ namespace BAR.Components.Pages.Homepage
         //recent transactions list
         private IEnumerable<UserTransaction>? transactions;
 
+
         protected override async Task OnInitializedAsync()
         {
             // Initialize the chart options
@@ -116,6 +117,9 @@ namespace BAR.Components.Pages.Homepage
 
             await GetUserNames();
             await CalculateCardFinancials();
+
+            // Fetch the user's recent transactions
+            transactions = await GetUserTransactionsAsync();
         }
 
         //method to get the current user's authentication state
@@ -150,6 +154,7 @@ namespace BAR.Components.Pages.Homepage
                 .Take(5)
                 .ToListAsync();
         }
+
 
         //get the user's first/last name so the welcome screen displays their name
         private async Task GetUserNames()
@@ -222,6 +227,7 @@ namespace BAR.Components.Pages.Homepage
 
 
         // Method called after the component has rendered
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             // Always initialize the DoughnutChart with data and options
