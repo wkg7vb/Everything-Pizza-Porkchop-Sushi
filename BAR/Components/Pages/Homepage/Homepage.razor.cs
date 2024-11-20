@@ -122,6 +122,14 @@ namespace BAR.Components.Pages.Homepage
             await CalculateCardFinancials();
         }
 
+        //method to get the current user's authentication state
+        private async Task<string?> GetCurrentUserIdAsync()
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            return user.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
         // Data provider for the Grid component displaying transactions
         private async Task<GridDataProviderResult<UserTransaction>> TransactionsDataProvider(GridDataProviderRequest<UserTransaction> request)
         {
@@ -134,8 +142,7 @@ namespace BAR.Components.Pages.Homepage
         // Fetch the recent transactions for the current user
         private async Task<IEnumerable<UserTransaction>> GetUserTransactionsAsync()
         {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = await GetCurrentUserIdAsync();
 
             if (userId == null)
                 return Enumerable.Empty<UserTransaction>();
@@ -151,12 +158,7 @@ namespace BAR.Components.Pages.Homepage
         //get the user's first/last name so the welcome screen displays their name
         private async Task GetUserNames()
         {
-            // Get the current user's authentication state
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-
-            // Retrieve the user's ID
-            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = await GetCurrentUserIdAsync();
 
             if (userId != null)
             {
@@ -172,9 +174,7 @@ namespace BAR.Components.Pages.Homepage
 
         private async Task CalculateCardFinancials()
         {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = await GetCurrentUserIdAsync();
 
             if (userId != null)
             {
@@ -239,9 +239,8 @@ namespace BAR.Components.Pages.Homepage
 
         private async Task LoadChartDataAsync()
         {
-            // Get the current user's authentication state
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            var userId = await GetCurrentUserIdAsync();
 
             if (userId == null) return;
 
