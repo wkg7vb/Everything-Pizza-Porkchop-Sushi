@@ -146,7 +146,8 @@
 
             await TransactionManager.AddTransaction(transaction);
             await addmodal?.HideAsync();
-            InvokeAsync(StateHasChanged);
+            toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully added transaction."));
+            InvokeAsync(StateHasChanged); //FIXME
         }
         else
         {

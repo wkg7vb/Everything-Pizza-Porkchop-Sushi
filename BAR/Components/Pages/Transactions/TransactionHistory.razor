@@ -161,7 +161,8 @@
             await TransactionManager.UpdateTransaction(transactionToUpdate);
             userTransactions = await TransactionManager.GetTransactions(user.Id);
             updatemodal?.HideAsync();
-            InvokeAsync(StateHasChanged);
+            toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully updated transaction."));
+            InvokeAsync(StateHasChanged); //FIXME
         }
         else
         {
@@ -184,8 +185,8 @@
             await TransactionManager.DeleteTransaction(transactionToUpdate);
             await updatemodal.HideAsync();
             userTransactions = await TransactionManager.GetTransactions(user.Id);
-            InvokeAsync(StateHasChanged);
             toastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
+            InvokeAsync(StateHasChanged); // FIXME
         }
         else
         {
