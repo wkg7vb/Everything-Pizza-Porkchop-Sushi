@@ -30,8 +30,9 @@
 
 <Toasts class="p-3" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopCenter" />
 
-    <Grid TItem="UserTransaction"
-        DataProvider="TransactionDataProvider"
+    <Grid @ref="transactionGrid"
+        TItem="UserTransaction"
+        Data="dbContext.UserTransactions"
         Class="table table-hover table-striped"
         AllowFiltering="true"
         AllowSorting="true"
@@ -102,7 +103,8 @@
     private string category = default!;
     private string label = default!;
     private decimal amount = default!;
-    private UserTransaction transactionToUpdate;
+    private UserTransaction transactionToUpdate = default!;
+    private Grid<UserTransaction> transactionGrid = default!;
 
     //dependency injection
     [Inject] ToastService toastService { get; set; } = default!;
@@ -161,7 +163,7 @@
             userTransactions = await TransactionManager.GetTransactions(user.Id);
             updatemodal?.HideAsync();
             toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully updated transaction."));
-            //FIXME rerender grid
+            await transactionGrid.RefreshDataAsync(); //FIXME rerender grid
         }
         else
         {
@@ -185,7 +187,7 @@
             await updatemodal.HideAsync();
             userTransactions = await TransactionManager.GetTransactions(user.Id);
             toastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
-            // FIXME rerender grid
+            await transactionGrid.RefreshDataAsync(); // FIXME rerender grid
         }
         else
         {
