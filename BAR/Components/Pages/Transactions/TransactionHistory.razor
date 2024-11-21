@@ -33,6 +33,7 @@
     <Grid TItem="UserTransaction"
         DataProvider="TransactionDataProvider"
         Class="table table-hover table-striped"
+        AllowFiltering="true"
         AllowSorting="true"
         AllowPaging="true"
         PageSize="10"
@@ -160,7 +161,7 @@
             await TransactionManager.UpdateTransaction(transactionToUpdate);
             userTransactions = await TransactionManager.GetTransactions(user.Id);
             updatemodal?.HideAsync();
-            //FIXME refresh grid
+            InvokeAsync(StateHasChanged);
         }
         else
         {
@@ -183,7 +184,7 @@
             await TransactionManager.DeleteTransaction(transactionToUpdate);
             await updatemodal.HideAsync();
             userTransactions = await TransactionManager.GetTransactions(user.Id);
-            //FIXME refresh grid
+            InvokeAsync(StateHasChanged);
             toastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
         }
         else

@@ -146,7 +146,7 @@
 
             await TransactionManager.AddTransaction(transaction);
             await addmodal?.HideAsync();
-            //FIXME refresh grid
+            InvokeAsync(StateHasChanged);
         }
         else
         {
