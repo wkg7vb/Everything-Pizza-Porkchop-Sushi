@@ -3,11 +3,38 @@
 
 @attribute [Authorize]
 
-<h1 style="text-align: center; padding-bottom: 50px;">Trends</h1>
+<div class="container">
+    <h1 style="text-align: center; padding-bottom: 50px;">Trends</h1>
 
-<div class="container-fluid overflow-x-auto" style="padding-top: 50px; padding-bottom: 50px;">
-    <LineChart @ref="lineChart" Width="800" />
-    <BarChart @ref="barChart" Width="500" Height="300" />
+    <!-- bruh these cards don'takes work -->
+    <div class="grid">
+        <Card class="item" Style="width:18rem;">
+            <CardBody>
+                <CardTitle>Easy to Use</CardTitle>
+                <CardText>Whether this is your first budget or 100th, BAR will work for you.</CardText>
+            </CardBody>
+        </Card>
+        <Card class="item" Style="width:18rem;">
+            <CardBody>
+                <CardTitle>Quick Set Up</CardTitle>
+                <CardText>No unessessary questions and takes 5 minutes to fully set-up.</CardText>
+            </CardBody>
+        </Card>
+        <Card class="item" Style="width:18rem;">
+            <CardBody>
+                <CardTitle>No Complex Language</CardTitle>
+                <CardText>Amortization? Working capital? Fungible? Does anyone actually know what any of those mean?</CardText>
+            </CardBody>
+        </Card>
+    </div>
+    
+
+    <div class="container-fluid overflow-x-auto" style="padding-top: 50px; padding-bottom: 50px;">
+        <h2>Average Spending in Past 6 Months (by Catagory)</h2>
+        <LineChart @ref="lineChart" Width="800" /> <br>
+        <h2>Highest Catagories of Spending (by Month)</h2>
+        <BarChart @ref="barChart" Width="500" Height="300" />
+    </div>
 </div>
 
 @code {
@@ -20,6 +47,11 @@
     private ChartData chartData = default!;
     private Random random = new();
     // Called when the component is initialized
+
+    // bar chart
+    private BarChart barChart = default!;
+    private BarChartOptions barChartOptions = default!;
+    private ChartData chartData1 = default!;
     protected override void OnInitialized()
     {
         // line graph
@@ -36,19 +68,19 @@
         lineChartOptions.Scales.Y!.Ticks = new ChartAxesTicks { Color = "green" }; // Y-axis ticks color
         
         // bar graph 
-        var labels2 = new List<string> { "Chrome", "Firefox", "Safari", "Edge" };
-        var datasets = new List<IChartDataset>();
+        var labels1 = new List<string> { "Chrome", "Firefox", "Safari", "Edge" };
+        var datasets1 = new List<IChartDataset>();
 
-        var dataset1 = new BarChartDataset()
+        var dataset2 = new BarChartDataset()
             {
                 Data = new List<double?> { 55000, 15000, 18000, 21000 },
                 BackgroundColor = new List<string> { ColorUtility.CategoricalTwelveColors[0] },
                 BorderColor = new List<string> { ColorUtility.CategoricalTwelveColors[0] },
                 BorderWidth = new List<double> { 0 },
             };
-        datasets.Add(dataset1);
+        datasets1.Add(dataset2);
 
-        chartData = new ChartData { Labels = labels2, Datasets = datasets };
+        chartData1 = new ChartData { Labels = labels1, Datasets = datasets1 };
 
         barChartOptions = new BarChartOptions();
         barChartOptions.Responsive = true;
@@ -65,7 +97,7 @@
         if (firstRender)
         {
             await lineChart.InitializeAsync(chartData, lineChartOptions);
-            await barChart.InitializeAsync(chartData, barChartOptions);
+            await barChart.InitializeAsync(chartData1, barChartOptions);
         }
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -120,10 +152,6 @@
         }
         return data;
     }
-
-    // bar chart 
-    private BarChart barChart = default!;
-    private BarChartOptions barChartOptions = default!;
 
 
 }

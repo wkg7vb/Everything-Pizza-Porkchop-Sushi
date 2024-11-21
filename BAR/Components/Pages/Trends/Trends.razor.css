@@ -1,0 +1,65 @@
+﻿body {
+  padding: 20px;
+  font: 1em Helvetica Neue, Helvetica, Arial, sans-serif;
+  background-image: url(/Images/Landing-Footer.png);
+}
+
+.foot {
+  position:absolute;
+  width:100%;
+  bottom:0px;
+}
+
+.div-foot {
+  width:max-content;
+}
+
+p {
+  margin: 0 0 1em 0;
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+ 
+.grid {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-gap: 10px;
+    padding: 10px;
+  }
+
+  /* Create two equal columns that floats next to each other */
+.column {
+float: left;
+width: 50%;
+padding: 15px;
+}
+
+/* Clear floats after the columns */
+.row::after {
+content: "";
+display: table;
+clear: both;
+}
+
+/* Responsive layout - makes the three columns stack on top of each other instead of next to each other */
+@media screen and (max-width:600px) {
+.column {
+  width: 100%;
+}
+}
+  
+  .item {
+    padding: 20px;
+    background-color: white;
+    font-family: "Times New Roman", Times, serif;
+  }
+
+  .grid-container > div {
+  background-color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  padding: 20px 0;
+  font-size: 30px;
+}
