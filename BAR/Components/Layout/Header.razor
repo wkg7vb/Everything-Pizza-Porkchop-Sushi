@@ -111,8 +111,8 @@
 @code {
     [Parameter] public string UserFName {get; set;} 
     [Parameter] public string AvatarColor {get; set;}
-    private Modal addmodal;
-    private string? currentUrl;
+    private Modal addmodal = default!;
+    private string currentUrl;
     private string imageRedir;
     private string category = "Housing";
     private string label = "";
@@ -145,9 +145,12 @@
             transaction.User = user;
 
             await TransactionManager.AddTransaction(transaction);
-            await addmodal?.HideAsync();
+            await addmodal.HideAsync();
             toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully added transaction."));
-            //FIXME rerender grid
+            if(NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "transactions")
+            {
+                NavigationManager.Refresh(true);
+            }
         }
         else
         {
@@ -161,12 +164,12 @@
         label = "";
         amount = 0.00m;
         category = "Housing";
-        await addmodal?.ShowAsync();
+        await addmodal.ShowAsync();
     }
 
     private async Task CancelAddTransaction()
     {
-        await addmodal?.HideAsync();
+        await addmodal.HideAsync();
     }
 
     private DateOnly date1 = DateOnly.FromDateTime(DateTime.Now.AddDays(0));

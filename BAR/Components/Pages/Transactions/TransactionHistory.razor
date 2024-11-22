@@ -103,7 +103,7 @@
     private string label = "";
     private decimal amount = 0.00m;
     private UserTransaction transactionToUpdate = default!;
-    private Grid<UserTransaction> transactionGrid = default!;
+    public Grid<UserTransaction> transactionGrid;
 
     //dependency injection
     [Inject] ToastService toastService { get; set; } = default!;
@@ -111,6 +111,7 @@
     //methods
     protected override async Task OnInitializedAsync()
     {
+        await Task.Delay(TimeSpan.FromSeconds(.025));
         await base.OnInitializedAsync();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity.IsAuthenticated)
@@ -162,7 +163,7 @@
             userTransactions = await TransactionManager.GetTransactions(user.Id);
             updatemodal?.HideAsync();
             toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully updated transaction."));
-            await transactionGrid.RefreshDataAsync(); //FIXME rerender grid
+            await transactionGrid.RefreshDataAsync();
         }
         else
         {
@@ -186,7 +187,7 @@
             await updatemodal.HideAsync();
             userTransactions = await TransactionManager.GetTransactions(user.Id);
             toastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
-            await transactionGrid.RefreshDataAsync(); // FIXME rerender grid
+            await transactionGrid.RefreshDataAsync();
         }
         else
         {
