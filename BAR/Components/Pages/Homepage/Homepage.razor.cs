@@ -73,7 +73,7 @@ namespace BAR.Components.Pages.Homepage
             {
                 Labels = new List<string>
                 {
-                    "Housing", "Bills/Utilities", "Groceries/Dining", "Transportation",
+                    "Housing", "Bills/Utilities", "Grocery/Dining", "Transportation",
                     "Education", "Debt", "Entertainment", "Shopping",
                     "Medical", "Investing", "Miscellaneous"
                 },
