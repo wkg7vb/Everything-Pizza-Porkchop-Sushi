@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @attribute [Authorize]
 
+<PageTitle>Home</PageTitle>
 <!--if there is no name present in DB, Partner will be displayed instead of the user's name-->
 <h1 style="text-align: center; padding-bottom: 50px;">
     @if (string.IsNullOrWhiteSpace(userFirstName) && string.IsNullOrWhiteSpace(userLastName))
