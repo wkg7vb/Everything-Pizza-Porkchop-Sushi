@@ -88,7 +88,7 @@
         Amount:
         <input type="text" class="mt-2" @bind-value="amount" PlaceHolder="@amount" /> <br> <br>
         Category:
-        <InputSelect TValue="string" @bind-value="category" PlaceHolder="@category">
+        <select @bind="category" PlaceHolder="@category">
             <option value="Housing">Housing</option>
             <option value="Bills/Utilities">Bills/Utilities</option>
             <option value="Grocery/Dining">Grocery/Dining</option>
@@ -100,7 +100,7 @@
             <option value="Medical">Medical</option>
             <option value="Investing">Investing</option>
             <option value="Miscellaneous">Miscellaneous</option>
-        </InputSelect>
+        </select>
     </BodyTemplate>
     <FooterTemplate>
         <Button Color="ButtonColor.Primary" @onclick="AddFromModal">Add</Button>
@@ -114,9 +114,9 @@
     private Modal addmodal;
     private string? currentUrl;
     private string imageRedir;
-    private string category;
-    private string label;
-    private decimal amount;
+    private string category = "Housing";
+    private string label = "";
+    private decimal amount = 0.00m;
     private DateTime date = DateTime.Now.AddDays(0);
     private ApplicationUser user = default!;
     [Inject] ToastService toastService { get; set; } = default!;
@@ -138,7 +138,7 @@
             UserTransaction transaction = new UserTransaction();
             transaction.TransactionDateTime = date;
             transaction.TransactionLabel = label;
-            transaction.TransactionAmt = amount;
+            transaction.TransactionAmt = amount + 0.00m;
             transaction.TransactionCategory = category;
 
             transaction.UserId = user.Id;
@@ -159,7 +159,7 @@
     {
         date = DateTime.Now.AddDays(0);
         label = "";
-        amount = 0.0m;
+        amount = 0.00m;
         category = "Housing";
         await addmodal?.ShowAsync();
     }

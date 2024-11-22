@@ -69,7 +69,7 @@
             Amount:
             <input type="text" class="mt-2" @bind-value="amount" PlaceHolder="@amount" /> <br> <br>
             Category:
-            <InputSelect TValue="string" @bind-value="category" PlaceHolder="@category">
+            <select @bind="category" PlaceHolder="@category">
                 <option value="Housing">Housing</option>
                 <option value="Bills/Utilities">Bills/Utilities</option>
                 <option value="Grocery/Dining">Grocery/Dining</option>
@@ -81,7 +81,7 @@
                 <option value="Medical">Medical</option>
                 <option value="Investing">Investing</option>
                 <option value="Miscellaneous">Miscellaneous</option>
-            </InputSelect>
+            </select>
         </BodyTemplate>
         <FooterTemplate>
             <Button Color="ButtonColor.Primary" @onclick="UpdateFromModal">Update</Button>
@@ -99,9 +99,9 @@
     private ApplicationUser user = default!;
     private List<UserTransaction> userTransactions = default!;
     private DateTime date = DateTime.Now.AddDays(0);
-    private string category = default!;
-    private string label = default!;
-    private decimal amount = default!;
+    private string category = "Housing";
+    private string label = "";
+    private decimal amount = 0.00m;
     private UserTransaction transactionToUpdate = default!;
     private Grid<UserTransaction> transactionGrid = default!;
 
@@ -152,7 +152,7 @@
         {
             transactionToUpdate.TransactionDateTime = date;
             transactionToUpdate.TransactionLabel = label;
-            transactionToUpdate.TransactionAmt = amount;
+            transactionToUpdate.TransactionAmt = amount + 0.00m;
             transactionToUpdate.TransactionCategory = category;
 
             transactionToUpdate.UserId = user.Id;
