@@ -1,17 +1,6 @@
-@using BAR.Data;
-@using BAR.Data.Models;
-@using BAR.Data.Services;
-@using Microsoft.AspNetCore.Http;
-@using Microsoft.AspNetCore.Mvc;
-@using Microsoft.AspNetCore.Identity;
 @rendermode InteractiveServer
-@inject NavigationManager NavigationManager;
-@inject ITransaction TransactionManager;
-@inject UserManager<ApplicationUser> UserManager;
-@inject ApplicationDbContext dbContext;
-@inject AuthenticationStateProvider AuthenticationStateProvider;
-
-<Toasts class="p-3" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopCenter" />
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="top-row d-flex flex-row mb-3 justify-content-between align-items-center">
     <div class="p-2">
@@ -29,7 +18,7 @@
         <AuthorizeView>
             <Authorized>
                 <div class="add"> 
-                    <Button Color="ButtonColor.Success" @onclick=AddNewTransaction> + Add Transaction</Button>
+                    <Button Color="ButtonColor.Success" @onclick=AddTransaction> + Add Transaction</Button>
                 </div>
             </Authorized>
             <NotAuthorized>
@@ -57,7 +46,7 @@
                                 <AntiforgeryToken />
                                 <input type="hidden" name="ReturnUrl" value="@currentUrl" />
                                 <button class="btn dropdown-item" type="submit">
-                                    <Icon Name="IconName.BoxArrowRight" Color="IconColor.Danger"/> Log out
+                                <Icon Name="IconName.BoxArrowRight" Color="IconColor.Danger"/> Log out
                                 </button>
                             </form>
                         </DropdownMenu>
@@ -76,100 +65,48 @@
 </div>
 
 @* Add Transaction popup *@
-<Modal @ref="addmodal" Title="Add Transaction" IsVerticallyCentered="true">
-    <BodyTemplate>
+<Modal @ref="addT" Title="Add Transaction">
+    <BodyTemplate> 
         Date:
         <div class="mb-3">
-            <DateInput TValue="DateTime" @bind-Value="@date" Placeholder="Enter Date" />
+            <DateInput TValue="DateOnly" @bind-Value="@date1" Placeholder="Enter Date" />
         </div>
-        <div class="mb-3">Entered date: @date</div>
+            <div class="mb-3">Entered date: @date1</div> 
         Label:
-        <input type="text" class="mt-2" @bind-value="label" PlaceHolder="@label" /> <br>
+        <input type="text" class="mt-2"/> <br>
         Amount:
-        <input type="text" class="mt-2" @bind-value="amount" PlaceHolder="@amount" /> <br> <br>
+        <input type="text" class="mt-2"/> <br> <br>
         Category:
-        <select @bind="category" PlaceHolder="@category">
-            <option value="Housing">Housing</option>
-            <option value="Bills/Utilities">Bills/Utilities</option>
-            <option value="Grocery/Dining">Grocery/Dining</option>
-            <option value="Transportation">Transportation</option>
-            <option value="Education">Education</option>
-            <option value="Debt">Debt</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Medical">Medical</option>
-            <option value="Investing">Investing</option>
-            <option value="Miscellaneous">Miscellaneous</option>
-        </select>
+        <Dropdown Color="DropdownColor.Secondary">
+            <DropdownToggleButton>Add Category</DropdownToggleButton>
+            <DropdownMenu>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Food</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">ETC</DropdownItem>
+            </DropdownMenu>
+        </Dropdown> <br>
     </BodyTemplate>
     <FooterTemplate>
-        <Button Color="ButtonColor.Primary" @onclick="AddFromModal">Add</Button>
+        <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Add</Button>
         <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Cancel</Button>
     </FooterTemplate>
 </Modal>
 
 @code {
-    [Parameter] public string UserFName {get; set;} 
+   [Parameter] public string UserFName {get; set;} 
     [Parameter] public string AvatarColor {get; set;}
-    private Modal addmodal = default!;
-    private string currentUrl;
+    private Modal addT;
+    private string? currentUrl;
     private string imageRedir;
-    private string category = "Housing";
-    private string label = "";
-    private decimal amount = 0.00m;
-    private DateTime date = DateTime.Now.AddDays(0);
-    private ApplicationUser user = default!;
-    [Inject] ToastService toastService { get; set; } = default!;
 
-    protected override async Task OnInitializedAsync()
+    private async Task AddTransaction()
     {
-        await base.OnInitializedAsync();
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity.IsAuthenticated)
-        {
-            user = await UserManager.GetUserAsync(authState.User);
-        }
-    }
-
-    private async Task AddFromModal()
-    {
-        if (label != null && amount != 0.00m)
-        {
-            UserTransaction transaction = new UserTransaction();
-            transaction.TransactionDateTime = date;
-            transaction.TransactionLabel = label;
-            transaction.TransactionAmt = amount + 0.00m;
-            transaction.TransactionCategory = category;
-
-            transaction.UserId = user.Id;
-            transaction.User = user;
-
-            await TransactionManager.AddTransaction(transaction);
-            await addmodal.HideAsync();
-            toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully added transaction."));
-            if(NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "transactions")
-            {
-                NavigationManager.Refresh(true);
-            }
-        }
-        else
-        {
-            toastService.Notify(new ToastMessage(ToastType.Danger, $"Please fill all fields."));
-        }
-    }
-
-    private async Task AddNewTransaction()
-    {
-        date = DateTime.Now.AddDays(0);
-        label = "";
-        amount = 0.00m;
-        category = "Housing";
-        await addmodal.ShowAsync();
+        await addT?.ShowAsync();
     }
 
     private async Task CancelAddTransaction()
     {
-        await addmodal.HideAsync();
+        await addT?.HideAsync();
     }
 
     private DateOnly date1 = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
@@ -194,3 +131,9 @@
     // Vars
     // database stuff still tbd
 }
+
+
+
+    
+
+
