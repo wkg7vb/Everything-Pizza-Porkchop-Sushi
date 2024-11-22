@@ -84,11 +84,11 @@
         </div>
         <div class="mb-3">Entered date: @date</div>
         Label:
-        <input type="text" class="mt-2" @bind-value="label" /> <br>
+        <input type="text" class="mt-2" @bind-value="label" PlaceHolder="@label" /> <br>
         Amount:
-        <input type="text" class="mt-2" @bind-value="amount" /> <br> <br>
+        <input type="text" class="mt-2" @bind-value="amount" PlaceHolder="@amount" /> <br> <br>
         Category:
-        <InputSelect @bind-value="category">
+        <InputSelect TValue="string" @bind-value="category" PlaceHolder="@category">
             <option value="Housing">Housing</option>
             <option value="Bills/Utilities">Bills/Utilities</option>
             <option value="Grocery/Dining">Grocery/Dining</option>
