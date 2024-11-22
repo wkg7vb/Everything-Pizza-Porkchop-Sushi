@@ -27,7 +27,7 @@ p {
     display: grid;
     grid-template-columns: auto auto auto;
     grid-gap: 5px;
-    padding: 10px;
+    padding: 5px;
   }
 
   /* Create two equal columns that floats next to each other */

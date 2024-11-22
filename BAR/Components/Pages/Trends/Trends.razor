@@ -4,9 +4,9 @@
 @attribute [Authorize]
 
 <div class="container">
-    <h1 style="text-align: center; padding-bottom: 50px;">Trends</h1>
+    <h1 style="text-align: center; padding-bottom: 50px;">Trends</h1> <br>
 
-    <!-- bruh these cards don'takes work -->
+    <h2>Biggest Transactions of the Month</h2>
     <div class="grid">
         <Card class="item" Style="width:18rem;">
             <CardBody Style="text-align: center">
@@ -32,11 +32,12 @@
     </div>
     
 
-    <div class="container-fluid overflow-x-auto" style="padding-top: 50px; padding-bottom: 50px;">
+    <div class="container-fluid overflow-x-auto" style="padding-top: 50px; padding-bottom: 50px; float: center;">
         <h2>Average Spending in Past 6 Months (by Catagory)</h2>
         <LineChart @ref="lineChart" Width="800" /> <br>
         <h2>Highest Catagories of Spending (by Month)</h2>
-        <BarChart @ref="barChart" Width="500" Height="300" />
+        <BarChart @ref="barChart" Width="500" Height="300" /> <br>
+        <h2>Next Month's Projections</h2>
     </div>
 </div>
 
