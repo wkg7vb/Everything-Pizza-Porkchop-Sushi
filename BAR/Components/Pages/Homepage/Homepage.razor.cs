@@ -46,6 +46,10 @@ namespace BAR.Components.Pages.Homepage
         //recent transactions list
         private IEnumerable<UserTransaction>? transactions;
 
+        //semaphore to synchronize database calls
+        private readonly SemaphoreSlim _dbSemaphore = new(1, 1);
+
+
 
         protected override async Task OnInitializedAsync()
         {
@@ -61,17 +65,18 @@ namespace BAR.Components.Pages.Homepage
 
             // Create chart data with labels and datasets
             // Load the actual data into dataset amounts
-            await LoadChartDataAsync();
+             await LoadChartDataAsync();
+            
 
             // Create chart data with labels and datasets
             chartData = new ChartData
             {
                 Labels = new List<string>
-        {
-            "Housing", "Bills/Utilities", "Groceries/Dining", "Transportation",
-            "Education", "Debt", "Entertainment", "Shopping",
-            "Medical", "Investing", "Miscellaneous"
-        },
+                {
+                    "Housing", "Bills/Utilities", "Groceries/Dining", "Transportation",
+                    "Education", "Debt", "Entertainment", "Shopping",
+                    "Medical", "Investing", "Miscellaneous"
+                },
                 Datasets = new List<IChartDataset>
         {
             new DoughnutChartDataset
@@ -115,9 +120,10 @@ namespace BAR.Components.Pages.Homepage
         }
             };
 
-            await GetUserNames();
-            await CalculateCardFinancials();
-
+            
+             await GetUserNames();
+             await CalculateCardFinancials();
+            
             
         }
 
@@ -141,21 +147,30 @@ namespace BAR.Components.Pages.Homepage
         // Fetch the recent transactions for the current user
         private async Task<IEnumerable<UserTransaction>> GetUserTransactionsAsync()
         {
-            var userId = await GetCurrentUserIdAsync();
+            await _dbSemaphore.WaitAsync();
 
-            if (userId == null)
-                return Enumerable.Empty<UserTransaction>();
+            try
+            {
+                var userId = await GetCurrentUserIdAsync();
 
-            // Get the latest 5 transactions for the current user, ordered by date
-            return await DbContext.UserTransactions
-                .Where(t => t.UserId == userId)
-                .OrderByDescending(t => t.TransactionDateTime)
-                .Take(5)
-                .ToListAsync();
+                if (userId == null)
+                    return Enumerable.Empty<UserTransaction>();
+
+                // Get the latest 5 transactions for the current user, ordered by date
+                return await DbContext.UserTransactions
+                    .Where(t => t.UserId == userId)
+                    .OrderByDescending(t => t.TransactionDateTime)
+                    .Take(5)
+                    .ToListAsync();
+            }
+            finally
+            {
+                _dbSemaphore.Release();
+            }
         }
 
 
-        //get the user's first/last name so the welcome screen displays their name
+        //get the user's first/last name so the welcome screen displays their name.
         private async Task GetUserNames()
         {
             var userId = await GetCurrentUserIdAsync();
@@ -174,53 +189,61 @@ namespace BAR.Components.Pages.Homepage
         //calculate the amounts for each card component
         private async Task CalculateCardFinancials()
         {
-            var userId = await GetCurrentUserIdAsync();
-
-            if (userId != null)
+            await _dbSemaphore.WaitAsync();
+            try
             {
-                var userBudget = await DbContext.UserBudgets
-                    .Where(b => b.UserId == userId) // Filter by the current user
-                    .FirstOrDefaultAsync();
+                var userId = await GetCurrentUserIdAsync();
 
-                if (userBudget != null)
+                if (userId != null)
                 {
-                    monthlyIncome = userBudget.MonthlyIncome;
-                    monthlyBudgetTotal =
-                        (userBudget.HousingAmt ?? 0) +
-                        (userBudget.BillsUtilsAmt ?? 0) +
-                        (userBudget.GroceryDiningAmt ?? 0) +
-                        (userBudget.TransportAmt ?? 0) +
-                        (userBudget.EducationAmt ?? 0) +
-                        (userBudget.DebtAmt ?? 0) +
-                        (userBudget.EntertainmentAmt ?? 0) +
-                        (userBudget.ShoppingAmt ?? 0) +
-                        (userBudget.MedicalAmt ?? 0) +
-                        (userBudget.InvestingAmt ?? 0) +
-                        (userBudget.MiscAmt ?? 0);
+                    var userBudget = await DbContext.UserBudgets
+                        .Where(b => b.UserId == userId)
+                        .FirstOrDefaultAsync();
+
+                    if (userBudget != null)
+                    {
+                        monthlyIncome = userBudget.MonthlyIncome;
+                        monthlyBudgetTotal =
+                            (userBudget.HousingAmt ?? 0) +
+                            (userBudget.BillsUtilsAmt ?? 0) +
+                            (userBudget.GroceryDiningAmt ?? 0) +
+                            (userBudget.TransportAmt ?? 0) +
+                            (userBudget.EducationAmt ?? 0) +
+                            (userBudget.DebtAmt ?? 0) +
+                            (userBudget.EntertainmentAmt ?? 0) +
+                            (userBudget.ShoppingAmt ?? 0) +
+                            (userBudget.MedicalAmt ?? 0) +
+                            (userBudget.InvestingAmt ?? 0) +
+                            (userBudget.MiscAmt ?? 0);
+                    }
+                    else
+                    {
+                        monthlyBudgetTotal = 0;
+                        monthlyIncome = 0;
+                    }
+
+                    // Fetch user's transactions for the current month
+                    var transactions = await DbContext.UserTransactions
+                        .Where(t => t.UserId == userId && t.TransactionDateTime.Month == DateTime.Now.Month)
+                        .ToListAsync();
+
+                    // Calculate the total spent in the current month
+                    monthlyTotalSpent = transactions.Sum(t => t.TransactionAmt);
+
+                    // Calculate if the user is over budget
+                    overMonthlyBudget = monthlyTotalSpent > monthlyBudgetTotal ? monthlyTotalSpent - monthlyBudgetTotal : 0.00m;
                 }
                 else
                 {
+                    monthlyTotalSpent = 0.00m;
+                    overMonthlyBudget = 0.00m;
                     monthlyBudgetTotal = 0;
                     monthlyIncome = 0;
                 }
-
-                // Fetch user's transactions for the current month
-                var transactions = await DbContext.UserTransactions
-                    .Where(t => t.UserId == userId && t.TransactionDateTime.Month == DateTime.Now.Month)
-                    .ToListAsync();
-
-                // Calculate the total spent in the current month
-                monthlyTotalSpent = transactions.Sum(t => t.TransactionAmt);
-
-                // Calculate if the user is over budget
-                overMonthlyBudget = monthlyTotalSpent > monthlyBudgetTotal ? monthlyTotalSpent - monthlyBudgetTotal : 0.00m;
             }
-            else
+            finally
             {
-                monthlyTotalSpent = 0.00m;
-                overMonthlyBudget = 0.00m;
-                monthlyBudgetTotal = 0;
-                monthlyIncome = 0;
+                _dbSemaphore.Release();
             }
         }
 
@@ -237,71 +260,74 @@ namespace BAR.Components.Pages.Homepage
 
         private async Task LoadChartDataAsync()
         {
-            
-            var userId = await GetCurrentUserIdAsync();
 
-            if (userId == null) return;
-
-            // Fetch budget categories and amounts
-            var budget = await DbContext.UserBudgets
-                .Where(b => b.UserId == userId)
-                .FirstOrDefaultAsync();
-
-            if (budget != null)
+            await _dbSemaphore.WaitAsync();
+            try
             {
-                // Populate dataset1Amounts with budget amounts (Amount Remaining)
-                dataset2Amounts = new List<double?>
+                var userId = await GetCurrentUserIdAsync();
+
+                if (userId == null) return;
+
+                // Fetch budget categories and amounts
+                var budget = await DbContext.UserBudgets
+                    .Where(b => b.UserId == userId)
+                    .FirstOrDefaultAsync();
+
+                if (budget != null)
                 {
-                    (double?)budget.HousingAmt,
-                    (double?)budget.BillsUtilsAmt,
-                    (double?)budget.GroceryDiningAmt,
-                    (double?)budget.TransportAmt,
-                    (double?)budget.EducationAmt,
-                    (double?)budget.DebtAmt,
-                    (double?)budget.EntertainmentAmt,
-                    (double?)budget.ShoppingAmt,
-                    (double?)budget.MedicalAmt,
-                    (double?)budget.InvestingAmt,
-                    (double?)budget.MiscAmt
-                };
-            }
-
-            // Fetch recent transaction amounts by category
-            var transactions = await DbContext.UserTransactions
-                .Where(t => t.UserId == userId)
-                .ToListAsync();
-
-            // Aggregate transactions by category
-            var transactionSums = transactions
-                .GroupBy(t => t.TransactionCategory)
-                .ToDictionary(
-                    g => g.Key,
-                    g => (double?)g.Sum(t => t.TransactionAmt)
-                );
-
-            // Populate dataset1Amounts with the amount spent (the difference is the remaining amount)
-            dataset1Amounts = new List<double?>
+                    dataset2Amounts = new List<double?>
             {
-                // Subtract the spent amount from the budget amount to get the remaining amount
-                (double?)(transactionSums.GetValueOrDefault("Housing", 0)),
-                (double?)(transactionSums.GetValueOrDefault("Bills/Utilities", 0)),
-                (double?)(transactionSums.GetValueOrDefault("Grocery/Dining", 0)),
-                (double?)(transactionSums.GetValueOrDefault("Transportation", 0)),
-                (double?)(transactionSums.GetValueOrDefault("Education", 0)),
-                (double?)(transactionSums.GetValueOrDefault("Debt", 0)),
-                (double?)(transactionSums.GetValueOrDefault("Entertainment", 0)),
-                (double?)(transactionSums.GetValueOrDefault("Shopping", 0)),
-                (double?)(transactionSums.GetValueOrDefault("Medical", 0)),
-                (double?)(transactionSums.GetValueOrDefault("Investing", 0)),
-                (double?)(transactionSums.GetValueOrDefault("Misc", 0))
+                (double?)budget.HousingAmt,
+                (double?)budget.BillsUtilsAmt,
+                (double?)budget.GroceryDiningAmt,
+                (double?)budget.TransportAmt,
+                (double?)budget.EducationAmt,
+                (double?)budget.DebtAmt,
+                (double?)budget.EntertainmentAmt,
+                (double?)budget.ShoppingAmt,
+                (double?)budget.MedicalAmt,
+                (double?)budget.InvestingAmt,
+                (double?)budget.MiscAmt
             };
+                }
 
-            // Now, subtract the spent amount from the budgeted amount to get the remaining amount for each category
-            dataset2Amounts = dataset2Amounts
-                .Select((amount, index) => amount - dataset1Amounts[index]) // Calculate remaining by subtracting spent from budgeted
-                .ToList();
+                // Fetch recent transaction amounts by category
+                var transactions = await DbContext.UserTransactions
+                    .Where(t => t.UserId == userId)
+                    .ToListAsync();
+
+                // Aggregate transactions by category
+                var transactionSums = transactions
+                    .GroupBy(t => t.TransactionCategory)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => (double?)g.Sum(t => t.TransactionAmt)
+                    );
+
+                dataset1Amounts = new List<double?>
+        {
+            (double?)(transactionSums.GetValueOrDefault("Housing", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Bills/Utilities", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Grocery/Dining", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Transportation", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Education", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Debt", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Entertainment", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Shopping", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Medical", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Investing", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Misc", 0))
+        };
+
+                dataset2Amounts = dataset2Amounts
+                    .Select((amount, index) => amount - dataset1Amounts[index])
+                    .ToList();
+            }
+            finally
+            {
+                _dbSemaphore.Release();
+            }
         }
 
-
-    }
+        }
 }
