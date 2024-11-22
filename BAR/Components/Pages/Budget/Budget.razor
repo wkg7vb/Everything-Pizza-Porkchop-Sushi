@@ -24,15 +24,33 @@ Accessible to users that are logged in.
 @if (elmts.Count() > 0){
     <div class='mb-3'>
         <label class="m-1">Monthly budget:</label>
-        <CurrencyInput TValue="decimal" Placeholder="Amount" @bind-Value="bdgt.MonthlyIncome" Locale="@userCurrencyLocale" Min="0.0m" MaximumFractionDigits="2"/>
+        <CurrencyInput TValue="decimal" Placeholder="Amount" @bind-Value="bdgt!.MonthlyIncome" Locale="@userCurrencyLocale" Min="0.0m" MaximumFractionDigits="2"/>
     </div>
 
     @foreach(var elmt in elmts){
-        <CategoryElmt data="@elmt"  cats="@categories" locale="@userCurrencyLocale" RmvElmtFnc="() => RemoveCategoryElmt(elmt)" OnChngFnc="() => OnCategoryDataChange()" />
+        <CategoryElmt data="@elmt" locale="@userCurrencyLocale" RmvElmtFnc="() => RemoveCategoryElmt(elmt)" />
     }
 }
 
 <div class="d-flex flex-column align-items-start gap-4 my-4">
-    <Button Color="ButtonColor.Primary" @onclick="AddCategoryElmt">Add more...</Button>
+    <Button Color="ButtonColor.Primary" @onclick="ShowAddCatModal">Add more...</Button>
     <Button Color="ButtonColor.Primary" @onclick="SaveChangesAsync">Save</Button>
 </div>
+
+@* Change avatar color popup *@
+<Modal @ref="AddCatModal" Title="Change avatar color">
+    <BodyTemplate>
+        <h5 class="my-2">Choose a category:</h5>
+        <div class="d-flex ">
+            <select @bind="AddedCat">
+                @foreach (var cat in categories){
+                    <option value="@cat">@cat</option>
+                }
+            </select>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="CancelAddCatModal">Cancel</Button>
+        <Button Color="ButtonColor.Primary" @onclick="() => AddCategoryFromModal()">Choose</Button>
+    </FooterTemplate>
+</Modal>

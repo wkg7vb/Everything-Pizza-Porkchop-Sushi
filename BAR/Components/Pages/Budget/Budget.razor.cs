@@ -15,6 +15,8 @@ public partial class Budget
     // User vars from db (init'd inside OnInitialiedAsync)
     private UserBudget? bdgt;
     private ApplicationUser? user {get; set;} = default!;
+    private Modal AddCatModal = default!;
+    private string AddedCat = string.Empty;
 
     [Inject] ToastService toastService {get; set;} = default!;
 
@@ -71,7 +73,7 @@ public partial class Budget
                 if (bdgt.MedicalAmt is not null) AddCategoryElmt(type: "Medical", amt: (decimal)bdgt.MedicalAmt);
                 if (bdgt.InvestingAmt is not null) AddCategoryElmt(type: "Investing", amt: (decimal)bdgt.InvestingAmt);
                 if (bdgt.MiscAmt is not null) AddCategoryElmt(type: "Miscellaneous", amt: (decimal)bdgt.MiscAmt);
-                if (elmts.Count() == 0 && bdgt.AllCategoriesNull) AddCategoryElmt();
+                if (elmts.Count() == 0 && bdgt.AllCategoriesNull) AddCategoryElmt(categories[0], 0.0m);
             }
             // Initialize a generic category cell when no user data is available
             else
@@ -90,30 +92,7 @@ public partial class Budget
         }
     }
 
-    // Add an element into elmts to be rendered
-    private void AddCategoryElmt()
-    {
-        UpdateCategories();
-        CategoryData newData = new CategoryData{
-            Type = categories[0],
-            Amt = 0.0m
-        };
-        try
-        {
-            if (categories.Count < 1) throw new Exception("You cannot add more categories.");
-        }
-        catch (Exception e)
-        {
-            toastService.Notify(
-                new ToastMessage(ToastType.Danger, e.Message)
-            );
-            return;
-        }
-        elmts.Add(newData);
-        UpdateCategories();
-    }
-
-    // Overloaded function for element initialization on pageload, taking two params
+    // Create a category element given a type and anount
     private void AddCategoryElmt(string type, decimal amt)
     {
         CategoryData newData = new CategoryData{
@@ -214,10 +193,21 @@ public partial class Budget
             );
     }
 
-    private Task OnCategoryDataChange()
+    // Show/hide modal based on user inputs
+    private async Task ShowAddCatModal()
     {
-        UpdateCategories();
-        StateHasChanged();
-        return Task.CompletedTask;
+        await AddCatModal.ShowAsync();
+    }
+    private async Task CancelAddCatModal()
+    {
+        await AddCatModal.HideAsync();
+    }
+    // Callback to add provided category and update UI
+    private async void AddCategoryFromModal(){
+        AddCategoryElmt(AddedCat, 0.0m);
+        await AddCatModal.HideAsync();
+        toastService.Notify(
+                new ToastMessage(ToastType.Success, "New category added.")
+            );
     }
 }
