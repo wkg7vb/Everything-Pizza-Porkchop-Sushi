@@ -1,23 +1,13 @@
 @code {
     [Parameter] public CategoryData data {get; set;} = new();
-    [Parameter] public List<string> cats {get; set;} = new();
     [Parameter] public string locale {get; set;} = "en-US";
-
     [Parameter] public EventCallback RmvElmtFnc {get; set;}
-
-    private List<string> _cats = new();
-    protected override void OnParametersSet(){
-        _cats = cats.ToList();
-        _cats.Insert(0, data.Type);
-    }
 }
 
 <div class='bdgt-dropdown d-flex gap-2 mb-2'>
-    <select @bind='data.Type'>
-        @foreach(string _cat in _cats){
-            <option value='@_cat'>@_cat</option>
-        }
+    <select disabled style="width:200px;" @bind="data.Type">
+        <option selected value='@data.Type'>@data.Type</option>
     </select>
     <CurrencyInput TValue="decimal" Placeholder="Amount" @bind-Value="data.Amt" Locale="@locale" Min="0.0m" MaximumFractionDigits="2"/>
     <Button Color="ButtonColor.Danger" Size="ButtonSize.Small" @onclick="RmvElmtFnc">Remove</Button>
-</div> 
+</div>  
