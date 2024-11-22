@@ -24,9 +24,6 @@
 </h1>
 
 @* Transactions List *@
-<h3>
-    Click a transaction to edit or delete it.
-</h3>
 
 <Toasts class="p-3" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopCenter" />
 
@@ -34,7 +31,6 @@
         TItem="UserTransaction"
         Data="dbContext.UserTransactions"
         Class="table table-hover table-striped"
-        AllowFiltering="true"
         AllowSorting="true"
         AllowPaging="true"
         PageSize="10"
@@ -54,11 +50,14 @@
             <GridColumn TItem="UserTransaction" HeaderText="Amount">
                 @context.TransactionAmt
             </GridColumn>
+        <GridColumn TItem="UserTransaction" HeaderText="" HeaderTextAlignment="Alignment.End" TextAlignment="Alignment.End">
+                <Icon Name="IconName.PencilSquare" Size="IconSize.x5" />
+            </GridColumn>
         </GridColumns>
     </Grid>
 
     @* Update Transaction Modal *@
-<Modal @ref="updatemodal" Title="Update Transaction" IsVerticallyCentered="true">
+    <Modal @ref="updatemodal" Title="Update Transaction" IsVerticallyCentered="true">
         <BodyTemplate>
             Date:
             <div class="mb-3">
@@ -70,7 +69,7 @@
             Amount:
             <input type="text" class="mt-2" @bind-value="amount" PlaceHolder="@label" /> <br> <br>
             Category:
-            <InputSelect @bind-value="category" PlaceHolder="@category">
+            <InputSelect TValue="string" @bind-value="category" PlaceHolder="@category">
                 <option value="Housing">Housing</option>
                 <option value="Bills/Utilities">Bills/Utilities</option>
                 <option value="Grocery/Dining">Grocery/Dining</option>
