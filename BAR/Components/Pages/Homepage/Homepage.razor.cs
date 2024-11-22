@@ -28,10 +28,6 @@ namespace BAR.Components.Pages.Homepage
         // Data structure to hold chart data (labels and datasets)
         private ChartData chartData = default!;
 
-        private string[] backgroundColors = ColorUtility.CategoricalTwelveColors;
-
-        // Random number generator for generating random data
-        private Random random = new();
 
         // Amounts for each category in both datasets
         private List<double?> dataset1Amounts = new();
@@ -40,6 +36,8 @@ namespace BAR.Components.Pages.Homepage
         //card vars
         private decimal monthlyBudgetTotal;
         private decimal monthlyIncome;
+        private decimal monthlyTotalSpent = 0.00m;
+        private decimal overMonthlyBudget = 0.00m;
 
         //user's first name vars
         private string userFirstName = "Partner";
@@ -47,6 +45,11 @@ namespace BAR.Components.Pages.Homepage
 
         //recent transactions list
         private IEnumerable<UserTransaction>? transactions;
+
+        //semaphore to synchronize database calls
+        private readonly SemaphoreSlim _dbSemaphore = new(1, 1);
+
+
 
         protected override async Task OnInitializedAsync()
         {
@@ -58,48 +61,81 @@ namespace BAR.Components.Pages.Homepage
             doughnutChartOptions.Plugins.Title!.Text = "Monthly Expenses";
             doughnutChartOptions.Plugins.Title.Display = true;
 
-            // Generate random amounts for two datasets
-            dataset1Amounts = GenerateRandomAmounts();
-            dataset2Amounts = GenerateRandomAmounts();
+
+
+            // Create chart data with labels and datasets
+            // Load the actual data into dataset amounts
+             await LoadChartDataAsync();
+            
 
             // Create chart data with labels and datasets
             chartData = new ChartData
             {
-                Labels = new List<string> { "Bills", "Debt", "Investing", "Education" },
-                Datasets = new List<IChartDataset>
-            {
-                new DoughnutChartDataset
+                Labels = new List<string>
                 {
-                    Label = "Amount Spent",
-                    Data = dataset1Amounts,
-                    BackgroundColor = new List<string>  //set colors for dataset
-                    {
-                        backgroundColors[0],
-                        backgroundColors[1],
-                        backgroundColors[2],
-                        backgroundColors[3]
-                    }
+                    "Housing", "Bills/Utilities", "Grocery/Dining", "Transportation",
+                    "Education", "Debt", "Entertainment", "Shopping",
+                    "Medical", "Investing", "Miscellaneous"
                 },
-                new DoughnutChartDataset
-                {
-                    Label = "Amount Left",
-                    Data = dataset2Amounts,
-                    BackgroundColor = new List<string>
-                    {
-                        backgroundColors[4],
-                        backgroundColors[5],
-                        backgroundColors[6],
-                        backgroundColors[7]
-                    }
-                }
+                Datasets = new List<IChartDataset>
+        {
+            new DoughnutChartDataset
+            {
+                Label = "Amount Spent",
+                Data = dataset1Amounts,
+                BackgroundColor = new List<string> // Set specific colors for each category
+            {
+                "#0fb5ae",
+                "#4046ca",
+                "#f68511",
+                "#de3d82",
+                "#7e84fa",
+                "#72e06a",
+                "#147af3",
+                "#7326d3",
+                "#e8c600",
+                "#cb5d00",
+                "#008f5d"
             }
+            },
+            new DoughnutChartDataset
+            {
+                Label = "Amount Remaining",
+                Data = dataset2Amounts,
+                BackgroundColor = new List<string> // Set specific colors for each category
+            {
+                "#0fb5ae",
+                "#4046ca",
+                "#f68511",
+                "#de3d82",
+                "#7e84fa",
+                "#72e06a",
+                "#147af3",
+                "#7326d3",
+                "#e8c600",
+                "#cb5d00",
+                "#008f5d"
+            }
+            }
+        }
             };
-            randomMoneyAmount = $"${GetRandomMoneyAmount()}";  //initialize random money amount onto the cards
-            await GetUserNames();
-            await CalculateMonthlyBudgetTotal();
+
+            
+             await GetUserNames();
+             await CalculateCardFinancials();
+            
+            
         }
 
-        // Data provider for the Grid component displaying transactions
+        //method to get the current user's authentication state
+        private async Task<string?> GetCurrentUserIdAsync()
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            return user.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
+        // Data provider for the Grid component displaying list of recent transactions
         private async Task<GridDataProviderResult<UserTransaction>> TransactionsDataProvider(GridDataProviderRequest<UserTransaction> request)
         {
             if (transactions == null) // Fetch transactions only once to optimize
@@ -111,29 +147,33 @@ namespace BAR.Components.Pages.Homepage
         // Fetch the recent transactions for the current user
         private async Task<IEnumerable<UserTransaction>> GetUserTransactionsAsync()
         {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await _dbSemaphore.WaitAsync();
 
-            if (userId == null)
-                return Enumerable.Empty<UserTransaction>();
+            try
+            {
+                var userId = await GetCurrentUserIdAsync();
 
-            // Get the latest 5 transactions for the current user, ordered by date
-            return await DbContext.UserTransactions
-                .Where(t => t.UserId == userId)
-                .OrderByDescending(t => t.TransactionDateTime)
-                .Take(5)
-                .ToListAsync();
+                if (userId == null)
+                    return Enumerable.Empty<UserTransaction>();
+
+                // Get the latest 5 transactions for the current user, ordered by date
+                return await DbContext.UserTransactions
+                    .Where(t => t.UserId == userId)
+                    .OrderByDescending(t => t.TransactionDateTime)
+                    .Take(5)
+                    .ToListAsync();
+            }
+            finally
+            {
+                _dbSemaphore.Release();
+            }
         }
 
-        //get the user's first/last name so the welcome screen displays their name
+
+        //get the user's first/last name so the welcome screen displays their name.
         private async Task GetUserNames()
         {
-            // Get the current user's authentication state
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-
-            // Retrieve the user's ID
-            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = await GetCurrentUserIdAsync();
 
             if (userId != null)
             {
@@ -146,85 +186,148 @@ namespace BAR.Components.Pages.Homepage
                 }
             }
         }
-
-        private async Task CalculateMonthlyBudgetTotal()
+        //calculate the amounts for each card component
+        private async Task CalculateCardFinancials()
         {
-            // Get the current user's authentication state
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-
-            // Retrieve the user's ID
-            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId != null)
+            await _dbSemaphore.WaitAsync();
+            try
             {
-                var userBudget = await DbContext.UserBudgets
-                    .Where(b => b.UserId == userId) // Filter by the current user
-                    .FirstOrDefaultAsync();
+                var userId = await GetCurrentUserIdAsync();
 
-                if (userBudget != null)
+                if (userId != null)
                 {
-                    monthlyIncome = userBudget.MonthlyIncome;
-                    monthlyBudgetTotal =
-                        (userBudget.HousingAmt ?? 0) +
-                        (userBudget.BillsUtilsAmt ?? 0) +
-                        (userBudget.GroceryDiningAmt ?? 0) +
-                        (userBudget.TransportAmt ?? 0) +
-                        (userBudget.EducationAmt ?? 0) +
-                        (userBudget.DebtAmt ?? 0) +
-                        (userBudget.EntertainmentAmt ?? 0) +
-                        (userBudget.ShoppingAmt ?? 0) +
-                        (userBudget.MedicalAmt ?? 0) +
-                        (userBudget.InvestingAmt ?? 0) +
-                        (userBudget.MiscAmt ?? 0);
+                    var userBudget = await DbContext.UserBudgets
+                        .Where(b => b.UserId == userId)
+                        .FirstOrDefaultAsync();
+
+                    if (userBudget != null)
+                    {
+                        monthlyIncome = userBudget.MonthlyIncome;
+                        monthlyBudgetTotal =
+                            (userBudget.HousingAmt ?? 0) +
+                            (userBudget.BillsUtilsAmt ?? 0) +
+                            (userBudget.GroceryDiningAmt ?? 0) +
+                            (userBudget.TransportAmt ?? 0) +
+                            (userBudget.EducationAmt ?? 0) +
+                            (userBudget.DebtAmt ?? 0) +
+                            (userBudget.EntertainmentAmt ?? 0) +
+                            (userBudget.ShoppingAmt ?? 0) +
+                            (userBudget.MedicalAmt ?? 0) +
+                            (userBudget.InvestingAmt ?? 0) +
+                            (userBudget.MiscAmt ?? 0);
+                    }
+                    else
+                    {
+                        monthlyBudgetTotal = 0;
+                        monthlyIncome = 0;
+                    }
+
+                    // Fetch user's transactions for the current month
+                    var transactions = await DbContext.UserTransactions
+                        .Where(t => t.UserId == userId && t.TransactionDateTime.Month == DateTime.Now.Month)
+                        .ToListAsync();
+
+                    // Calculate the total spent in the current month
+                    monthlyTotalSpent = transactions.Sum(t => t.TransactionAmt);
+
+                    // Calculate if the user is over budget
+                    overMonthlyBudget = monthlyTotalSpent > monthlyBudgetTotal ? monthlyTotalSpent - monthlyBudgetTotal : 0.00m;
                 }
                 else
                 {
-                    monthlyBudgetTotal = 0; // Set to zero if no budget found
+                    monthlyTotalSpent = 0.00m;
+                    overMonthlyBudget = 0.00m;
+                    monthlyBudgetTotal = 0;
                     monthlyIncome = 0;
                 }
             }
-            else
+            finally
             {
-                monthlyBudgetTotal = 0; // Handle case where user ID is null
-                monthlyIncome = 0;
+                _dbSemaphore.Release();
             }
         }
+
 
         // Method called after the component has rendered
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender) // Ensure the initialization only occurs once
-            {
-                // Initialize the DoughnutChart with data and options
-                await doughnutChart.InitializeAsync(chartData, doughnutChartOptions);
-            }
+            // Always initialize the DoughnutChart with data and options
+            await doughnutChart.InitializeAsync(chartData, doughnutChartOptions);
+
             // Call the base class implementation
             await base.OnAfterRenderAsync(firstRender);
         }
 
-        // Method to generate random amounts for each category
-        private List<double?> GenerateRandomAmounts()
+        private async Task LoadChartDataAsync()
         {
-            var amounts = new List<double?>();
-            for (int i = 0; i < 4; i++) // Create four random amounts
+
+            await _dbSemaphore.WaitAsync();
+            try
             {
-                // Generate a random dollar amount between 0.00 and 1000.00 and round to two decimal places
-                double randomAmount = Math.Round(random.NextDouble() * 1000, 2);
-                amounts.Add(randomAmount);
-            }
-            return amounts;
-        }
+                var userId = await GetCurrentUserIdAsync();
 
+                if (userId == null) return;
 
-        //Random money amount generator
-        private string randomMoneyAmount = ".00";
-        private string GetRandomMoneyAmount()
+                // Fetch budget categories and amounts
+                var budget = await DbContext.UserBudgets
+                    .Where(b => b.UserId == userId)
+                    .FirstOrDefaultAsync();
+
+                if (budget != null)
+                {
+                    dataset2Amounts = new List<double?>
+            {
+                (double?)budget.HousingAmt,
+                (double?)budget.BillsUtilsAmt,
+                (double?)budget.GroceryDiningAmt,
+                (double?)budget.TransportAmt,
+                (double?)budget.EducationAmt,
+                (double?)budget.DebtAmt,
+                (double?)budget.EntertainmentAmt,
+                (double?)budget.ShoppingAmt,
+                (double?)budget.MedicalAmt,
+                (double?)budget.InvestingAmt,
+                (double?)budget.MiscAmt
+            };
+                }
+
+                // Fetch recent transaction amounts by category
+                var transactions = await DbContext.UserTransactions
+                    .Where(t => t.UserId == userId)
+                    .ToListAsync();
+
+                // Aggregate transactions by category
+                var transactionSums = transactions
+                    .GroupBy(t => t.TransactionCategory)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => (double?)g.Sum(t => t.TransactionAmt)
+                    );
+
+                dataset1Amounts = new List<double?>
         {
-            double randomAmount = Math.Round(random.NextDouble() * 1000, 2);
-            return randomAmount.ToString("0.00");
+            (double?)(transactionSums.GetValueOrDefault("Housing", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Bills/Utilities", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Grocery/Dining", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Transportation", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Education", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Debt", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Entertainment", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Shopping", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Medical", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Investing", 0)),
+            (double?)(transactionSums.GetValueOrDefault("Misc", 0))
+        };
+
+                dataset2Amounts = dataset2Amounts
+                    .Select((amount, index) => amount - dataset1Amounts[index])
+                    .ToList();
+            }
+            finally
+            {
+                _dbSemaphore.Release();
+            }
         }
 
-
-    }
+        }
 }
