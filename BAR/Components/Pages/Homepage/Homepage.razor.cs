@@ -39,14 +39,10 @@ namespace BAR.Components.Pages.Homepage
 
         //card vars
         private decimal monthlyBudgetTotal;
-        private decimal monthlyIncome;
 
         //user's first name vars
         private string userFirstName = "Partner";
         private string userLastName = "";
-
-        //recent transactions list
-        private IEnumerable<UserTransaction>? transactions;
 
         protected override async Task OnInitializedAsync()
         {
@@ -99,32 +95,6 @@ namespace BAR.Components.Pages.Homepage
             await CalculateMonthlyBudgetTotal();
         }
 
-        // Data provider for the Grid component displaying transactions
-        private async Task<GridDataProviderResult<UserTransaction>> TransactionsDataProvider(GridDataProviderRequest<UserTransaction> request)
-        {
-            if (transactions == null) // Fetch transactions only once to optimize
-                transactions = await GetUserTransactionsAsync();
-
-            return await Task.FromResult(request.ApplyTo(transactions));
-        }
-
-        // Fetch the recent transactions for the current user
-        private async Task<IEnumerable<UserTransaction>> GetUserTransactionsAsync()
-        {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId == null)
-                return Enumerable.Empty<UserTransaction>();
-
-            // Get the latest 5 transactions for the current user, ordered by date
-            return await DbContext.UserTransactions
-                .Where(t => t.UserId == userId)
-                .OrderByDescending(t => t.TransactionDateTime)
-                .Take(5)
-                .ToListAsync();
-        }
-
         //get the user's first/last name so the welcome screen displays their name
         private async Task GetUserNames()
         {
@@ -164,7 +134,6 @@ namespace BAR.Components.Pages.Homepage
 
                 if (userBudget != null)
                 {
-                    monthlyIncome = userBudget.MonthlyIncome;
                     monthlyBudgetTotal =
                         (userBudget.HousingAmt ?? 0) +
                         (userBudget.BillsUtilsAmt ?? 0) +
@@ -181,13 +150,11 @@ namespace BAR.Components.Pages.Homepage
                 else
                 {
                     monthlyBudgetTotal = 0; // Set to zero if no budget found
-                    monthlyIncome = 0;
                 }
             }
             else
             {
                 monthlyBudgetTotal = 0; // Handle case where user ID is null
-                monthlyIncome = 0;
             }
         }
 

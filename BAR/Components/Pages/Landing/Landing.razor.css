@@ -1,23 +1,14 @@
 ﻿body {
     padding: 20px;
     font: 1em Helvetica Neue, Helvetica, Arial, sans-serif;
-    background-image: url(/Images/Landing-Footer.png);
   }
   
-  .foot {
-    position:absolute;
-    width:100%;
-    bottom:0px;
-  }
-
-  .div-foot {
-    width:max-content;
-  }
+  * {box-sizing: border-box;}
   
   p {
     margin: 0 0 1em 0;
   }
-
+  
   .flex {
     display: flex;
     flex-wrap: wrap;
@@ -30,7 +21,7 @@
       padding: 10px;
     }
 
-    /* Create two equal columns that floats next to each other */
+    /* Create three equal columns that floats next to each other */
 .column {
   float: left;
   width: 50%;
