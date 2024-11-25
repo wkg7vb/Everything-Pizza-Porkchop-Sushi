@@ -1,4 +1,9 @@
 @page "/trends"
+@using BAR.Data
+@using BAR.Data.Services
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
 @rendermode InteractiveServer
 
 @attribute [Authorize]
@@ -32,130 +37,87 @@
     </div>
     
 
-    <div class="container-fluid overflow-x-auto" style="padding-top: 50px; padding-bottom: 50px; float: center;">
-        <h2>Average Spending in Past 6 Months (by Catagory)</h2>
-        <LineChart @ref="lineChart" Width="800" /> <br>
-        <h2>Highest Catagories of Spending (by Month)</h2>
-        <BarChart @ref="barChart" Width="500" Height="300" /> <br>
-        <h2>Next Month's Projections</h2>
-    </div>
+<div style="padding-top: 50px;">
+    <h3 style="padding: 20px">Recent Transactions</h3>
+    <Grid TItem="UserTransaction"
+          Class="table table-hover table-bordered table-striped"
+          DataProvider="TransactionsDataProvider">
+        <GridColumns>
+            <GridColumn TItem="UserTransaction" HeaderText="Date" HeaderTextAlignment="Alignment.Center">
+                @context.TransactionDateTime.ToShortDateString()
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Label">
+                @context.TransactionLabel
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Amount" HeaderTextAlignment="Alignment.Center">
+                @context.TransactionAmt.ToString("C")
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
+                @context.TransactionCategory
+            </GridColumn>
+        </GridColumns>
+    </Grid>
+</div>
 </div>
 
 @code {
 
-    // line chart
+        [Inject]
+        private ApplicationDbContext DbContext { get; set; } = default!;
 
-    private LineChart lineChart = default!;
-    private LineChartOptions lineChartOptions = default!;
-    // Data for the chart (labels and datasets)
-    private ChartData chartData = default!;
-    private Random random = new();
-    // Called when the component is initialized
+        [Inject]
+        private UserManager<ApplicationUser> UserManager { get; set; } = default!;
 
-    // bar chart
-    private BarChart barChart = default!;
-    private BarChartOptions barChartOptions = default!;
-    private ChartData chartData1 = default!;
-    protected override void OnInitialized()
-    {
-        // line graph
-        // Initialize chart data with 6 labels (Jan - June) and 4 datasets (Bills, Education, Debt, Investing)
-        chartData = new ChartData
-            {
-                Labels = new List<string> { "January", "February", "March", "April", "May", "June" },
-                Datasets = GetCategoryDataSets()
-            };
-        // Configure the chart to be responsive and set interaction mode to 'index'
-        lineChartOptions = new() { Responsive = true, Interaction = new Interaction { Mode = InteractionMode.Index } };
-        // Set the color of X-axis and Y-axis ticks
-        lineChartOptions.Scales.X!.Ticks = new ChartAxesTicks { Color = "blue" }; // X-axis ticks color
-        lineChartOptions.Scales.Y!.Ticks = new ChartAxesTicks { Color = "green" }; // Y-axis ticks color
+        [Inject]
+        private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
         
-        // bar graph 
-        var labels1 = new List<string> { "Chrome", "Firefox", "Safari", "Edge" };
-        var datasets1 = new List<IChartDataset>();
+        [Inject]
+        private ITransaction TransactionManager { get; set; } = default!;
 
-        var dataset2 = new BarChartDataset()
-            {
-                Data = new List<double?> { 55000, 15000, 18000, 21000 },
-                BackgroundColor = new List<string> { ColorUtility.CategoricalTwelveColors[0] },
-                BorderColor = new List<string> { ColorUtility.CategoricalTwelveColors[0] },
-                BorderWidth = new List<double> { 0 },
-            };
-        datasets1.Add(dataset2);
-
-        chartData1 = new ChartData { Labels = labels1, Datasets = datasets1 };
-
-        barChartOptions = new BarChartOptions();
-        barChartOptions.Responsive = true;
-        barChartOptions.Interaction = new Interaction { Mode = InteractionMode.Y };
-        barChartOptions.IndexAxis = "y";
-
-        barChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Visitors", Display = true };
-        barChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Browser", Display = true };
-
-        barChartOptions.Plugins.Legend.Display = false;
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+        private async Task<GridDataProviderResult<UserTransaction>> TransactionDataProvider(GridDataProviderRequest<UserTransaction> request)
     {
-        if (firstRender)
+        if (userTransactions is null)
         {
-            await lineChart.InitializeAsync(chartData, lineChartOptions);
-            await barChart.InitializeAsync(chartData1, barChartOptions);
+            userTransactions = await TransactionManager.GetTransactions(user.Id);
         }
-        await base.OnAfterRenderAsync(firstRender);
+        return await Task.FromResult(request.ApplyTo(userTransactions));
     }
-    //generate data for the 4 categories: Bills, Education, Debt, and Investing
-    private List<IChartDataset> GetCategoryDataSets()
-    {
-        var datasets = new List<IChartDataset>
+
+        protected override async Task OnInitializedAsync()
         {
-            new LineChartDataset
-            {
-                Label = "Bills",
-                Data = GetRandomSpendingData(),
-                BackgroundColor = "rgba(255, 99, 132, 0.5)",  // Light red
-                BorderColor = "rgba(255, 99, 132, 1)",        // Red border
-                BorderWidth = 2
-            },
-            new LineChartDataset
-            {
-                Label = "Education",
-                Data = GetRandomSpendingData(),
-                BackgroundColor = "rgba(54, 162, 235, 0.5)",  // Light blue
-                BorderColor = "rgba(54, 162, 235, 1)",        // Blue border
-                BorderWidth = 2
-            },
-            new LineChartDataset
-            {
-                Label = "Debt",
-                Data = GetRandomSpendingData(),
-                BackgroundColor = "rgba(75, 192, 192, 0.5)",  // Light teal
-                BorderColor = "rgba(75, 192, 192, 1)",        // Teal border
-                BorderWidth = 2
-            },
-            new LineChartDataset
-            {
-                Label = "Investing",
-                Data = GetRandomSpendingData(),
-                BackgroundColor = "rgba(153, 102, 255, 0.5)",  // Light purple
-                BorderColor = "rgba(153, 102, 255, 1)",        // Purple border
-                BorderWidth = 2
-            }
-        };
-        return datasets;
-    }
-    //generate random spending data for each category over 6 months
-    private List<double?> GetRandomSpendingData()
-    {
-        var data = new List<double?>();
-        // Generate random spending amounts for the 6-month period (Jan - June)
-        for (var month = 0; month < 6; month++)
-        {
-            data.Add(random.Next(500, 5000)); // Random spending between 500 and 5000 dollars
+
+            await base.OnInitializedAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated){
+            user = await UserManager.GetUserAsync(authState.User);
         }
-        return data;
-    }
+            userTransactions = await TransactionManager.GetTransactions(user.Id);
 
+        }
 
+        // Data provider for the Grid component displaying transactions
+        private async Task<GridDataProviderResult<UserTransaction>> TransactionsDataProvider(GridDataProviderRequest<UserTransaction> request)
+        {
+            if (transactions == null) // Fetch transactions only once to optimize
+                transactions = await GetUserTransactionsAsync();
+
+            return await Task.FromResult(request.ApplyTo(transactions));
+        }
+
+        // Fetch the recent transactions for the current user
+        private async Task<IEnumerable<UserTransaction>> GetUserTransactionsAsync()
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+                return Enumerable.Empty<UserTransaction>();
+
+            // Get the latest 5 transactions for the current user, ordered by date
+            return await DbContext.UserTransactions
+                .Where(t => t.UserId == userId)
+                .OrderByDescending(t => t.TransactionAmt)
+                .Take(5)
+                .ToListAsync();
+        }
 }
