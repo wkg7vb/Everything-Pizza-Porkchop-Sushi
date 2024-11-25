@@ -92,7 +92,7 @@
         var labels = months.Values.ToList();
         chartData = new ChartData
             {
-                Labels = labels [(DateTime.Now.Month - 7) .. (DateTime.Now.Month - 1)],
+                Labels = labels [(DateTime.Now.Month - 6) .. (DateTime.Now.Month)],
                 Datasets = GetTotalAmountData()
             };
         // Configure the chart to be responsive and set interaction mode to 'index'
@@ -127,20 +127,21 @@
             return datasets;
         }
         //generate random spending data for each category over 6 months
-        private  List<double?> GetMonthlyDataPoints()
+        private List<double?> GetMonthlyDataPoints()
         {
             var data = new List<double?>();
             // Generate random spending amounts for the 6-month period (Jan - June)
             for (var month = 0; month < 6; month++)
             {
                 // Fetch user's transactions for the current month
-                    var transactions = DbContext.UserTransactions
-                        .Where(t => t.UserId == user.Id && t.TransactionDateTime.Month - month == DateTime.Now.Month - month)
-                        .ToList();
+                var monthBehind = DateTime.Now.Month - month;
+                var transactions = DbContext.UserTransactions
+                    .Where(t => t.UserId == user.Id && t.TransactionDateTime.Month == monthBehind)
+                    .ToList();
 
-                    // Calculate the total spent in the current month
-                    var monthlyTotalSpent = transactions.Sum(t => t.TransactionAmt);
-                    data.Add((double) monthlyTotalSpent);
+                // Calculate the total spent in the current month
+                var monthlyTotalSpent = transactions.Sum(t => t.TransactionAmt);
+                data.Insert(0, (double) monthlyTotalSpent);
             }
             return data;
         }
