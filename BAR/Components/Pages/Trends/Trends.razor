@@ -12,9 +12,11 @@
 <div class="container">
     <h1 style="text-align: center; padding-bottom: 50px;">Trends</h1> <br> 
 
+    @*total spending by month*@
+    <LineChart @ref="totalByMonth" Width="800" /> <br>
 
     <div style="padding-top: 50px;">
-        <h3 style="padding: 20px">5 Biggest Transactions of the Month</h3>
+        <h3 style="padding: 20px">3 Biggest Transactions of the Month</h3>
         <Grid TItem="UserTransaction"
             Class="table table-hover table-bordered table-striped"
             DataProvider="TransactionsDataProvider">
@@ -53,7 +55,28 @@
         private ApplicationUser user = default!;
         private List<UserTransaction> userTransactions = default!;
                     //recent transactions list
-        private IEnumerable<UserTransaction>? transactions;
+        private IEnumerable<UserTransaction>? transactions; 
+
+        // monthly total chart
+        private LineChart totalByMonth = default!;
+        private LineChartOptions lineChartOptions = default!;
+        // Data for the chart (labels and datasets)
+        private ChartData chartData = default!;
+        
+        private Dictionary<int,string> months = new Dictionary<int, string> {
+            {1, "January"},
+            {2, "February"},
+            {3, "March"},
+            {4, "April"},
+            {5, "May"},
+            {6, "June"},
+            {7, "July"},
+            {8, "August"},
+            {9, "September"},
+            {10, "October"},
+            {11, "November"},
+            {12, "December"}
+            };
 
         protected override async Task OnInitializedAsync()
     {
@@ -63,7 +86,64 @@
             user = await UserManager.GetUserAsync(authState.User);
         }
         else throw new Exception("Invalid user.");
+
+        // total by month graph
+        // Initialize chart data with 6 labels (past 6 months) and 4 datasets (Bills, Education, Debt, Investing)
+        var labels = months.Values.ToList();
+        chartData = new ChartData
+            {
+                Labels = labels [(DateTime.Now.Month - 7) .. (DateTime.Now.Month - 1)],
+                Datasets = GetTotalAmountData()
+            };
+        // Configure the chart to be responsive and set interaction mode to 'index'
+        lineChartOptions = new() { Responsive = true, Interaction = new Interaction { Mode = InteractionMode.Index } };
+        // Set the color of X-axis and Y-axis ticks
+        lineChartOptions.Scales.X!.Ticks = new ChartAxesTicks { Color = "blue" }; // X-axis ticks color
+        lineChartOptions.Scales.Y!.Ticks = new ChartAxesTicks { Color = "green" }; // Y-axis ticks color
+        
     }
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await totalByMonth.InitializeAsync(chartData, lineChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+        //generate data for the 4 categories: Bills, Education, Debt, and Investing
+        private List<IChartDataset> GetTotalAmountData()
+        {
+            var datasets = new List<IChartDataset>
+            {
+                new LineChartDataset
+                {
+                    Label = "Total Amount Spent",
+                    Data = GetMonthlyDataPoints(),
+                    BackgroundColor = "rgba(255, 99, 132, 0.5)",  // Light red
+                    BorderColor = "rgba(255, 99, 132, 1)",        // Red border
+                    BorderWidth = 2
+                },
+            };
+            return datasets;
+        }
+        //generate random spending data for each category over 6 months
+        private  List<double?> GetMonthlyDataPoints()
+        {
+            var data = new List<double?>();
+            // Generate random spending amounts for the 6-month period (Jan - June)
+            for (var month = 0; month < 6; month++)
+            {
+                // Fetch user's transactions for the current month
+                    var transactions = DbContext.UserTransactions
+                        .Where(t => t.UserId == user.Id && t.TransactionDateTime.Month - month == DateTime.Now.Month - month)
+                        .ToList();
+
+                    // Calculate the total spent in the current month
+                    var monthlyTotalSpent = transactions.Sum(t => t.TransactionAmt);
+                    data.Add((double) monthlyTotalSpent);
+            }
+            return data;
+        }
 
         // Data provider for the Grid component displaying transactions
         private async Task<GridDataProviderResult<UserTransaction>> TransactionsDataProvider(GridDataProviderRequest<UserTransaction> request)
@@ -74,7 +154,7 @@
             return await Task.FromResult(request.ApplyTo(transactions));
         }
 
-        // Fetch the recent transactions for the current user
+        // Fetch the biggest 3 transactions
         private async Task<IEnumerable<UserTransaction>> GetUserTransactionsAsync()
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -83,7 +163,7 @@
             if (userId == null)
                 return Enumerable.Empty<UserTransaction>();
 
-            // Get the latest 5 transactions for the current user, ordered by date
+            // Get the biggest 3 transactions for the current user, ordered by date
             return await DbContext.UserTransactions
                 .Where(t => t.UserId == userId && t.TransactionDateTime.Month==DateTime.Now.Month)
                 .OrderByDescending(t => t.TransactionAmt)
