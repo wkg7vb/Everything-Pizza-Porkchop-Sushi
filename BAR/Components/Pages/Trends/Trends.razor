@@ -1,4 +1,5 @@
 @page "/trends"
+
 @using BAR.Data
 @using BAR.Data.Services
 @using Microsoft.AspNetCore.Identity
@@ -9,55 +10,30 @@
 @attribute [Authorize]
 
 <div class="container">
-    <h1 style="text-align: center; padding-bottom: 50px;">Trends</h1> <br>
+    <h1 style="text-align: center; padding-bottom: 50px;">Trends</h1> <br> 
 
-    <h2>Biggest Transactions of the Month</h2>
-    <div class="grid">
-        <Card class="item" Style="width:18rem;">
-            <CardBody Style="text-align: center">
-                <CardTitle>First Place</CardTitle>
-                <CardText>$1000000</CardText>
-                <CardSubTitle Class="mb-2 text-muted">New Boat</CardSubTitle>
-            </CardBody>
-        </Card>
-        <Card class="item" Style="width:18rem;">
-            <CardBody Style="text-align: center">
-                <CardTitle>Second Place</CardTitle>
-                <CardText>$10839</CardText>
-                <CardSubTitle Class="mb-2 text-muted">Dinner</CardSubTitle>
-            </CardBody>
-        </Card>
-        <Card class="item" Style="width:18rem;">
-            <CardBody Style="text-align: center">
-                <CardTitle>Third Place</CardTitle>
-                <CardText>$839</CardText>
-                <CardSubTitle Class="mb-2 text-muted">Goat Doctor</CardSubTitle>
-            </CardBody>
-        </Card>
+
+    <div style="padding-top: 50px;">
+        <h3 style="padding: 20px">5 Biggest Transactions of the Month</h3>
+        <Grid TItem="UserTransaction"
+            Class="table table-hover table-bordered table-striped"
+            DataProvider="TransactionsDataProvider">
+            <GridColumns>
+                <GridColumn TItem="UserTransaction" HeaderText="Date" HeaderTextAlignment="Alignment.Center">
+                    @context.TransactionDateTime.ToShortDateString()
+                </GridColumn>
+                <GridColumn TItem="UserTransaction" HeaderText="Label">
+                    @context.TransactionLabel
+                </GridColumn>
+                <GridColumn TItem="UserTransaction" HeaderText="Amount" HeaderTextAlignment="Alignment.Center">
+                    @context.TransactionAmt.ToString("C")
+                </GridColumn>
+                <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
+                    @context.TransactionCategory
+                </GridColumn>
+            </GridColumns>
+        </Grid>
     </div>
-    
-
-<div style="padding-top: 50px;">
-    <h3 style="padding: 20px">Recent Transactions</h3>
-    <Grid TItem="UserTransaction"
-          Class="table table-hover table-bordered table-striped"
-          DataProvider="TransactionsDataProvider">
-        <GridColumns>
-            <GridColumn TItem="UserTransaction" HeaderText="Date" HeaderTextAlignment="Alignment.Center">
-                @context.TransactionDateTime.ToShortDateString()
-            </GridColumn>
-            <GridColumn TItem="UserTransaction" HeaderText="Label">
-                @context.TransactionLabel
-            </GridColumn>
-            <GridColumn TItem="UserTransaction" HeaderText="Amount" HeaderTextAlignment="Alignment.Center">
-                @context.TransactionAmt.ToString("C")
-            </GridColumn>
-            <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
-                @context.TransactionCategory
-            </GridColumn>
-        </GridColumns>
-    </Grid>
-</div>
 </div>
 
 @code {
@@ -74,26 +50,20 @@
         [Inject]
         private ITransaction TransactionManager { get; set; } = default!;
 
-        private async Task<GridDataProviderResult<UserTransaction>> TransactionDataProvider(GridDataProviderRequest<UserTransaction> request)
-    {
-        if (userTransactions is null)
-        {
-            userTransactions = await TransactionManager.GetTransactions(user.Id);
-        }
-        return await Task.FromResult(request.ApplyTo(userTransactions));
-    }
+        private ApplicationUser user = default!;
+        private List<UserTransaction> userTransactions = default!;
+                    //recent transactions list
+        private IEnumerable<UserTransaction>? transactions;
 
         protected override async Task OnInitializedAsync()
-        {
-
-            await base.OnInitializedAsync();
+    {
+        await base.OnInitializedAsync();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity.IsAuthenticated){
             user = await UserManager.GetUserAsync(authState.User);
         }
-            userTransactions = await TransactionManager.GetTransactions(user.Id);
-
-        }
+        else throw new Exception("Invalid user.");
+    }
 
         // Data provider for the Grid component displaying transactions
         private async Task<GridDataProviderResult<UserTransaction>> TransactionsDataProvider(GridDataProviderRequest<UserTransaction> request)
@@ -115,9 +85,9 @@
 
             // Get the latest 5 transactions for the current user, ordered by date
             return await DbContext.UserTransactions
-                .Where(t => t.UserId == userId)
+                .Where(t => t.UserId == userId && t.TransactionDateTime.Month==DateTime.Now.Month)
                 .OrderByDescending(t => t.TransactionAmt)
-                .Take(5)
+                .Take(3)
                 .ToListAsync();
         }
 }
