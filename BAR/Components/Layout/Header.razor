@@ -82,7 +82,7 @@
         <div class="mb-3">
             <DateInput TValue="DateTime" @bind-Value="@date" Placeholder="Enter Date" />
         </div>
-        <div class="mb-3">Entered date: @date</div>
+        <div class="mb-3">Entered date: @date.ToShortDateString()</div>
         Label:
         <input type="text" class="mt-2" @bind-value="label" PlaceHolder="@label" /> <br>
         Amount:
@@ -117,7 +117,7 @@
     private string category = "Housing";
     private string label = "";
     private decimal amount = 0.00m;
-    private DateTime date = DateTime.Now.AddDays(0);
+    private DateTime date = DateTime.Now;
     private ApplicationUser user = default!;
     [Inject] ToastService toastService { get; set; } = default!;
 
@@ -149,7 +149,7 @@
             toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully added transaction."));
             if(NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "transactions")
             {
-                NavigationManager.Refresh(true);
+                
             }
         }
         else

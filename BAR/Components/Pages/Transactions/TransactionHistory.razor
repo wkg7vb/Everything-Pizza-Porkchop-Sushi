@@ -27,7 +27,6 @@
 
 <Toasts class="p-3" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopCenter" />
 
-<add namespace="GridNamespace" />
     <Grid @ref="transactionGrid"
         TItem="UserTransaction"
         DataProvider="TransactionDataProvider"
@@ -39,8 +38,8 @@
         OnRowClick="ShowUpdateModal"
         Responsive="true">
         <GridColumns>
-            <GridColumn TItem="UserTransaction" HeaderText="Date/Time">
-                @context.TransactionDateTime
+            <GridColumn TItem="UserTransaction" HeaderText="Date">
+                @context.TransactionDateTime.ToShortDateString()
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Category">
                 @context.TransactionCategory
@@ -55,6 +54,7 @@
                 <Icon Name="IconName.PencilSquare" Size="IconSize.x5" />
             </GridColumn>
         </GridColumns>
+        Should Render?
     </Grid>
 
     @* Update Transaction Modal *@
@@ -64,7 +64,7 @@
             <div class="mb-3">
                 <DateInput TValue="DateTime" @bind-Value="@date" Placeholder="Enter Date" />
             </div>
-            <div class="mb-3">Entered date: @date</div>
+            <div class="mb-3">Entered date: @date.ToShortDateString()</div>
             Label:
             <input type="text" class="mt-2" @bind-value="label" PlaceHolder="@label"/> <br>
             Amount:
@@ -98,13 +98,13 @@
 @code {
     //vars
     private ApplicationUser user = default!;
-    private List<UserTransaction> userTransactions = null;
-    private DateTime date = DateTime.Now.AddDays(0);
+    private List<UserTransaction> userTransactions = default!;
+    private DateTime date = DateTime.Now;
     private string category = "Housing";
     private string label = "";
     private decimal amount = 0.00m;
     private UserTransaction transactionToUpdate = default!;
-    public Grid<UserTransaction> transactionGrid;
+    private Grid<UserTransaction> transactionGrid = default!;
 
     //dependency injection
     [Inject] ToastService toastService { get; set; } = default!;
@@ -112,7 +112,6 @@
     //methods
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(250);
         await base.OnInitializedAsync();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity.IsAuthenticated)
@@ -123,7 +122,7 @@
 
     private async Task<GridDataProviderResult<UserTransaction>> TransactionDataProvider(GridDataProviderRequest<UserTransaction> request)
     {
-        if(userTransactions is null)
+        if (userTransactions == null)
         {
             userTransactions = await TransactionManager.GetTransactions(user.Id);
         }
