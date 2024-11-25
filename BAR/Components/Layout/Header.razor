@@ -149,7 +149,7 @@
             toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully added transaction."));
             if(NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "transactions")
             {
-                
+                NavigationManager.Refresh(true);
             }
         }
         else

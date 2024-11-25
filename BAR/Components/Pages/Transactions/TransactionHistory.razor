@@ -9,6 +9,7 @@
 @inject UserManager<ApplicationUser> UserManager;
 @inject ApplicationDbContext dbContext;
 @inject AuthenticationStateProvider AuthenticationStateProvider;
+@inject NavigationManager NavigationManager;
 
 @attribute [Authorize];
 
@@ -54,7 +55,6 @@
                 <Icon Name="IconName.PencilSquare" Size="IconSize.x5" />
             </GridColumn>
         </GridColumns>
-        Should Render?
     </Grid>
 
     @* Update Transaction Modal *@
@@ -112,6 +112,7 @@
     //methods
     protected override async Task OnInitializedAsync()
     {
+        await Task.Delay(10);
         await base.OnInitializedAsync();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity.IsAuthenticated)
@@ -122,6 +123,7 @@
 
     private async Task<GridDataProviderResult<UserTransaction>> TransactionDataProvider(GridDataProviderRequest<UserTransaction> request)
     {
+        await Task.Delay(20);
         if (userTransactions == null)
         {
             userTransactions = await TransactionManager.GetTransactions(user.Id);
@@ -161,7 +163,7 @@
             await TransactionManager.UpdateTransaction(transactionToUpdate);
             await updatemodal.HideAsync();
             toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully updated transaction."));
-            await transactionGrid.RefreshDataAsync();
+            NavigationManager.Refresh(true);
         }
         else
         {
@@ -184,7 +186,7 @@
             await TransactionManager.DeleteTransaction(transactionToUpdate);
             await updatemodal.HideAsync();
             toastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
-            await transactionGrid.RefreshDataAsync();
+            NavigationManager.Refresh(true);
         }
         else
         {
