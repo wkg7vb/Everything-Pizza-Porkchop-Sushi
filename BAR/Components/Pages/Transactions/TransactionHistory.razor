@@ -27,9 +27,10 @@
 
 <Toasts class="p-3" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopCenter" />
 
+<add namespace="GridNamespace" />
     <Grid @ref="transactionGrid"
         TItem="UserTransaction"
-        Data="dbContext.UserTransactions"
+        DataProvider="TransactionDataProvider"
         Class="table table-hover table-striped"
         AllowSorting="true"
         AllowPaging="true"
@@ -97,7 +98,7 @@
 @code {
     //vars
     private ApplicationUser user = default!;
-    private List<UserTransaction> userTransactions = default!;
+    private List<UserTransaction> userTransactions = null;
     private DateTime date = DateTime.Now.AddDays(0);
     private string category = "Housing";
     private string label = "";
@@ -111,19 +112,18 @@
     //methods
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(TimeSpan.FromSeconds(.025));
+        await Task.Delay(250);
         await base.OnInitializedAsync();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity.IsAuthenticated)
         {
             user = await UserManager.GetUserAsync(authState.User);
         }
-        userTransactions = await TransactionManager.GetTransactions(user.Id);
     }
 
     private async Task<GridDataProviderResult<UserTransaction>> TransactionDataProvider(GridDataProviderRequest<UserTransaction> request)
     {
-        if (userTransactions is null)
+        if(userTransactions is null)
         {
             userTransactions = await TransactionManager.GetTransactions(user.Id);
         }
@@ -160,8 +160,7 @@
             transactionToUpdate.User = user;
 
             await TransactionManager.UpdateTransaction(transactionToUpdate);
-            userTransactions = await TransactionManager.GetTransactions(user.Id);
-            updatemodal?.HideAsync();
+            await updatemodal.HideAsync();
             toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully updated transaction."));
             await transactionGrid.RefreshDataAsync();
         }
@@ -185,7 +184,6 @@
             //delete transaction
             await TransactionManager.DeleteTransaction(transactionToUpdate);
             await updatemodal.HideAsync();
-            userTransactions = await TransactionManager.GetTransactions(user.Id);
             toastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
             await transactionGrid.RefreshDataAsync();
         }
