@@ -174,9 +174,9 @@ namespace BAR.Components.Pages.Homepage
                     monthlyTotalSpent = transactions.Sum(t => t.TransactionAmt);
 
                     // Calculate if the user is over their monthly income
-                    if (monthlyTotalSpent > monthlyIncome)
+                    if (monthlyTotalSpent > monthlyBudgetTotal)
                     {
-                        overMonthlyBudget = monthlyIncome - monthlyTotalSpent;
+                        overMonthlyBudget = monthlyBudgetTotal - monthlyTotalSpent;
                     }
                     else
                     {
