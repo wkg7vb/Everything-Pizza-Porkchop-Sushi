@@ -173,13 +173,22 @@ namespace BAR.Components.Pages.Homepage
                     // Calculate the total spent in the current month
                     monthlyTotalSpent = transactions.Sum(t => t.TransactionAmt);
 
-                    // Calculate if the user is over budget
-                    overMonthlyBudget = monthlyTotalSpent > monthlyBudgetTotal ? monthlyTotalSpent - monthlyBudgetTotal : 0.00m;
+                    // Calculate if the user is over their monthly income
+                    if (monthlyTotalSpent > monthlyIncome)
+                    {
+                        overMonthlyBudget = monthlyIncome - monthlyTotalSpent;
+                    }
+                    else
+                    {
+                        overMonthlyBudget = 0.00m;
+                    }
+                    
+                    
+
                 }
                 else
                 {
                     monthlyTotalSpent = 0.00m;
-                    overMonthlyBudget = 0.00m;
                     monthlyBudgetTotal = 0;
                     monthlyIncome = 0;
                 }
@@ -306,10 +315,10 @@ namespace BAR.Components.Pages.Homepage
         private string GetColorByIndex(int index)
         {
             var colors = new List<string>
-    {
-        "#0fb5ae", "#4046ca", "#f68511", "#de3d82", "#7e84fa",
-        "#72e06a", "#147af3", "#7326d3", "#e8c600", "#cb5d00", "#008f5d"
-    };
+            {
+                "#0fb5ae", "#4046ca", "#f68511", "#de3d82", "#7e84fa",
+                "#72e06a", "#147af3", "#7326d3", "#e8c600", "#cb5d00", "#008f5d"
+            };
 
             return colors[index % colors.Count]; // Wrap around if index exceeds available colors
         }
