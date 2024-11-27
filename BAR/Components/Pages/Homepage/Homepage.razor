@@ -15,29 +15,29 @@
     }
 </h1>
 
-<div style="display: grid; grid-template-columns: repeat(3,1fr); gap 10px; text-align: center;">
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; text-align: center;">
 
-    <!--Monthly Budget Total-->
-    <Card Style="width:18rem;">
-        <CardBody Style="text-align: center">
+    <!-- Monthly Budget Total -->
+    <Card Style="flex: 1 1 calc(100% - 20px); max-width: 300px; margin: 10px;">
+        <CardBody Style="text-align: center;">
 
             <CardTitle>@monthlyBudgetTotal.ToString("C") / @monthlyIncome.ToString("C")</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Monthly Budget Total</CardSubTitle>
         </CardBody>
     </Card>
 
-    <!--Monthly Total Spent-->
-    <Card Style="width:18rem;">
-        <CardBody Style="text-align: center">
+    <!-- Monthly Total Spent -->
+    <Card Style="flex: 1 1 calc(100% - 20px); max-width: 300px; margin: 10px;">
+        <CardBody Style="text-align: center;">
 
             <CardTitle>@monthlyTotalSpent.ToString("C")</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Monthly Total Spent</CardSubTitle>
         </CardBody>
     </Card>
 
-    <!--Over Monthly Budget-->
-    <Card Style="width:18rem;">
-        <CardBody Style="text-align: center">
+    <!-- Over Monthly Budget -->
+    <Card Style="flex: 1 1 calc(100% - 20px); max-width: 300px; margin: 10px;">
+        <CardBody Style="text-align: center;">
             <CardTitle>@overMonthlyBudget.ToString("C")</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Over Monthly Budget</CardSubTitle>
         </CardBody>
