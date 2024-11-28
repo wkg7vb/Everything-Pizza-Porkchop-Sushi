@@ -53,6 +53,7 @@ namespace BAR.Components.Pages.Homepage
 
         protected override async Task OnInitializedAsync()
         {
+            await Task.Delay(10);
             // Initialize the chart options
             doughnutChartOptions = new();
             doughnutChartOptions.Responsive = true; // Make the chart responsive
