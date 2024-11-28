@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Http;
 @using Microsoft.AspNetCore.Mvc;
 @using Microsoft.AspNetCore.Identity;
+@using System.Text.Json
 
 @inject ITransaction TransactionManager;
 @inject UserManager<ApplicationUser> UserManager;
@@ -37,7 +38,9 @@
       PageSize="10"
       AllowRowClick="true"
       OnRowClick="ShowUpdateModal"
-      Responsive="true">
+      Responsive="true"
+      GridSettingsChanged="OnGridSettingsChanged"
+      SettingsProvider="GridSettingsProvider">
     <GridColumns>
         <GridColumn TItem="UserTransaction" HeaderText="Date">
             @context.TransactionDateTime.ToShortDateString()
@@ -108,6 +111,7 @@
 
     //dependency injection
     [Inject] ToastService toastService { get; set; } = default!;
+    [Inject] public IJSRuntime JS { get; set; } = default!;
 
     //methods
     protected override async Task OnInitializedAsync()
@@ -121,6 +125,7 @@
         }
     }
 
+    //grid
     private async Task<GridDataProviderResult<UserTransaction>> TransactionDataProvider(GridDataProviderRequest<UserTransaction> request)
     {
         await Task.Delay(20);
@@ -129,6 +134,31 @@
             userTransactions = await TransactionManager.GetTransactions(user.Id);
         }
         return await Task.FromResult(request.ApplyTo(userTransactions));
+    }
+
+    private async Task OnGridSettingsChanged(GridSettings settings)
+    {
+        if (settings is null)
+            return;
+
+        // NOTE: enable below two lines, if you want to set default values for PageNumber and PageSize all the time.
+        //settings.PageNumber = 1;
+        //settings.PageSize = 10;
+
+        await JS.InvokeVoidAsync("window.localStorage.setItem", "grid-settings", JsonSerializer.Serialize(settings));
+    }
+
+    private async Task<GridSettings> GridSettingsProvider()
+    {
+        var settingsJson = await JS.InvokeAsync<string>("window.localStorage.getItem", "grid-settings");
+        if (string.IsNullOrWhiteSpace(settingsJson))
+            return null!;
+
+        var settings = JsonSerializer.Deserialize<GridSettings>(settingsJson);
+        if (settings is null)
+            return null!;
+
+        return settings;
     }
 
     //update modal
