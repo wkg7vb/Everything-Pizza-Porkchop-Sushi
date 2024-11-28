@@ -61,71 +61,14 @@ namespace BAR.Components.Pages.Homepage
             doughnutChartOptions.Plugins.Title!.Text = "Monthly Expenses";
             doughnutChartOptions.Plugins.Title.Display = true;
 
+            // Load and filter the actual data into the datasets
+            await LoadChartDataAsync();
 
-
-            // Create chart data with labels and datasets
-            // Load the actual data into dataset amounts
-             await LoadChartDataAsync();
-            
-
-            // Create chart data with labels and datasets
-            chartData = new ChartData
-            {
-                Labels = new List<string>
-                {
-                    "Housing", "Bills/Utilities", "Grocery/Dining", "Transportation",
-                    "Education", "Debt", "Entertainment", "Shopping",
-                    "Medical", "Investing", "Miscellaneous"
-                },
-                Datasets = new List<IChartDataset>
-        {
-            new DoughnutChartDataset
-            {
-                Label = "Amount Spent",
-                Data = dataset1Amounts,
-                BackgroundColor = new List<string> // Set specific colors for each category
-            {
-                "#0fb5ae",
-                "#4046ca",
-                "#f68511",
-                "#de3d82",
-                "#7e84fa",
-                "#72e06a",
-                "#147af3",
-                "#7326d3",
-                "#e8c600",
-                "#cb5d00",
-                "#008f5d"
-            }
-            },
-            new DoughnutChartDataset
-            {
-                Label = "Amount Remaining",
-                Data = dataset2Amounts,
-                BackgroundColor = new List<string> // Set specific colors for each category
-            {
-                "#0fb5ae",
-                "#4046ca",
-                "#f68511",
-                "#de3d82",
-                "#7e84fa",
-                "#72e06a",
-                "#147af3",
-                "#7326d3",
-                "#e8c600",
-                "#cb5d00",
-                "#008f5d"
-            }
-            }
+            // Initialize user's personal details and financial data
+            await GetUserNames();
+            await CalculateCardFinancials();
         }
-            };
 
-            
-             await GetUserNames();
-             await CalculateCardFinancials();
-            
-            
-        }
 
         //method to get the current user's authentication state
         private async Task<string?> GetCurrentUserIdAsync()
@@ -230,13 +173,22 @@ namespace BAR.Components.Pages.Homepage
                     // Calculate the total spent in the current month
                     monthlyTotalSpent = transactions.Sum(t => t.TransactionAmt);
 
-                    // Calculate if the user is over budget
-                    overMonthlyBudget = monthlyTotalSpent > monthlyBudgetTotal ? monthlyTotalSpent - monthlyBudgetTotal : 0.00m;
+                    // Calculate if the user is over their monthly income
+                    if (monthlyTotalSpent > monthlyBudgetTotal)
+                    {
+                        overMonthlyBudget = monthlyBudgetTotal - monthlyTotalSpent;
+                    }
+                    else
+                    {
+                        overMonthlyBudget = 0.00m;
+                    }
+                    
+                    
+
                 }
                 else
                 {
                     monthlyTotalSpent = 0.00m;
-                    overMonthlyBudget = 0.00m;
                     monthlyBudgetTotal = 0;
                     monthlyIncome = 0;
                 }
@@ -260,7 +212,6 @@ namespace BAR.Components.Pages.Homepage
 
         private async Task LoadChartDataAsync()
         {
-
             await _dbSemaphore.WaitAsync();
             try
             {
@@ -273,30 +224,34 @@ namespace BAR.Components.Pages.Homepage
                     .Where(b => b.UserId == userId)
                     .FirstOrDefaultAsync();
 
-                if (budget != null)
-                {
-                    dataset2Amounts = new List<double?>
-            {
-                (double?)budget.HousingAmt,
-                (double?)budget.BillsUtilsAmt,
-                (double?)budget.GroceryDiningAmt,
-                (double?)budget.TransportAmt,
-                (double?)budget.EducationAmt,
-                (double?)budget.DebtAmt,
-                (double?)budget.EntertainmentAmt,
-                (double?)budget.ShoppingAmt,
-                (double?)budget.MedicalAmt,
-                (double?)budget.InvestingAmt,
-                (double?)budget.MiscAmt
-            };
-                }
+                // Initialize dataset amounts
+                var categories = new List<string>
+        {
+            "Housing", "Bills/Utilities", "Grocery/Dining", "Transportation",
+            "Education", "Debt", "Entertainment", "Shopping",
+            "Medical", "Investing", "Miscellaneous"
+        };
+
+                var budgetAmounts = new List<double?>
+        {
+            (double?)budget?.HousingAmt,
+            (double?)budget?.BillsUtilsAmt,
+            (double?)budget?.GroceryDiningAmt,
+            (double?)budget?.TransportAmt,
+            (double?)budget?.EducationAmt,
+            (double?)budget?.DebtAmt,
+            (double?)budget?.EntertainmentAmt,
+            (double?)budget?.ShoppingAmt,
+            (double?)budget?.MedicalAmt,
+            (double?)budget?.InvestingAmt,
+            (double?)budget?.MiscAmt
+        };
 
                 // Fetch recent transaction amounts by category
                 var transactions = await DbContext.UserTransactions
                     .Where(t => t.UserId == userId)
                     .ToListAsync();
 
-                // Aggregate transactions by category
                 var transactionSums = transactions
                     .GroupBy(t => t.TransactionCategory)
                     .ToDictionary(
@@ -304,24 +259,52 @@ namespace BAR.Components.Pages.Homepage
                         g => (double?)g.Sum(t => t.TransactionAmt)
                     );
 
-                dataset1Amounts = new List<double?>
+                var transactionAmounts = new List<double?>
         {
-            (double?)(transactionSums.GetValueOrDefault("Housing", 0)),
-            (double?)(transactionSums.GetValueOrDefault("Bills/Utilities", 0)),
-            (double?)(transactionSums.GetValueOrDefault("Grocery/Dining", 0)),
-            (double?)(transactionSums.GetValueOrDefault("Transportation", 0)),
-            (double?)(transactionSums.GetValueOrDefault("Education", 0)),
-            (double?)(transactionSums.GetValueOrDefault("Debt", 0)),
-            (double?)(transactionSums.GetValueOrDefault("Entertainment", 0)),
-            (double?)(transactionSums.GetValueOrDefault("Shopping", 0)),
-            (double?)(transactionSums.GetValueOrDefault("Medical", 0)),
-            (double?)(transactionSums.GetValueOrDefault("Investing", 0)),
-            (double?)(transactionSums.GetValueOrDefault("Misc", 0))
+            transactionSums.GetValueOrDefault("Housing", 0),
+            transactionSums.GetValueOrDefault("Bills/Utilities", 0),
+            transactionSums.GetValueOrDefault("Grocery/Dining", 0),
+            transactionSums.GetValueOrDefault("Transportation", 0),
+            transactionSums.GetValueOrDefault("Education", 0),
+            transactionSums.GetValueOrDefault("Debt", 0),
+            transactionSums.GetValueOrDefault("Entertainment", 0),
+            transactionSums.GetValueOrDefault("Shopping", 0),
+            transactionSums.GetValueOrDefault("Medical", 0),
+            transactionSums.GetValueOrDefault("Investing", 0),
+            transactionSums.GetValueOrDefault("Miscellaneous", 0)
         };
 
-                dataset2Amounts = dataset2Amounts
-                    .Select((amount, index) => amount - dataset1Amounts[index])
+                // Filter categories and amounts where both are null or zero
+                var filteredData = categories
+                    .Select((category, index) => new
+                    {
+                        Category = category,
+                        BudgetAmount = budgetAmounts[index],
+                        TransactionAmount = transactionAmounts[index]
+                    })
+                    .Where(x => x.BudgetAmount.HasValue || x.TransactionAmount > 0)
                     .ToList();
+
+                // Update labels and datasets
+                chartData = new ChartData
+                {
+                    Labels = filteredData.Select(x => x.Category).ToList(),
+                    Datasets = new List<IChartDataset>
+            {
+                new DoughnutChartDataset
+                {
+                    Label = "Amount Spent",
+                    Data = filteredData.Select(x => x.TransactionAmount).ToList(),
+                    BackgroundColor = filteredData.Select((_, index) => GetColorByIndex(index)).ToList()
+                },
+                new DoughnutChartDataset
+                {
+                    Label = "Amount Remaining",
+                    Data = filteredData.Select(x => x.BudgetAmount - x.TransactionAmount).ToList(),
+                    BackgroundColor = filteredData.Select((_, index) => GetColorByIndex(index)).ToList()
+                }
+            }
+                };
             }
             finally
             {
@@ -329,5 +312,15 @@ namespace BAR.Components.Pages.Homepage
             }
         }
 
+        private string GetColorByIndex(int index)
+        {
+            var colors = new List<string>
+            {
+                "#0fb5ae", "#4046ca", "#f68511", "#de3d82", "#7e84fa",
+                "#72e06a", "#147af3", "#7326d3", "#e8c600", "#cb5d00", "#008f5d"
+            };
+
+            return colors[index % colors.Count]; // Wrap around if index exceeds available colors
         }
-}
+    }
+    }
