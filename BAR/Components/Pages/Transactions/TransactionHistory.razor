@@ -9,6 +9,7 @@
 @inject UserManager<ApplicationUser> UserManager;
 @inject ApplicationDbContext dbContext;
 @inject AuthenticationStateProvider AuthenticationStateProvider;
+@inject NavigationManager NavigationManager;
 
 @attribute [Authorize];
 
@@ -33,19 +34,19 @@
     DOUBLE click a transaction to DELETE it.
 </h3>
 
-    <Grid TItem="UserTransaction"
+    <Grid @ref="transactionGrid"
+        TItem="UserTransaction"
         DataProvider="TransactionDataProvider"
-        Class="table table-hover"
+        Class="table table-hover  table-striped"
         AllowSorting="true"
         AllowPaging="true"
         PageSize="10"
         AllowRowClick="true"
         OnRowClick="ShowUpdateModal"
-        OnRowDoubleClick="ShowDeleteConfirm"
         Responsive="true">
         <GridColumns>
             <GridColumn TItem="UserTransaction" HeaderText="Date/Time">
-                @context.TransactionDateTime
+                @context.TransactionDateTime.ToShortDateString()
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Category">
                 @context.TransactionCategory
@@ -60,7 +61,38 @@
     </Grid>
 
     @* Update Transaction Modal *@
-    <Modal ref="updatemodal"/>
+<Modal @ref="updatemodal" Title="Update Transaction" IsVerticallyCentered="true">
+    <BodyTemplate>
+        Date:
+        <div class="mb-3">
+            <DateInput TValue="DateTime" @bind-Value="@date" Placeholder="Enter Date" />
+        </div>
+        <div class="mb-3">Entered date: @date.ToShortDateString()</div>
+        Label:
+        <input type="text" class="mt-2" @bind-value="label" PlaceHolder="@label" /> <br>
+        Amount:
+        <input type="text" class="mt-2" @bind-value="amount" PlaceHolder="@amount" /> <br> <br>
+        Category:
+        <select @bind="category" PlaceHolder="@category">
+            <option value="Housing">Housing</option>
+            <option value="Bills/Utilities">Bills/Utilities</option>
+            <option value="Grocery/Dining">Grocery/Dining</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Education">Education</option>
+            <option value="Debt">Debt</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Medical">Medical</option>
+            <option value="Investing">Investing</option>
+            <option value="Miscellaneous">Miscellaneous</option>
+        </select>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Primary" @onclick="UpdateFromModal">Update</Button>
+        <Button Color="ButtonColor.Danger" @onclick="ShowDeleteConfirm">Delete</Button>
+        <Button Color="ButtonColor.Secondary" @onclick="CancelUpdateModal">Cancel</Button>
+    </FooterTemplate>
+</Modal>
 
     @* Delete Transaction Dialog *@
     <ConfirmDialog @ref="deletedialog"/>
@@ -69,6 +101,12 @@
     //vars
     private ApplicationUser user = default!;
     private List<UserTransaction> userTransactions = default!;
+    private DateTime date = DateTime.Now;
+    private string category = "Housing";
+    private string label = "";
+    private decimal amount = 0.00m;
+    private UserTransaction transactionToUpdate = default!;
+    private Grid<UserTransaction> transactionGrid = default!;
 
     //dependency injection
     [Inject] ToastService toastService { get; set; } = default!;
@@ -76,18 +114,19 @@
     //methods
     protected override async Task OnInitializedAsync()
     {
+        await Task.Delay(10);
         await base.OnInitializedAsync();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity.IsAuthenticated)
         {
             user = await UserManager.GetUserAsync(authState.User);
         }
-        userTransactions = await TransactionManager.GetTransactions(user.Id);
     }
 
     private async Task<GridDataProviderResult<UserTransaction>> TransactionDataProvider(GridDataProviderRequest<UserTransaction> request)
     {
-        if (userTransactions is null)
+        await Task.Delay(20);
+        if (userTransactions == null)
         {
             userTransactions = await TransactionManager.GetTransactions(user.Id);
         }
@@ -98,29 +137,69 @@
     private Modal updatemodal = default!;
     private async Task ShowUpdateModal(GridRowEventArgs<UserTransaction> transaction)
     {
+        transactionToUpdate = transaction.Item;
+        date = transactionToUpdate.TransactionDateTime;
+        label = transactionToUpdate.TransactionLabel;
+        amount = transactionToUpdate.TransactionAmt;
+        category = transactionToUpdate.TransactionCategory;
+        await updatemodal.ShowAsync();
+    }
 
+    private async Task CancelUpdateModal()
+    {
+        await updatemodal.HideAsync();
+    }
+
+    private async Task UpdateFromModal()
+    {
+        if (label != null && amount != 0.00m)
+        {
+            transactionToUpdate.TransactionDateTime = date;
+            transactionToUpdate.TransactionLabel = label;
+            transactionToUpdate.TransactionAmt = amount + 0.00m;
+            transactionToUpdate.TransactionCategory = category;
+
+            transactionToUpdate.UserId = user.Id;
+            transactionToUpdate.User = user;
+
+            await TransactionManager.UpdateTransaction(transactionToUpdate);
+            await updatemodal.HideAsync();
+            toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully updated transaction."));
+            NavigationManager.Refresh(true);
+        }
+        else
+        {
+            toastService.Notify(new ToastMessage(ToastType.Danger, $"Please fill all fields."));
+        }
     }
 
     //delete dialog
     private ConfirmDialog deletedialog = default!;
-    private async Task ShowDeleteConfirm(GridRowEventArgs<UserTransaction> transaction)
+    private async Task ShowDeleteConfirm()
     {
         var confirmation = await deletedialog.ShowAsync(
             title: "Delete Transaction?",
-            message1: transaction.Item.TransactionLabel.ToString(),
-            message2: transaction.Item.TransactionAmt.ToString());
+            message1: transactionToUpdate.TransactionLabel.ToString(),
+            message2: transactionToUpdate.TransactionAmt.ToString());
 
         if (confirmation)
         {
             //delete transaction
-            await TransactionManager.DeleteTransaction(transaction.Item);
-            userTransactions = await TransactionManager.GetTransactions(transaction.Item.UserId);
+            await TransactionManager.DeleteTransaction(transactionToUpdate);
+            await updatemodal.HideAsync();
             toastService.Notify(new ToastMessage(ToastType.Success, $"Transaction deleted successfully."));
+            NavigationManager.Refresh(true);
         }
         else
         {
             // do nothing
             toastService.Notify(new ToastMessage(ToastType.Secondary, $"Transaction not deleted."));
         }
+    }
+
+    //cancel by doing nothing
+    private async Task CancelButton()
+    {
+        await updatemodal.HideAsync();
     }
 }

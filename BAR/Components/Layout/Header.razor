@@ -1,13 +1,26 @@
+@using BAR.Data;
+@using BAR.Data.Models;
+@using BAR.Data.Services;
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Identity;
 @rendermode InteractiveServer
-@inject NavigationManager NavigationManager
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager;
+@inject ITransaction TransactionManager;
+@inject UserManager<ApplicationUser> UserManager;
+@inject ApplicationDbContext dbContext;
+@inject AuthenticationStateProvider AuthenticationStateProvider;
+
+<Toasts class="p-3" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopCenter" />
 
 <div class="top-row d-flex flex-row mb-3 justify-content-between align-items-center">
     <div class="p-2">
-        @if(UserFName is not null){
+        @if (UserFName is not null)
+        {
             imageRedir = "/home";
         }
-        else{
+        else
+        {
             imageRedir = "/";
         }
         <a href="@imageRedir">
@@ -17,8 +30,8 @@
     <div class="center-col p-2">
         <AuthorizeView>
             <Authorized>
-                <div class="add"> 
-                    <Button Color="ButtonColor.Success" @onclick=AddTransaction> + Add Transaction</Button>
+                <div class="add">
+                    <Button Color="ButtonColor.Success" @onclick=AddNewTransaction> + Add Transaction</Button>
                 </div>
             </Authorized>
             <NotAuthorized>
@@ -33,20 +46,20 @@
     <div class="p-2">
         <AuthorizeView>
             <Authorized>
-                <div class="p-2"> 
+                <div class="p-2">
                     <Dropdown Color="DropdownColor.None" Style="background-color: white;">
                         <DropdownToggleButton>
-                            <ProfileAvatar UserFName="@UserFName" AvatarColor="@AvatarColor" Size="profile-avatar"/>
+                            <ProfileAvatar UserFName="@UserFName" AvatarColor="@AvatarColor" Size="profile-avatar" />
                         </DropdownToggleButton>
                         <DropdownMenu>
                             <DropdownHeader>Hi, @UserFName!</DropdownHeader>
-                            <DropdownItem To="/Account/Manage" Type="DropdownItemType.Link"><Icon Name="IconName.Gear"/> Settings</DropdownItem>
+                            <DropdownItem To="/Account/Manage" Type="DropdownItemType.Link"><Icon Name="IconName.Gear" /> Settings</DropdownItem>
                             <DropdownDivider>Dropdown header</DropdownDivider>
                             <form action="Account/Logout" method="post">
                                 <AntiforgeryToken />
                                 <input type="hidden" name="ReturnUrl" value="@currentUrl" />
                                 <button class="btn dropdown-item" type="submit">
-                                <Icon Name="IconName.BoxArrowRight" Color="IconColor.Danger"/> Log out
+                                    <Icon Name="IconName.BoxArrowRight" Color="IconColor.Danger" /> Log out
                                 </button>
                             </form>
                         </DropdownMenu>
@@ -65,52 +78,104 @@
 </div>
 
 @* Add Transaction popup *@
-<Modal @ref="addT" Title="Add Transaction">
-    <BodyTemplate> 
+<Modal @ref="addmodal" Title="Add Transaction" IsVerticallyCentered="true">
+    <BodyTemplate>
         Date:
         <div class="mb-3">
-            <DateInput TValue="DateOnly" @bind-Value="@date1" Placeholder="Enter Date" />
+            <DateInput TValue="DateTime" @bind-Value="@date" Placeholder="Enter Date" />
         </div>
-            <div class="mb-3">Entered date: @date1</div> 
+        <div class="mb-3">Entered date: @date.ToShortDateString()</div>
         Label:
-        <input type="text" class="mt-2"/> <br>
+        <input type="text" class="mt-2" @bind-value="label" PlaceHolder="@label" /> <br>
         Amount:
-        <input type="text" class="mt-2"/> <br> <br>
+        <input type="text" class="mt-2" @bind-value="amount" PlaceHolder="@amount" /> <br> <br>
         Category:
-        <Dropdown Color="DropdownColor.Secondary">
-            <DropdownToggleButton>Add Category</DropdownToggleButton>
-            <DropdownMenu>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Housing</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">Food</DropdownItem>
-                <DropdownItem To="#" Type="DropdownItemType.Link">ETC</DropdownItem>
-            </DropdownMenu>
-        </Dropdown> <br>
+        <select @bind="category" PlaceHolder="@category">
+            <option value="Housing">Housing</option>
+            <option value="Bills/Utilities">Bills/Utilities</option>
+            <option value="Grocery/Dining">Grocery/Dining</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Education">Education</option>
+            <option value="Debt">Debt</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Medical">Medical</option>
+            <option value="Investing">Investing</option>
+            <option value="Miscellaneous">Miscellaneous</option>
+        </select>
     </BodyTemplate>
     <FooterTemplate>
-        <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Add</Button>
+        <Button Color="ButtonColor.Primary" @onclick="AddFromModal">Add</Button>
         <Button Color="ButtonColor.Secondary" @onclick="CancelAddTransaction">Cancel</Button>
     </FooterTemplate>
 </Modal>
 
 @code {
-   [Parameter] public string UserFName {get; set;} 
-    [Parameter] public string AvatarColor {get; set;}
-    private Modal addT;
-    private string? currentUrl;
+    [Parameter] public string UserFName { get; set; }
+    [Parameter] public string AvatarColor { get; set; }
+    private Modal addmodal = default!;
+    private string currentUrl;
     private string imageRedir;
+    private string category = "Housing";
+    private string label = "";
+    private decimal amount = 0.00m;
+    private DateTime date = DateTime.Now;
+    private ApplicationUser user = default!;
+    [Inject] ToastService toastService { get; set; } = default!;
 
-    private async Task AddTransaction()
+    protected override async Task OnInitializedAsync()
     {
-        await addT?.ShowAsync();
+        await base.OnInitializedAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            user = await UserManager.GetUserAsync(authState.User);
+        }
+    }
+
+    private async Task AddFromModal()
+    {
+        if (label != null && amount != 0.00m)
+        {
+            UserTransaction transaction = new UserTransaction();
+            transaction.TransactionDateTime = date;
+            transaction.TransactionLabel = label;
+            transaction.TransactionAmt = amount + 0.00m;
+            transaction.TransactionCategory = category;
+
+            transaction.UserId = user.Id;
+            transaction.User = user;
+
+            await TransactionManager.AddTransaction(transaction);
+            await addmodal.HideAsync();
+            toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully added transaction."));
+            if (NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "transactions")
+            {
+                NavigationManager.Refresh(true);
+            }
+        }
+        else
+        {
+            toastService.Notify(new ToastMessage(ToastType.Danger, $"Please fill all fields."));
+        }
+    }
+
+    private async Task AddNewTransaction()
+    {
+        date = DateTime.Now.AddDays(0);
+        label = "";
+        amount = 0.00m;
+        category = "Housing";
+        await addmodal.ShowAsync();
     }
 
     private async Task CancelAddTransaction()
     {
-        await addT?.HideAsync();
+        await addmodal.HideAsync();
     }
 
     private DateOnly date1 = DateOnly.FromDateTime(DateTime.Now.AddDays(0));
-    
+
     protected override void OnInitialized()
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
@@ -131,9 +196,3 @@
     // Vars
     // database stuff still tbd
 }
-
-
-
-    
-
-
