@@ -15,6 +15,7 @@
     @*total spending by month*@
     <LineChart @ref="totalByMonth" Width="800" /> <br>
 
+    @*three biggest transactions of the month*@
     <div style="padding-top: 50px;">
         <h3 style="padding: 20px">3 Biggest Transactions of the Month</h3>
         <Grid TItem="UserTransaction"
@@ -36,6 +37,9 @@
             </GridColumns>
         </Grid>
     </div>
+
+    @*amount spent per category average (6 months) *@
+    <BarChart @ref="barChart" Width="500" Height="300" />
 </div>
 
 @code {
@@ -61,7 +65,7 @@
         private LineChart totalByMonth = default!;
         private LineChartOptions lineChartOptions = default!;
         // Data for the chart (labels and datasets)
-        private ChartData chartData = default!;
+        private ChartData totalByMonthData = default!;
         
         private Dictionary<int,string> months = new Dictionary<int, string> {
             {1, "January"},
@@ -78,6 +82,20 @@
             {12, "December"}
             };
 
+        private Dictionary<int,string> categories = new Dictionary<int, string> {
+            {1, "Housing"},
+            {2, "Bills/Utilities"},
+            {3, "Grocery/Dining"},
+            {4, "Transportation"},
+            {5, "Education"},
+            {6, "Debt"},
+            {7, "Entertainment"},
+            {8, "Shopping"},
+            {9, "Medical"},
+            {10, "Investing"},
+            {11, "Miscellaneous"}
+            };
+
         protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -90,7 +108,7 @@
         // total by month graph
         // Initialize chart data with 6 labels (past 6 months) and 4 datasets (Bills, Education, Debt, Investing)
         var labels = months.Values.ToList();
-        chartData = new ChartData
+        totalByMonthData = new ChartData
             {
                 Labels = labels [(DateTime.Now.Month - 6) .. (DateTime.Now.Month)],
                 Datasets = GetTotalAmountData()
@@ -106,7 +124,8 @@
     {
         if (firstRender)
         {
-            await totalByMonth.InitializeAsync(chartData, lineChartOptions);
+            await totalByMonth.InitializeAsync(totalByMonthData, lineChartOptions);
+            await barChart.InitializeAsync(chartData, barChartOptions);
         }
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -126,7 +145,8 @@
             };
             return datasets;
         }
-        //generate random spending data for each category over 6 months
+
+        //get monthly spending totals 
         private List<double?> GetMonthlyDataPoints()
         {
             var data = new List<double?>();
@@ -170,5 +190,69 @@
                 .OrderByDescending(t => t.TransactionAmt)
                 .Take(3)
                 .ToListAsync();
+        }
+
+        // avg by category
+        private BarChart barChart = default!;
+        private BarChartOptions barChartOptions = default!;
+        private ChartData chartData = default!;
+
+        protected override void OnInitialized()
+        {
+            var colors = ColorUtility.CategoricalTwelveColors;
+
+            var labels = categories.Values.ToList();
+            var datasets = new List<IChartDataset>();
+            
+            // average spent bar
+            var dataset1 = new BarChartDataset()
+                {
+                    Data = GetAverageDataPoints(),
+                    BackgroundColor = new List<string> { colors[0] },
+                    BorderColor = new List<string> { colors[0] },
+                    BorderWidth = new List<double> { 0 },
+                };
+            datasets.Add(dataset1);
+
+            chartData = new ChartData { Labels = labels, Datasets = datasets };
+
+            barChartOptions = new();
+            barChartOptions.Locale = "de-DE";
+            barChartOptions.Responsive = true;
+            barChartOptions.Interaction = new Interaction { Mode = InteractionMode.Y };
+            barChartOptions.IndexAxis = "y";
+
+            barChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Amount", Display = true };
+            barChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Categories", Display = true };
+
+            barChartOptions.Scales.X.Stacked = true;
+            barChartOptions.Scales.Y.Stacked = true;
+
+            barChartOptions.Plugins.Title!.Text = "6 Month Averages by Category";
+            barChartOptions.Plugins.Title.Display = true;
+        }
+
+        //get monthly spending totals 
+        private List<double?> GetAverageDataPoints()
+        {
+            var data = new List<double?>();
+            var storeCategories = new List<double?>();
+
+            // getting spending amounts for past 6 months
+            for (var month = 0; month < 6; month++)
+            {
+                // Fetch user's transactions for the current month
+                var monthBehind = DateTime.Now.Month - month;
+                foreach(var item in categories) {
+                    var transactions = DbContext.UserTransactions
+                        .Where(t => t.UserId == user.Id && t.TransactionCategory == item.Value)
+                        .ToList();
+                }
+
+                // Calculate the total spent in the current month
+                var avgByCategory = transactions.Sum(t => t.TransactionAmt);
+                data.Insert(0, (double) avgByCategory);
+            }
+            return data;
         }
 }
