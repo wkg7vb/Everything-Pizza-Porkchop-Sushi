@@ -29,36 +29,38 @@
 
 <Toasts class="p-3" AutoHide="true" Delay="5000" Placement="ToastsPlacement.TopCenter" />
 
-<Grid @ref="transactionGrid"
-      TItem="UserTransaction"
-      DataProvider="TransactionDataProvider"
-      Class="table table-hover table-striped"
-      AllowSorting="true"
-      AllowPaging="true"
-      PageSize="10"
-      AllowRowClick="true"
-      OnRowClick="ShowUpdateModal"
-      Responsive="true"
-      GridSettingsChanged="OnGridSettingsChanged"
-      SettingsProvider="GridSettingsProvider">
-    <GridColumns>
-        <GridColumn TItem="UserTransaction" HeaderText="Date">
-            @context.TransactionDateTime.ToShortDateString()
-        </GridColumn>
-        <GridColumn TItem="UserTransaction" HeaderText="Category">
-            @context.TransactionCategory
-        </GridColumn>
-        <GridColumn TItem="UserTransaction" HeaderText="Label">
-            @context.TransactionLabel
-        </GridColumn>
-        <GridColumn TItem="UserTransaction" HeaderText="Amount">
-            @context.TransactionAmt
-        </GridColumn>
-        <GridColumn TItem="UserTransaction" HeaderText="" HeaderTextAlignment="Alignment.End" TextAlignment="Alignment.End">
-            <Icon Name="IconName.PencilSquare" Size="IconSize.x5" />
-        </GridColumn>
-    </GridColumns>
-</Grid>
+@if (user is not null){
+    <Grid @ref="transactionGrid"
+        TItem="UserTransaction"
+        DataProvider="TransactionDataProvider"
+        Class="table table-hover table-striped"
+        AllowSorting="true"
+        AllowPaging="true"
+        PageSize="10"
+        AllowRowClick="true"
+        OnRowClick="ShowUpdateModal"
+        Responsive="true"
+        GridSettingsChanged="OnGridSettingsChanged"
+        SettingsProvider="GridSettingsProvider">
+        <GridColumns>
+            <GridColumn TItem="UserTransaction" HeaderText="Date">
+                @context.TransactionDateTime.ToShortDateString()
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Category">
+                @context.TransactionCategory
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Label">
+                @context.TransactionLabel
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="Amount">
+                @context.TransactionAmt
+            </GridColumn>
+            <GridColumn TItem="UserTransaction" HeaderText="" HeaderTextAlignment="Alignment.End" TextAlignment="Alignment.End">
+                <Icon Name="IconName.PencilSquare" Size="IconSize.x5" />
+            </GridColumn>
+        </GridColumns>
+    </Grid>
+}
 
     @* Update Transaction Modal *@
 <Modal @ref="updatemodal" Title="Update Transaction" IsVerticallyCentered="true">
