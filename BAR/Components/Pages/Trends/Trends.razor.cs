@@ -42,6 +42,13 @@ namespace BAR.Components.Pages.Trends
         private BarChartOptions barChartOptions = default!;
         private ChartData chartData = default!;
 
+        // Monthly Projection
+        private LineChart lineChart = default!;
+        private LineChartOptions lineChartOptions1 = default!;
+        private ChartData chartData3 = default!;
+        int pastDays = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month - 1); // error 
+        int currentDays = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
+
         private Dictionary<int, string> months = new Dictionary<int, string> {
             {1, "January"},
             {2, "February"},
@@ -70,6 +77,8 @@ namespace BAR.Components.Pages.Trends
             {10, "Investing"},
             {11, "Miscellaneous"}
             };
+        private static int year;
+        private static int month;
 
         // total by month task
         protected override async Task OnInitializedAsync()
@@ -84,9 +93,11 @@ namespace BAR.Components.Pages.Trends
 
             // total by month graph
             // Initialize chart data with 6 labels (past 6 months) and 4 datasets (Bills, Education, Debt, Investing)
-            var labels = months.Values.ToList();
+            var labels = months.Values.ToList(); // putting months onto label value
+
             totalByMonthData = new ChartData
             {
+                // calculating past 6 months
                 Labels = labels[(DateTime.Now.Month - 6)..(DateTime.Now.Month)],
                 Datasets = GetTotalAmountData()
             };
@@ -96,25 +107,25 @@ namespace BAR.Components.Pages.Trends
             lineChartOptions.Scales.X!.Ticks = new ChartAxesTicks { Color = "blue" }; // X-axis ticks color
             lineChartOptions.Scales.Y!.Ticks = new ChartAxesTicks { Color = "green" }; // Y-axis ticks color
 
-        }
-
-        // Monthly Projection
-        private LineChart lineChart = default!;
-        private LineChartOptions lineChartOptions1 = default!;
-        private ChartData chartData3 = default!;
-
-        protected override void OnInitialized()
-        {
+            // PROJECTIONS 
             var colors = ColorUtility.CategoricalTwelveColors;
 
-            // day 1, day 2, etc
-            var labels = new List<string> { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+            // day 1, day 2, etc - get current month total days
+            // list with this month's days on it
+            List<string> currentDaysList = new List<string> ();
+            for (int i = 1; i <= currentDays; i++) {
+                currentDaysList.Add(i.ToString());
+            }
+
+            // labelsp has to be a string
+            var labelsp = currentDaysList;
             var datasets = new List<IChartDataset>();
 
+            // line graph from last month
             var dataset1 = new LineChartDataset
             {
                 Label = "Projection from Last Month",
-                Data = new List<double?> { 7265791, 5899643, 6317759, 6315641, 5338211, 8496306, 7568556, 8538933, 8274297, 8657298, 7548388, 7764845 },
+                Data = GetLastMonthDataPoints(),
                 BackgroundColor = colors[0],
                 BorderColor = colors[0],
                 BorderWidth = 2,
@@ -125,10 +136,11 @@ namespace BAR.Components.Pages.Trends
             };
             datasets.Add(dataset1);
 
+            // daily spending from this month 
             var dataset2 = new LineChartDataset
             {
                 Label = "Curent Spending per Day",
-                Data = new List<double?> { 1809499, 1816642, 2122410, 1809499, 1850793, 1846743, 1954797, 2391313, 1983430, 2469918, 2633303, 2821149 },
+                Data = GetMonthsDayDataPoints(),
                 BackgroundColor = colors[1],
                 BorderColor = colors[1],
                 BorderWidth = 2,
@@ -139,7 +151,7 @@ namespace BAR.Components.Pages.Trends
             };
             datasets.Add(dataset2);
 
-            chartData3 = new ChartData { Labels = labels, Datasets = datasets };
+            chartData3 = new ChartData { Labels = labelsp, Datasets = datasets };
 
             lineChartOptions1 = new();
             lineChartOptions1.Responsive = true;
@@ -150,9 +162,41 @@ namespace BAR.Components.Pages.Trends
 
             lineChartOptions1.Plugins.Title!.Text = "Total Spending by Day Compared to Last Month";
             lineChartOptions1.Plugins.Title.Display = true;
+
+            // BAR CHART
+            var labels1 = categories.Values.ToList();
+            var datasetsb = new List<IChartDataset>();
+
+            // average spent bar
+            var dataset1b = new BarChartDataset()
+            {
+                Data = GetAverageDataPoints(),
+                BackgroundColor = new List<string> { colors[0] },
+                BorderColor = new List<string> { colors[0] },
+                BorderWidth = new List<double> { 0 },
+            };
+            datasets.Add(dataset1);
+
+            chartData = new ChartData { Labels = labels1, Datasets = datasetsb };
+
+            barChartOptions = new();
+            barChartOptions.Locale = "de-DE";
+            barChartOptions.Responsive = true;
+            barChartOptions.Interaction = new Interaction { Mode = InteractionMode.Y };
+            barChartOptions.IndexAxis = "y";
+
+            barChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Amount", Display = true };
+            barChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Categories", Display = true };
+
+            barChartOptions.Scales.X.Stacked = true;
+            barChartOptions.Scales.Y.Stacked = true;
+
+            barChartOptions.Plugins.Title!.Text = "6 Month Averages by Category";
+            barChartOptions.Plugins.Title.Display = true;
+
         }
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected override async Task OnAfterRenderAsync(bool firstRender) // show chart
         {
 
             if (firstRender)
@@ -166,7 +210,8 @@ namespace BAR.Components.Pages.Trends
             }
             await base.OnAfterRenderAsync(firstRender);
         }
-        //generate data for the 4 categories: Bills, Education, Debt, and Investing
+
+        //generate data for totals (line graph 1)
         private List<IChartDataset> GetTotalAmountData()
         {
             var datasets = new List<IChartDataset>
@@ -183,7 +228,7 @@ namespace BAR.Components.Pages.Trends
             return datasets;
         }
 
-        //get monthly spending totals 
+        //get monthly spending totals (line graph 1) 
         private List<double?> GetMonthlyDataPoints()
         {
             var data = new List<double?>();
@@ -229,40 +274,7 @@ namespace BAR.Components.Pages.Trends
                 .ToListAsync();
         }
 
-        protected override void OnInitialized()
-        {
-            var colors = ColorUtility.CategoricalTwelveColors;
-
-            var labels = categories.Values.ToList();
-            var datasets = new List<IChartDataset>();
-
-            // average spent bar
-            var dataset1 = new BarChartDataset()
-            {
-                Data = GetAverageDataPoints(),
-                BackgroundColor = new List<string> { colors[0] },
-                BorderColor = new List<string> { colors[0] },
-                BorderWidth = new List<double> { 0 },
-            };
-            datasets.Add(dataset1);
-
-            chartData = new ChartData { Labels = labels, Datasets = datasets };
-
-            barChartOptions = new();
-            barChartOptions.Locale = "de-DE";
-            barChartOptions.Responsive = true;
-            barChartOptions.Interaction = new Interaction { Mode = InteractionMode.Y };
-            barChartOptions.IndexAxis = "y";
-
-            barChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Amount", Display = true };
-            barChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Categories", Display = true };
-
-            barChartOptions.Scales.X.Stacked = true;
-            barChartOptions.Scales.Y.Stacked = true;
-
-            barChartOptions.Plugins.Title!.Text = "6 Month Averages by Category";
-            barChartOptions.Plugins.Title.Display = true;
-        }
+        // bar chart stuff?
 
         //get category spending totals & averages 
         private List<double?> GetAverageDataPoints()
@@ -295,5 +307,50 @@ namespace BAR.Components.Pages.Trends
             }
             return data;
         }
-    }
+
+        //get last month's spending totals (line graph 2) 
+        private List<double?> GetLastMonthDataPoints()
+        {
+            var data = new List<double?>();
+           
+          
+            //.Where(t => t.UserId == userId && t.TransactionDateTime.Month == DateTime.Now.Month)
+
+            // Fetch user's transactions for the past month
+            var monthBehind = DateTime.Now.Month - month;
+            for (var i = 1; i <= pastDays; i++)
+            {
+                // Fetch user's transactions for the iterated day
+                var transactions = DbContext.UserTransactions
+                    .Where(t => t.UserId == user.Id && t.TransactionDateTime.Day == i && t.TransactionDateTime.Month == monthBehind)
+                    .ToList();
+
+                // Calculate the total spent in the current month
+                var pastMonthDayAverage = transactions.Sum(t => t.TransactionAmt) / pastDays;
+                data.Insert(0, (double)pastMonthDayAverage);
+            }
+            
+            return data;
+        }
+
+        //get this month's daily spending totals (line graph 2) 
+        private List<double?> GetMonthsDayDataPoints()
+        {
+            var data = new List<double?>();
+           
+           
+            for (var i = 1; i <= currentDays; i++)
+            {
+                // Fetch user's transactions for the iterated day
+                var transactions = DbContext.UserTransactions
+                    .Where(t => t.UserId == user.Id && t.TransactionDateTime.Day == i && t.TransactionDateTime.Month == DateTime.Now.Month)
+                    .ToList();
+
+                // Calculate the total spent in the current month
+                var currentMonthDayAverage = transactions.Sum(t => t.TransactionAmt) / currentDays;
+                data.Insert(0, (double)currentMonthDayAverage);
+            }
+            return data;
+        }
+    } 
 }
