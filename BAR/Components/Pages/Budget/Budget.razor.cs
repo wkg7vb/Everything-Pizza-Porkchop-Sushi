@@ -43,6 +43,7 @@ public partial class Budget
     // Initialize local categories list
     protected override void OnInitialized()
     {
+        Task.Delay(10);
         base.OnInitialized();
         categories = categoryColumnNames.Keys.ToList();
     }
@@ -50,6 +51,7 @@ public partial class Budget
     // Runs when page is loaded, pseudo "constructor"-like function to pull data and fill page with respective elements
     protected override async Task OnInitializedAsync()
     {
+        await Task.Delay(10);
         await base.OnInitializedAsync();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity!.IsAuthenticated){

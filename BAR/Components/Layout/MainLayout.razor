@@ -17,7 +17,7 @@
 
     <main>
         @if (user is not null){
-            <Header UserFName="@UserFName" AvatarColor="@UserAvatarColor"/>
+            <Header UserFName="@UserFName" AvatarColor="@UserAvatarColor" UserId="@user.Id"/>
             
             <article class="content px-4">
                 @Body
@@ -51,7 +51,7 @@
         await base.OnInitializedAsync();
         try {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            if (authState.User.Identity.IsAuthenticated){
+            if (authState.User.Identity!.IsAuthenticated){
                 user = await UserManager.GetUserAsync(authState.User);
             }
             else {
@@ -62,7 +62,7 @@
             context.Response.Cookies.Append("Identity.StatusMessage", e.Message, StatusCookieBuilder.Build(context));
         }
         if (user is not null){
-            UserFName = user.UserFName;
+            UserFName = user.UserFName ?? "";
             UserDarkMode = user.UserDarkmode;
             UserAvatarColor = user.UserAvatarColor;
         }
