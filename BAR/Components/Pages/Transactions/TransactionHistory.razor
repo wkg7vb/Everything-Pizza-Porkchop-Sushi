@@ -42,11 +42,11 @@
         Responsive="true"
         GridSettingsChanged="OnGridSettingsChanged"
         SettingsProvider="GridSettingsProvider">
-        <GridColumns>
+        <GridColumns class="grid-container">
             <GridColumn TItem="UserTransaction" HeaderText="Date" SortKeySelector="item => item.TransactionDateTime" IsDefaultSortColumn="true" SortDirection="SortDirection.Descending">
                 @context.TransactionDateTime.ToShortDateString()
             </GridColumn>
-            <GridColumn TItem="UserTransaction" HeaderText="Category" SortKeySelector="item => item.TransactionCategory">
+            <GridColumn style="color:white" TItem="UserTransaction" HeaderText="Category" SortKeySelector="item => item.TransactionCategory">
                 @context.TransactionCategory
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Label" SortKeySelector="item => item.TransactionLabel">

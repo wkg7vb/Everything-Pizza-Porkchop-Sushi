@@ -10,21 +10,46 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@if (UserDarkMode == true) {
+    <div class="page darkmode">
+        <div class="sidebar">
+            <NavMenu />
+        </div>
 
-    <main>
-        @if (user is not null){
-            <Header UserFName="@UserFName" AvatarColor="@UserAvatarColor" UserId="@user.Id"/>
-            
-            <article class="content px-4">
+        <main>
+            @if (user is not null){
+                <Header UserFName="@UserFName" AvatarColor="@UserAvatarColor" UserId="@user.Id"/>
+
+                <article class="content px-4">
                 @Body
-            </article>
-        }
-    </main>
-</div>
+                </article>
+    
+            }
+
+        </main>
+    </div>
+}
+else {
+
+    <div class="page">
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+
+        <main>
+            @if (user is not null){
+                <Header UserFName="@UserFName" AvatarColor="@UserAvatarColor" UserId="@user.Id"/>
+
+                <article class="content px-4">
+                @Body
+                </article>
+    
+            }
+
+        </main>
+    </div>
+    
+}
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.

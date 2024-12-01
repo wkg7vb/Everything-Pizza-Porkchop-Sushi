@@ -4,6 +4,12 @@
     flex-direction: column;
 }
 
+.pagedark {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
 main {
     flex: 1;
 }
@@ -36,6 +42,11 @@ main {
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
+.darkmode {
+    background-color: black;
+    color: white;
+}
 
 @media (max-width: 640.98px) {
     .top-row {
