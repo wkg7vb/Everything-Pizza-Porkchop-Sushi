@@ -70,8 +70,15 @@
 
 
 <!--Donut Chart-->
-<div style="padding-top: 50px; padding-bottom: 50px;">
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; text-align: center;">
     <DoughnutChart @ref="doughnutChart" Width="500" />
+    <Card Style="max-width: 300px; margin: 10px;">
+        <CardBody>
+            <p>Ring = Amount Remaining</p>
+            <p>Outer Ring = Amount Spent</p>
+        </CardBody>
+    </Card>
 </div>
 
 
