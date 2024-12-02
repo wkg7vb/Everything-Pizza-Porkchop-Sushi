@@ -73,13 +73,14 @@
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; text-align: center;">
     <DoughnutChart @ref="doughnutChart" Width="500" />
-    <Card Style="max-width: 300px; margin: 10px;">
-        <CardBody>
+    <Card Style="max-width: 300px; margin: 10px; display: flex; align-items: center; justify-content: center;">
+        <CardBody Style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
             <p>Ring = Amount Remaining</p>
             <p>Outer Ring = Amount Spent</p>
         </CardBody>
     </Card>
 </div>
+
 
 
 
