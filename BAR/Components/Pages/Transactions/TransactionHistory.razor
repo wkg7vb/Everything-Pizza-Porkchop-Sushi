@@ -46,9 +46,6 @@
             <GridColumn TItem="UserTransaction" HeaderText="Date" SortKeySelector="item => item.TransactionDateTime" IsDefaultSortColumn="true" SortDirection="SortDirection.Descending">
                 <text>@context.TransactionDateTime.ToShortDateString()</text>
             </GridColumn>
-            <GridColumn TItem="UserTransaction" HeaderText="Category" SortKeySelector="item => item.TransactionCategory">
-                @context.TransactionCategory
-            </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Label" SortKeySelector="item => item.TransactionLabel">
                 @context.TransactionLabel
             </GridColumn>
@@ -80,6 +77,9 @@
                     </GridColumn>
                     break;
             }
+            <GridColumn TItem="UserTransaction" HeaderText="Category" SortKeySelector="item => item.TransactionCategory">
+                @context.TransactionCategory
+            </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="" HeaderTextAlignment="Alignment.End" TextAlignment="Alignment.End">
                 <Icon Name="IconName.PencilSquare" Size="IconSize.x5" />
             </GridColumn>
@@ -87,7 +87,7 @@
     </Grid>
 }
 
-    @* Update Transaction Modal *@
+@* Update Transaction Modal *@
 <Modal @ref="updatemodal" Title="Update Transaction" IsVerticallyCentered="true">
     <BodyTemplate>
         Date:
@@ -122,7 +122,7 @@
 </Modal>
 
 
-    @* Delete Transaction Dialog *@
+@* Delete Transaction Dialog *@
 <ConfirmDialog @ref="deletedialog" />
 
 @code {
@@ -133,6 +133,7 @@
     private string category = "Housing";
     private string label = "";
     private decimal amount = 0.00m;
+    private string currSym = "";
     private UserTransaction transactionToUpdate = default!;
     private Grid<UserTransaction> transactionGrid = default!;
 
