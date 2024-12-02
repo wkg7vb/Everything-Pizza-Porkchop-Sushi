@@ -38,9 +38,9 @@ namespace BAR.Components.Pages.Trends
 
         // bar chart variables
         // avg by category - NOT WORKING
-        private BarChart barChart = default!;
-        private BarChartOptions barChartOptions = default!;
-        private ChartData chartData = default!;
+        private BarChart avgsBarChart = default!;
+        private BarChartOptions avgsBarChartOptions = default!;
+        private ChartData avgsBarChartData = default!;
 
         // Monthly Projection
         private LineChart lineChart = default!;
@@ -80,12 +80,19 @@ namespace BAR.Components.Pages.Trends
         private static int year;
         private static int month;
 
+        private int GetMonthBehind(int amt_to_go_back){
+            if (DateTime.Now.Month - amt_to_go_back < 1){
+                return 12 + (DateTime.Now.Month - amt_to_go_back);
+            }
+            else return DateTime.Now.Month - amt_to_go_back;
+        }
+
         // total by month task
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            if (authState.User.Identity.IsAuthenticated)
+            if (authState.User.Identity!.IsAuthenticated)
             {
                 user = await UserManager.GetUserAsync(authState.User);
             }
@@ -112,16 +119,18 @@ namespace BAR.Components.Pages.Trends
 
             // day 1, day 2, etc - get current month total days
             // list with this month's days on it
-            List<string> currentDaysList = new List<string> ();
-            for (int i = 1; i <= currentDays; i++) {
-                currentDaysList.Add(i.ToString());
+            List<string> labels_projection = new();
+
+            for (int i = 1; i < DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) + 1; i++){
+                string Mo = months[DateTime.Now.Month];
+                labels_projection.Add($"{Mo} {i}");
             }
+            
 
             // labelsp has to be a string
-            var labelsp = currentDaysList;
             var datasets = new List<IChartDataset>();
 
-            // line graph from last month
+            // line graph from last month (slope)
             var dataset1 = new LineChartDataset
             {
                 Label = "Projection from Last Month",
@@ -136,7 +145,7 @@ namespace BAR.Components.Pages.Trends
             };
             datasets.Add(dataset1);
 
-            // daily spending from this month 
+            // daily spending from this month (current data)
             var dataset2 = new LineChartDataset
             {
                 Label = "Curent Spending per Day",
@@ -151,17 +160,19 @@ namespace BAR.Components.Pages.Trends
             };
             datasets.Add(dataset2);
 
-            chartData3 = new ChartData { Labels = labelsp, Datasets = datasets };
+            chartData3 = new ChartData { Labels = labels_projection, Datasets = datasets };
 
-            lineChartOptions1 = new();
-            lineChartOptions1.Responsive = true;
-            lineChartOptions1.Interaction = new Interaction { Mode = InteractionMode.Index };
+            lineChartOptions1 = new()
+            {
+                Responsive = true,
+                Interaction = new Interaction { Mode = InteractionMode.Index }
+            };
 
             lineChartOptions1.Scales.X!.Title = new ChartAxesTitle { Text = "Day", Display = true };
             lineChartOptions1.Scales.Y!.Title = new ChartAxesTitle { Text = "Total Spending", Display = true };
-
             lineChartOptions1.Plugins.Title!.Text = "Total Spending by Day Compared to Last Month";
             lineChartOptions1.Plugins.Title.Display = true;
+
 
             // BAR CHART
             var labels1 = categories.Values.ToList();
@@ -174,25 +185,26 @@ namespace BAR.Components.Pages.Trends
                 BackgroundColor = new List<string> { colors[0] },
                 BorderColor = new List<string> { colors[0] },
                 BorderWidth = new List<double> { 0 },
+                Label = "Average Spent in Category",
             };
-            datasets.Add(dataset1);
+            datasetsb.Add(dataset1b);
 
-            chartData = new ChartData { Labels = labels1, Datasets = datasetsb };
+            avgsBarChartData = new ChartData { Labels = labels1, Datasets = datasetsb };
 
-            barChartOptions = new();
-            barChartOptions.Locale = "de-DE";
-            barChartOptions.Responsive = true;
-            barChartOptions.Interaction = new Interaction { Mode = InteractionMode.Y };
-            barChartOptions.IndexAxis = "y";
+            avgsBarChartOptions = new()
+            {
+                Locale = user!.UserLocale,
+                Responsive = true,
+                Interaction = new Interaction { Mode = InteractionMode.X },
+                IndexAxis = "x"
+            };
 
-            barChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Amount", Display = true };
-            barChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Categories", Display = true };
-
-            barChartOptions.Scales.X.Stacked = true;
-            barChartOptions.Scales.Y.Stacked = true;
-
-            barChartOptions.Plugins.Title!.Text = "6 Month Averages by Category";
-            barChartOptions.Plugins.Title.Display = true;
+            avgsBarChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Amount", Display = true };
+            avgsBarChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Categories", Display = true };
+            avgsBarChartOptions.Scales.X.Stacked = true;
+            avgsBarChartOptions.Scales.Y.Stacked = true;
+            avgsBarChartOptions.Plugins.Title!.Text = "6 Month Averages by Category";
+            avgsBarChartOptions.Plugins.Title.Display = true;
 
         }
 
@@ -202,10 +214,7 @@ namespace BAR.Components.Pages.Trends
             if (firstRender)
             {
                 await totalByMonth.InitializeAsync(totalByMonthData, lineChartOptions1);
-
-                // BAR CHART NOT WORKING
-                //await barChart.InitializeAsync(chartData, barChartOptions);
-
+                await avgsBarChart.InitializeAsync(avgsBarChartData, avgsBarChartOptions);
                 await lineChart.InitializeAsync(chartData3, lineChartOptions1);
             }
             await base.OnAfterRenderAsync(firstRender);
@@ -236,9 +245,8 @@ namespace BAR.Components.Pages.Trends
             for (var month = 0; month < 6; month++)
             {
                 // Fetch user's transactions for the current month
-                var monthBehind = DateTime.Now.Month - month;
                 var transactions = DbContext.UserTransactions
-                    .Where(t => t.UserId == user.Id && t.TransactionDateTime.Month == monthBehind)
+                    .Where(t => t.UserId == user.Id && t.TransactionDateTime.Month == GetMonthBehind(month))
                     .ToList();
 
                 // Calculate the total spent in the current month
@@ -280,56 +288,60 @@ namespace BAR.Components.Pages.Trends
         private List<double?> GetAverageDataPoints()
         {
             var data = new List<double?>();
-            var counter = new List<int?>(11);
+            var counter = new int[11];
 
             // getting spending amounts for past 6 months
-            for (var month = 0; month < 6; month++)
+            var transactions = DbContext.UserTransactions
+                    .Where(t => t.UserId == user.Id 
+                        && t.TransactionDateTime.Month == GetMonthBehind(0)
+                        || t.TransactionDateTime.Month == GetMonthBehind(1)
+                        || t.TransactionDateTime.Month == GetMonthBehind(2)
+                        || t.TransactionDateTime.Month == GetMonthBehind(3)
+                        || t.TransactionDateTime.Month == GetMonthBehind(4)
+                        || t.TransactionDateTime.Month == GetMonthBehind(5))
+                    .ToList();
+            
+            if (transactions.Count() == 0) {
+                return data;
+            }
+
+            foreach (var item in categories)
             {
-                // Fetch user's transactions for the current month iteration
-                var monthBehind = DateTime.Now.Month - month;
-                foreach (var item in categories)
-                { // going through category dictionary
-                    var transactions = DbContext.UserTransactions // not too sure
-                        .Where(t => t.UserId == user.Id && t.TransactionCategory == item.Value) // match the category
-                        .ToList();
-                    counter[item.Key] = counter[item.Key] + 1; // count each category
+                if (transactions.Count(t => t.TransactionCategory == item.Value) == 0){
+                    data.Add(0.00);
+                    continue;
                 }
+                // Calculate the average by category
+                var avgByCategory = transactions
+                    .Where(t => t.TransactionCategory == item.Value)
+                    .Sum(t => t.TransactionAmt) /
+                    transactions.Count(t => t.TransactionCategory == item.Value);
 
-                foreach (var item in categories)
-                {
-                    // Calculate the average by category
-                    var avgByCategory = transactions.Sum(t => t.TransactionAmt) / counter[item.Key];
-
-                    // put info into data 
-                    data.Insert(0, (double)avgByCategory);
-                }
-
+                // put info into data 
+                data.Add(Math.Round((double)avgByCategory,2));
             }
             return data;
         }
+
 
         //get last month's spending totals (line graph 2) 
         private List<double?> GetLastMonthDataPoints()
         {
             var data = new List<double?>();
            
-          
             //.Where(t => t.UserId == userId && t.TransactionDateTime.Month == DateTime.Now.Month)
 
-            // Fetch user's transactions for the past month
-            var monthBehind = DateTime.Now.Month - month;
-            for (var i = 1; i <= pastDays; i++)
-            {
-                // Fetch user's transactions for the iterated day
-                var transactions = DbContext.UserTransactions
-                    .Where(t => t.UserId == user.Id && t.TransactionDateTime.Day == i && t.TransactionDateTime.Month == monthBehind)
+            var transactions = DbContext.UserTransactions
+                    .Where(t => t.UserId == user.Id && t.TransactionDateTime.Month == GetMonthBehind(1))
                     .ToList();
+            var monthlySlope = transactions.Sum(t => t.TransactionAmt) / DateTime.DaysInMonth(DateTime.Now.Year, GetMonthBehind(1));
 
-                // Calculate the total spent in the current month
-                var pastMonthDayAverage = transactions.Sum(t => t.TransactionAmt) / pastDays;
-                data.Insert(0, (double)pastMonthDayAverage);
+
+            for (int i = 1; i < DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) + 1; i++){
+                double count = i * (double)monthlySlope;
+                data.Add(count);
             }
-            
+
             return data;
         }
 
@@ -337,9 +349,9 @@ namespace BAR.Components.Pages.Trends
         private List<double?> GetMonthsDayDataPoints()
         {
             var data = new List<double?>();
+            double total = 0.0;
            
-           
-            for (var i = 1; i <= currentDays; i++)
+            for (int i = 1; i < DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) + 1; i++)
             {
                 // Fetch user's transactions for the iterated day
                 var transactions = DbContext.UserTransactions
@@ -347,9 +359,11 @@ namespace BAR.Components.Pages.Trends
                     .ToList();
 
                 // Calculate the total spent in the current month
-                var currentMonthDayAverage = transactions.Sum(t => t.TransactionAmt) / currentDays;
-                data.Insert(0, (double)currentMonthDayAverage);
+                var currentDaySum = transactions.Sum(t => t.TransactionAmt);
+                total = total + (double)currentDaySum;
+                data.Add(total);
             }
+
             return data;
         }
     } 
