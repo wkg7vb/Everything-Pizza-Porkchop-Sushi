@@ -4,12 +4,6 @@
     flex-direction: column;
 }
 
-.pagedark {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
-
 main {
     flex: 1;
 }
@@ -44,9 +38,10 @@ main {
     }
 
 .darkmode {
-    background-color: black;
+    background-color: #6F7378 !important;
     color: white;
 }
+
 
 @media (max-width: 640.98px) {
     .top-row {

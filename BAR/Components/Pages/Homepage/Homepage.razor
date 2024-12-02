@@ -53,16 +53,16 @@
           DataProvider="TransactionsDataProvider">
         <GridColumns>
             <GridColumn TItem="UserTransaction" HeaderText="Date" HeaderTextAlignment="Alignment.Center">
-                @context.TransactionDateTime.ToShortDateString()
+                <text style="color:blue">@context.TransactionDateTime.ToShortDateString()</text>
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Label">
-                @context.TransactionLabel
+                <text style="color:blue">@context.TransactionLabel</text>
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Amount" HeaderTextAlignment="Alignment.Center">
-                @context.TransactionAmt.ToString("C")
+                <text style="color:blue">@context.TransactionAmt.ToString("C")</text>
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
-                @context.TransactionCategory
+                <text style="color:blue">@context.TransactionCategory</text>
             </GridColumn>
         </GridColumns>
     </Grid>

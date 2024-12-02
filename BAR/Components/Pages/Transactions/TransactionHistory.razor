@@ -44,16 +44,16 @@
         SettingsProvider="GridSettingsProvider">
         <GridColumns class="grid-container">
             <GridColumn TItem="UserTransaction" HeaderText="Date" SortKeySelector="item => item.TransactionDateTime" IsDefaultSortColumn="true" SortDirection="SortDirection.Descending">
-                @context.TransactionDateTime.ToShortDateString()
+                <text style="color:blue">@context.TransactionDateTime.ToShortDateString()</text>
             </GridColumn>
-            <GridColumn style="color:white" TItem="UserTransaction" HeaderText="Category" SortKeySelector="item => item.TransactionCategory">
-                @context.TransactionCategory
+            <GridColumn TItem="UserTransaction" HeaderText="Category" SortKeySelector="item => item.TransactionCategory">
+                <text style="color:blue">@context.TransactionCategory</text>
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Label" SortKeySelector="item => item.TransactionLabel">
-                @context.TransactionLabel
+                <text style="color:blue">@context.TransactionLabel</text>
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
-                @context.TransactionAmt
+                <text style="color:blue">@context.TransactionAmt</text>
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="" HeaderTextAlignment="Alignment.End" TextAlignment="Alignment.End">
                 <Icon Name="IconName.PencilSquare" Size="IconSize.x5" />
