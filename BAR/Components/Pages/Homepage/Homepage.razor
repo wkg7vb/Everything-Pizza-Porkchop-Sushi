@@ -48,6 +48,8 @@
 <!--List of Recent Transactions (rendering issues)-->
 <div style="padding-top: 50px;">
     <h3 style="padding: 20px">Recent Transactions</h3>
+    @if(user is not null)
+    {
     <Grid TItem="UserTransaction"
           Class="table table-hover table-bordered table-striped"
           DataProvider="TransactionsDataProvider">
@@ -58,14 +60,40 @@
             <GridColumn TItem="UserTransaction" HeaderText="Label">
                 @context.TransactionLabel
             </GridColumn>
-            <GridColumn TItem="UserTransaction" HeaderText="Amount" HeaderTextAlignment="Alignment.Center">
-                @context.TransactionAmt.ToString("C")
-            </GridColumn>
+            @switch (user.UserLocale)
+            {
+                case "en-US":
+                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
+                        $@context.TransactionAmt
+                    </GridColumn>
+                    break;
+                case "es-MX":
+                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
+                        MX$@context.TransactionAmt
+                    </GridColumn>
+                    break;
+                case "en-GB":
+                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
+                        £@context.TransactionAmt
+                    </GridColumn>
+                    break;
+                case "en-EU":
+                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
+                        €@context.TransactionAmt
+                    </GridColumn>
+                    break;
+                default:
+                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
+                        @context.TransactionAmt
+                    </GridColumn>
+                    break;
+            }
             <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
                 @context.TransactionCategory
             </GridColumn>
         </GridColumns>
     </Grid>
+    }
 </div>
 
 
