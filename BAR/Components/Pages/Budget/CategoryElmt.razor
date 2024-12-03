@@ -4,8 +4,18 @@
     [Parameter] public EventCallback RmvElmtFnc {get; set;}
 }
 
+<style>
+    .category-dropdown {
+        width:175px; 
+        appearance: none;
+        border: 1px solid rgba(0,0,0,0.3);
+        background-color: rgba(0,0,0,0.05);
+        border-radius: 4px;
+    }
+</style>
+
 <div class='bdgt-dropdown d-flex gap-2 mb-2'>
-    <select disabled style="width:200px;" @bind="data.Type">
+    <select disabled class="category-dropdown" @bind="data.Type">
         <option selected value='@data.Type'>@data.Type</option>
     </select>
     <CurrencyInput TValue="decimal" Placeholder="Amount" @bind-Value="data.Amt" Locale="@locale" Min="0.0m" MaximumFractionDigits="2"/>
