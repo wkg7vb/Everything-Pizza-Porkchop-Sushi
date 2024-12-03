@@ -45,7 +45,7 @@
     SettingsProvider="GridSettingsProvider">
         <GridColumns>
             <GridColumn TItem="UserTransaction" HeaderText="Date" SortKeySelector="item => item.TransactionDateTime" IsDefaultSortColumn="true" SortDirection="SortDirection.Descending">
-                <text>@context.TransactionDateTime.ToShortDateString()</text>
+                @context.TransactionDateTime.ToShortDateString()
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Label" SortKeySelector="item => item.TransactionLabel">
                 @context.TransactionLabel
