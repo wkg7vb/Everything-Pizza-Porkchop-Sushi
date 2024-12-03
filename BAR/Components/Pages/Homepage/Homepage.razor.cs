@@ -49,7 +49,8 @@ namespace BAR.Components.Pages.Homepage
         //semaphore to synchronize database calls
         private readonly SemaphoreSlim _dbSemaphore = new(1, 1);
 
-
+        //user variable
+        private ApplicationUser user = default!;
 
         protected override async Task OnInitializedAsync()
         {
@@ -68,6 +69,12 @@ namespace BAR.Components.Pages.Homepage
             // Initialize user's personal details and financial data
             await GetUserNames();
             await CalculateCardFinancials();
+
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity.IsAuthenticated)
+            {
+                user = await UserManager.GetUserAsync(authState.User);
+            }
         }
 
 
@@ -82,6 +89,7 @@ namespace BAR.Components.Pages.Homepage
         // Data provider for the Grid component displaying list of recent transactions
         private async Task<GridDataProviderResult<UserTransaction>> TransactionsDataProvider(GridDataProviderRequest<UserTransaction> request)
         {
+            await Task.Delay(20);
             if (transactions == null) // Fetch transactions only once to optimize
                 transactions = await GetUserTransactionsAsync();
 

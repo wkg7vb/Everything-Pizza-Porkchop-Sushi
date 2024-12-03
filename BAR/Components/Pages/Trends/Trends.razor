@@ -5,12 +5,12 @@
 @using Microsoft.AspNetCore.Identity
 @using System.Security.Claims
 @using Microsoft.EntityFrameworkCore
+@using System.Globalization
 @rendermode InteractiveServer
 
 @attribute [Authorize]
 
 <div class="container">
-
     <h1 style="text-align: center; padding-bottom: 50px;">Trends</h1>
 
     <div class="row"> 
@@ -29,7 +29,7 @@
                         @context.TransactionLabel
                     </GridColumn>
                     <GridColumn TItem="UserTransaction" HeaderText="Amount" HeaderTextAlignment="Alignment.Center">
-                        @context.TransactionAmt.ToString("C")
+                        @context.TransactionAmt.ToString("C", CultureInfo.CreateSpecificCulture(@user.UserLocale))
                     </GridColumn>
                     <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
                         @context.TransactionCategory
@@ -40,7 +40,6 @@
 
         @*amount spent per category average (6 months) *@
         <BarChart class="col-md-6" @ref="avgsBarChart" Width="500" Height="300" /> <br>
-        
     </div>
 
     <div class="row">
