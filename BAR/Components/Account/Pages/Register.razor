@@ -34,6 +34,15 @@
                 <label for="email">Email</label>
                 <ValidationMessage For="() => Input.Email" class="text-danger" />
             </div>
+            <div class="border border-success rounded p-2 mb-4">
+                <p class="mx-1">Passwords must contain:</p>
+                <ul>
+                    <li>More than 6 characters</li>
+                    <li>An uppercase letter</li>
+                    <li>A symbol</li>
+                    <li>A number</li>
+                </ul>
+            </div>
             <div class="form-decimaling mb-3">
                 <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
                 <label for="password">Password</label>
@@ -47,13 +56,6 @@
             <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </EditForm>
     </div>
-    @* <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
-    </div> *@
 </div>
 
 @code {
