@@ -112,6 +112,12 @@ namespace BAR.Components.Pages.Trends
             // Set the color of X-axis and Y-axis ticks
             lineChartOptions.Scales.X!.Ticks = new ChartAxesTicks { Color = "blue" }; // X-axis ticks color
             lineChartOptions.Scales.Y!.Ticks = new ChartAxesTicks { Color = "green" }; // Y-axis ticks color
+            
+            lineChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Month", Display = true };
+            lineChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Total Spending by Month", Display = true };
+            lineChartOptions.Plugins.Title!.Text = "Total Monthly Spending of the Past 6 Months";
+            lineChartOptions.Plugins.Title.Display = true;
+
 
             // PROJECTIONS 
             var colors = ColorUtility.CategoricalTwelveColors;
