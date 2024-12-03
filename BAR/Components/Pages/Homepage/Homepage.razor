@@ -1,4 +1,5 @@
-﻿@page "/home"
+﻿@using System.Globalization;
+@page "/home"
 @rendermode InteractiveServer
 @attribute [Authorize]
 
@@ -60,34 +61,9 @@
             <GridColumn TItem="UserTransaction" HeaderText="Label">
                 @context.TransactionLabel
             </GridColumn>
-            @switch (user.UserLocale)
-            {
-                case "en-US":
-                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
-                        $@context.TransactionAmt
-                    </GridColumn>
-                    break;
-                case "es-MX":
-                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
-                        MX$@context.TransactionAmt
-                    </GridColumn>
-                    break;
-                case "en-GB":
-                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
-                        £@context.TransactionAmt
-                    </GridColumn>
-                    break;
-                case "en-EU":
-                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
-                        €@context.TransactionAmt
-                    </GridColumn>
-                    break;
-                default:
-                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
-                        @context.TransactionAmt
-                    </GridColumn>
-                    break;
-            }
+            <GridColumn TItem="UserTransaction" HeaderText="Label" SortKeySelector="item => item.TransactionAmt">
+                @context.TransactionAmt.ToString("C", CultureInfo.CreateSpecificCulture(@user.UserLocale))
+            </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
                 @context.TransactionCategory
             </GridColumn>

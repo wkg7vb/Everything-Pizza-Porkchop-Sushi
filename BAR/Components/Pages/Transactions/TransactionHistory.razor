@@ -1,10 +1,11 @@
-@using BAR.Data
+@using BAR.Data;
 @using BAR.Data.Models;
 @using BAR.Data.Services;
 @using Microsoft.AspNetCore.Http;
 @using Microsoft.AspNetCore.Mvc;
 @using Microsoft.AspNetCore.Identity;
-@using System.Text.Json
+@using System.Text.Json;
+@using System.Globalization;
 
 @inject ITransaction TransactionManager;
 @inject UserManager<ApplicationUser> UserManager;
@@ -49,34 +50,9 @@
             <GridColumn TItem="UserTransaction" HeaderText="Label" SortKeySelector="item => item.TransactionLabel">
                 @context.TransactionLabel
             </GridColumn>
-            @switch(user.UserLocale)
-            {
-                case "en-US":
-                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
-                        $@context.TransactionAmt
-                    </GridColumn>
-                    break;
-                case "es-MX":
-                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
-                        MX$@context.TransactionAmt
-                    </GridColumn>
-                    break;
-                case "en-GB":
-                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
-                        £@context.TransactionAmt
-                    </GridColumn>
-                    break;
-                case "en-EU":
-                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
-                        €@context.TransactionAmt
-                    </GridColumn>
-                    break;
-                default:
-                    <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
-                        @context.TransactionAmt
-                    </GridColumn>
-                    break;
-            }
+            <GridColumn TItem="UserTransaction" HeaderText="Label" SortKeySelector="item => item.TransactionAmt">
+                @context.TransactionAmt.ToString("C", CultureInfo.CreateSpecificCulture(@user.UserLocale))
+            </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Category" SortKeySelector="item => item.TransactionCategory">
                 @context.TransactionCategory
             </GridColumn>
@@ -133,7 +109,6 @@
     private string category = "Housing";
     private string label = "";
     private decimal amount = 0.00m;
-    private string currSym = "";
     private UserTransaction transactionToUpdate = default!;
     private Grid<UserTransaction> transactionGrid = default!;
 
