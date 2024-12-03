@@ -23,7 +23,7 @@
         <CardBody Style="text-align: center;">
 
             <CardTitle>@monthlyBudgetTotal.ToString("C") / @monthlyIncome.ToString("C")</CardTitle>
-            <CardSubTitle Class="mb-2 text-muted">Monthly Budget Total</CardSubTitle>
+            <CardSubTitle Class="mb-2 text-muted">Monthly Budget Total / Monthly Income</CardSubTitle>
         </CardBody>
     </Card>
 
@@ -74,9 +74,18 @@
 
 
 <!--Donut Chart-->
-<div style="padding-top: 50px; padding-bottom: 50px;">
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; height: 100vh; text-align: center;">
+    <Card Style="max-width: 500px; height: 150px; margin: 10px; display: flex; align-items: center; justify-content: center;">
+        <CardBody Style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <p style="margin: 0;"><b>Outer Ring</b> = Amount Spent</p>
+            <p style="margin: 0;"><b>Inner Ring</b> = Amount Remaining</p>
+        </CardBody>
+    </Card>
     <DoughnutChart @ref="doughnutChart" Width="500" />
 </div>
+
+
+
 
 
 
