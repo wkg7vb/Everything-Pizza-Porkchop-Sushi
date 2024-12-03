@@ -23,17 +23,18 @@ Accessible to users that are logged in.
 
 @if (elmts.Count() > 0){
     <div class='mb-3'>
-        <label class="m-1">Monthly budget:</label>
+        <label class="m-1 mb-2">Monthly income:</label>
         <CurrencyInput TValue="decimal" Placeholder="Amount" @bind-Value="bdgt!.MonthlyIncome" Locale="@userCurrencyLocale" Min="0.0m" MaximumFractionDigits="2"/>
     </div>
 
+    <label class="m-1 mb-2">Budget Categories</label>
     @foreach(var elmt in elmts){
         <CategoryElmt data="@elmt" locale="@userCurrencyLocale" RmvElmtFnc="() => RemoveCategoryElmt(elmt)" />
     }
 }
 
 <div class="d-flex flex-column align-items-start gap-4 my-4">
-    <Button Color="ButtonColor.Primary" @onclick="ShowAddCatModal">Add more...</Button>
+    <Button Color="ButtonColor.Primary" @onclick="ShowAddCatModal">Add more categories...</Button>
     <Button Color="ButtonColor.Primary" @onclick="SaveChangesAsync">Save</Button>
 </div>
 
