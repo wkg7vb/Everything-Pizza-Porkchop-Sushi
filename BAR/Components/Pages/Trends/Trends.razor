@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Identity
 @using System.Security.Claims
 @using Microsoft.EntityFrameworkCore
+@using System.Globalization
 @rendermode InteractiveServer
 
 @attribute [Authorize]
@@ -29,7 +30,7 @@
                     @context.TransactionLabel
                 </GridColumn>
                 <GridColumn TItem="UserTransaction" HeaderText="Amount" HeaderTextAlignment="Alignment.Center">
-                    @context.TransactionAmt.ToString("C")
+                    @context.TransactionAmt.ToString("C", CultureInfo.CreateSpecificCulture(@user.UserLocale))
                 </GridColumn>
                 <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
                     @context.TransactionCategory
