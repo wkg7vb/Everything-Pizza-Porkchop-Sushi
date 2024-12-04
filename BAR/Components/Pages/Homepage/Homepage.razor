@@ -1,5 +1,4 @@
-﻿@using System.Globalization;
-@page "/home"
+﻿@page "/home"
 @rendermode InteractiveServer
 @attribute [Authorize]
 
@@ -59,8 +58,6 @@
 <!--List of Recent Transactions (rendering issues)-->
 <div style="padding-top: 50px; padding-bottom: 50px;">
     <h3 style="padding: 20px">Recent Transactions</h3>
-    @if(user is not null)
-    {
     <Grid TItem="UserTransaction"
           Class="table table-hover table-bordered table-striped"
           DataProvider="TransactionsDataProvider">
@@ -71,13 +68,23 @@
             <GridColumn TItem="UserTransaction" HeaderText="Label">
                 @context.TransactionLabel
             </GridColumn>
-            <GridColumn TItem="UserTransaction" HeaderText="Label" SortKeySelector="item => item.TransactionAmt">
-                @context.TransactionAmt.ToString("C", CultureInfo.CreateSpecificCulture(@user.UserLocale))
+            <GridColumn TItem="UserTransaction" HeaderText="Amount" HeaderTextAlignment="Alignment.Center">
+                @userCurrency @context.TransactionAmt.ToString("N2")
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
                 @context.TransactionCategory
             </GridColumn>
         </GridColumns>
     </Grid>
-    }
 </div>
+
+
+
+
+
+
+
+
+
+
+

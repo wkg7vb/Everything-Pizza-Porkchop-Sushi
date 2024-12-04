@@ -107,18 +107,11 @@ namespace BAR.Components.Pages.Trends
                 Labels = labels[(DateTime.Now.Month - 6)..(DateTime.Now.Month)],
                 Datasets = GetTotalAmountData()
             };
-
             // Configure the chart to be responsive and set interaction mode to 'index'
-            lineChartOptions = new()
-            {
-                Responsive = true,
-                Interaction = new Interaction { Mode = InteractionMode.Index }
-            };
-
-            lineChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Month", Display = true };
-            lineChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Total Spending by Month", Display = true };
-            lineChartOptions.Plugins.Title!.Text = "Total Monthly Spending of the Past 6 Months";
-            lineChartOptions.Plugins.Title.Display = true;
+            lineChartOptions = new() { Responsive = true, Interaction = new Interaction { Mode = InteractionMode.Index } };
+            // Set the color of X-axis and Y-axis ticks
+            lineChartOptions.Scales.X!.Ticks = new ChartAxesTicks { Color = "blue" }; // X-axis ticks color
+            lineChartOptions.Scales.Y!.Ticks = new ChartAxesTicks { Color = "green" }; // Y-axis ticks color
 
             // PROJECTIONS 
             var colors = ColorUtility.CategoricalTwelveColors;
@@ -173,6 +166,7 @@ namespace BAR.Components.Pages.Trends
             lineChartOptions1.Plugins.Title!.Text = "Total Spending by Day Compared to Last Month";
             lineChartOptions1.Plugins.Title.Display = true;
 
+
             // BAR CHART
             var labels1 = categories.Values.ToList();
             var barChartDatasets = new List<IChartDataset>();
@@ -212,7 +206,7 @@ namespace BAR.Components.Pages.Trends
 
             if (firstRender)
             {
-                await totalByMonth.InitializeAsync(totalByMonthData, lineChartOptions);
+                await totalByMonth.InitializeAsync(totalByMonthData, lineChartOptions1);
                 await avgsBarChart.InitializeAsync(avgsBarChartData, avgsBarChartOptions);
                 await projectionsChart.InitializeAsync(projectionsChartData, lineChartOptions1);
             }
