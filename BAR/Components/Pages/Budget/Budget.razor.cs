@@ -14,15 +14,15 @@ public partial class Budget
 {
     // User vars from db (init'd inside OnInitialiedAsync)
     private UserBudget? bdgt;
-    private ApplicationUser? user {get; set;} = default!;
+    private ApplicationUser? User {get; set;} = default!;
     private Modal AddCatModal = default!;
     private string AddedCat = string.Empty;
 
-    [Inject] ToastService toastService {get; set;} = default!;
+    [Inject] ToastService ToastService {get; set;} = default!;
 
     // Local vars
     private string userCurrencyLocale {get; set;} = "";
-    private List<CategoryData> elmts = new();
+    private List<CategoryData> elmts = [];
     private readonly Dictionary<string, string> categoryColumnNames = new Dictionary<string, string>{
         {"Housing", "HousingAmt"},
         {"Bills/Utilities", "BillsUtilsAmt"},
@@ -36,7 +36,7 @@ public partial class Budget
         {"Investing", "InvestingAmt"},
         {"Miscellaneous", "MiscAmt"}
     };
-    private List<string> categories = new();
+    private List<string> categories = [];
 
 
     // Functions
@@ -45,7 +45,7 @@ public partial class Budget
     {
         Task.Delay(10);
         base.OnInitialized();
-        categories = categoryColumnNames.Keys.ToList();
+        categories = [.. categoryColumnNames.Keys];
     }
 
     // Runs when page is loaded, pseudo "constructor"-like function to pull data and fill page with respective elements
@@ -55,12 +55,12 @@ public partial class Budget
         await base.OnInitializedAsync();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity!.IsAuthenticated){
-            user = await UserManager.GetUserAsync(authState.User);
+            User = await UserManager.GetUserAsync(authState.User);
         }
-        if (user is not null)
+        if (User is not null)
         {
-            userCurrencyLocale = user.UserLocale;
-            bdgt = await dbContext.UserBudgets.SingleOrDefaultAsync(p => p.UserId == user.Id);
+            userCurrencyLocale = User.UserLocale;
+            bdgt = await dbContext.UserBudgets.SingleOrDefaultAsync(p => p.UserId == User.Id);
 
             if (bdgt is not null)
             {
@@ -75,14 +75,14 @@ public partial class Budget
                 if (bdgt.MedicalAmt is not null) AddCategoryElmt(type: "Medical", amt: (decimal)bdgt.MedicalAmt);
                 if (bdgt.InvestingAmt is not null) AddCategoryElmt(type: "Investing", amt: (decimal)bdgt.InvestingAmt);
                 if (bdgt.MiscAmt is not null) AddCategoryElmt(type: "Miscellaneous", amt: (decimal)bdgt.MiscAmt);
-                if (elmts.Count() == 0 && bdgt.AllCategoriesNull) AddCategoryElmt(categories[0], 0.0m);
+                if (elmts.Count == 0 && bdgt.AllCategoriesNull) AddCategoryElmt(categories[0], 0.0m);
             }
             // Initialize a generic category cell when no user data is available
             else
             {
                 bdgt = new UserBudget{
-                    UserId = user.Id,
-                    User = user
+                    UserId = User.Id,
+                    User = User
                 };
                 await dbContext.UserBudgets.AddAsync(bdgt);
                 await dbContext.SaveChangesAsync();
@@ -97,7 +97,8 @@ public partial class Budget
     // Create a category element given a type and anount
     private void AddCategoryElmt(string type, decimal amt)
     {
-        CategoryData newData = new CategoryData{
+        CategoryData newData = new()
+        {
             Type = type,
             Amt = amt
         };
@@ -107,7 +108,7 @@ public partial class Budget
         }
         catch (Exception e)
         {
-            toastService.Notify(
+            ToastService.Notify(
                 new ToastMessage(ToastType.Danger, e.Message)
             );
             return;
@@ -127,7 +128,7 @@ public partial class Budget
             }
             catch (Exception e)
             {
-                toastService.Notify(
+                ToastService.Notify(
                     new ToastMessage(ToastType.Danger, e.Message)
                 );
                 return;
@@ -137,14 +138,14 @@ public partial class Budget
             {
                 elmts.Remove(elmt);
                 UpdateCategories();
-                break;
+                return;
             }
         }
     }
 
     // Update categories list to reflect what categories are in use and which aren't
     private void UpdateCategories(){
-        categories = categoryColumnNames.Keys.ToList();
+        categories = [.. categoryColumnNames.Keys];
         foreach (var col in elmts){
             if (categories.Contains(col.Type)){
                 categories.Remove(col.Type);
@@ -186,11 +187,11 @@ public partial class Budget
             var updateResult = await dbContext.SaveChangesAsync();
         }
         catch {
-            toastService.Notify(
+            ToastService.Notify(
                 new ToastMessage(ToastType.Danger, "An error occurred while saving your changes.")
             );
         }
-        toastService.Notify(
+        ToastService.Notify(
                 new ToastMessage(ToastType.Success, "Your changes have been saved.")
             );
     }
@@ -198,17 +199,36 @@ public partial class Budget
     // Show/hide modal based on user inputs
     private async Task ShowAddCatModal()
     {
+        if (categories.Count == 0){
+            ToastService.Notify(
+                new ToastMessage(ToastType.Danger, "You have already added all categories.")
+            );
+            return;
+        }
         await AddCatModal.ShowAsync();
     }
     private async Task CancelAddCatModal()
     {
+        AddedCat = string.Empty;
         await AddCatModal.HideAsync();
     }
+
     // Callback to add provided category and update UI
     private async void AddCategoryFromModal(){
-        AddCategoryElmt(AddedCat, 0.0m);
+        if (AddedCat == string.Empty)
+        {
+            ToastService.Notify(
+                new ToastMessage(ToastType.Danger, "Please select a category.")
+            );
+            return;
+        }
+        else
+        {
+            AddCategoryElmt(AddedCat, 0.0m);
+        }
+        AddedCat = string.Empty;
         await AddCatModal.HideAsync();
-        toastService.Notify(
+        ToastService.Notify(
                 new ToastMessage(ToastType.Success, "New category added.")
             );
     }
