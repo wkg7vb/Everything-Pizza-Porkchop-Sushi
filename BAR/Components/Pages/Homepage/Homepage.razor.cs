@@ -55,6 +55,11 @@ namespace BAR.Components.Pages.Homepage
 
         protected override async Task OnInitializedAsync()
         {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity.IsAuthenticated)
+            {
+                user = await UserManager.GetUserAsync(authState.User);
+            }
             await Task.Delay(10);
             // Initialize the chart options
             doughnutChartOptions = new();
@@ -70,12 +75,6 @@ namespace BAR.Components.Pages.Homepage
             // Initialize user's personal details and financial data
             await GetUserNames();
             await CalculateCardFinancials();
-
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            if (authState.User.Identity.IsAuthenticated)
-            {
-                user = await UserManager.GetUserAsync(authState.User);
-            }
         }
 
 
