@@ -85,6 +85,7 @@ namespace BAR.Components.Pages.Trends
         {
             await Task.Delay(10);
             await base.OnInitializedAsync();
+
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             if (authState.User.Identity!.IsAuthenticated)
             {
@@ -203,12 +204,11 @@ namespace BAR.Components.Pages.Trends
             avgsBarChartOptions.Scales.Y.Stacked = true;
             avgsBarChartOptions.Plugins.Title!.Text = "6 Month Averages by Category";
             avgsBarChartOptions.Plugins.Title.Display = true;
-
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender) // show chart
         {
-
+            await Task.Delay(10);
             if (firstRender)
             {
                 await totalByMonth.InitializeAsync(totalByMonthData, lineChartOptions);
@@ -260,6 +260,7 @@ namespace BAR.Components.Pages.Trends
         // Data provider for the Grid component displaying transactions
         private async Task<GridDataProviderResult<UserTransaction>> TransactionsDataProvider(GridDataProviderRequest<UserTransaction> request)
         {
+            await Task.Delay(20);
             transactions ??= await GetUserTransactionsAsync();
             return await Task.FromResult(request.ApplyTo(transactions));
         }
