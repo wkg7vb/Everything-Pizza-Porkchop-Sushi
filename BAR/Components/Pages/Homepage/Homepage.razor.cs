@@ -176,8 +176,11 @@ namespace BAR.Components.Pages.Homepage
 
                     // Fetch user's transactions for the current month
                     var transactions = await DbContext.UserTransactions
-                        .Where(t => t.UserId == userId && t.TransactionDateTime.Month == DateTime.Now.Month)
-                        .ToListAsync();
+                    .Where(t => t.UserId == userId &&
+                                t.TransactionDateTime.Year == DateTime.Now.Year &&
+                                t.TransactionDateTime.Month == DateTime.Now.Month)
+                    .ToListAsync();
+
 
                     // Calculate the total spent in the current month
                     monthlyTotalSpent = transactions.Sum(t => t.TransactionAmt);
@@ -256,10 +259,12 @@ namespace BAR.Components.Pages.Homepage
     (double?)budget?.MiscAmt
 };
 
-                // Fetch recent transaction amounts by category
+                // Fetch user's transactions for the current month
                 var transactions = await DbContext.UserTransactions
-                        .Where(t => t.UserId == userId && t.TransactionDateTime.Month == DateTime.Now.Month)
-                        .ToListAsync();
+                .Where(t => t.UserId == userId &&
+                            t.TransactionDateTime.Year == DateTime.Now.Year &&
+                            t.TransactionDateTime.Month == DateTime.Now.Month)
+                .ToListAsync();
 
                 var transactionSums = transactions
                     .GroupBy(t => t.TransactionCategory)
