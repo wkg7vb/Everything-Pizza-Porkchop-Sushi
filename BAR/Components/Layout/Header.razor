@@ -88,7 +88,7 @@
         Label:
         <input type="text" class="mt-2" @bind-value="label" PlaceHolder="@label" /> <br>
         Amount:
-        <input type="text" class="mt-2" @bind-value="amount" PlaceHolder="@amount" /> <br> <br>
+        <input onClick="this.select();" type="text" class="mt-2" @bind-value="amount" PlaceHolder="@amount" /> <br> <br>
         Category:
         <select @bind="category" PlaceHolder="@category">
             <option value="Housing">Housing</option>
