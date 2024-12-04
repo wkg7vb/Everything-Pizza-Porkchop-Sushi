@@ -22,7 +22,7 @@
     <Card Style="flex: 1 1 calc(100% - 20px); max-width: 300px; margin: 10px;">
         <CardBody Style="text-align: center;">
 
-            <CardTitle>@monthlyBudgetTotal.ToString("C") / @monthlyIncome.ToString("C")</CardTitle>
+            <CardTitle>@monthlyBudgetTotal.ToString("C", CultureInfo.CreateSpecificCulture(@user.UserLocale)) / @monthlyIncome.ToString("C", CultureInfo.CreateSpecificCulture(@user.UserLocale))</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Allocated Funds / Total Monthly Budget</CardSubTitle>
         </CardBody>
     </Card>
@@ -31,7 +31,7 @@
     <Card Style="flex: 1 1 calc(100% - 20px); max-width: 300px; margin: 10px;">
         <CardBody Style="text-align: center;">
 
-            <CardTitle>@monthlyTotalSpent.ToString("C")</CardTitle>
+            <CardTitle>@monthlyTotalSpent.ToString("C", CultureInfo.CreateSpecificCulture(@user.UserLocale))</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Monthly Total Spent</CardSubTitle>
         </CardBody>
     </Card>
@@ -39,7 +39,7 @@
     <!-- Over Monthly Budget -->
     <Card Style="flex: 1 1 calc(100% - 20px); max-width: 300px; margin: 10px;">
         <CardBody Style="text-align: center;">
-            <CardTitle>@overMonthlyBudget.ToString("C")</CardTitle>
+            <CardTitle>@overMonthlyBudget.ToString("C", CultureInfo.CreateSpecificCulture(@user.UserLocale))</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Over Monthly Budget</CardSubTitle>
         </CardBody>
     </Card>
