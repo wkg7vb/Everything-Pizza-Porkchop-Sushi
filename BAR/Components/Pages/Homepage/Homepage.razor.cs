@@ -52,6 +52,7 @@ namespace BAR.Components.Pages.Homepage
         //user variable
         private ApplicationUser user = default!;
 
+
         protected override async Task OnInitializedAsync()
         {
             await Task.Delay(10);
@@ -235,31 +236,31 @@ namespace BAR.Components.Pages.Homepage
 
                 // Initialize dataset amounts
                 var categories = new List<string>
-        {
-            "Housing", "Bills/Utilities", "Grocery/Dining", "Transportation",
-            "Education", "Debt", "Entertainment", "Shopping",
-            "Medical", "Investing", "Miscellaneous"
-        };
+{
+    "Housing", "Bills/Utilities", "Grocery/Dining", "Transportation",
+    "Education", "Debt", "Entertainment", "Shopping",
+    "Medical", "Investing", "Miscellaneous"
+};
 
                 var budgetAmounts = new List<double?>
-        {
-            (double?)budget?.HousingAmt,
-            (double?)budget?.BillsUtilsAmt,
-            (double?)budget?.GroceryDiningAmt,
-            (double?)budget?.TransportAmt,
-            (double?)budget?.EducationAmt,
-            (double?)budget?.DebtAmt,
-            (double?)budget?.EntertainmentAmt,
-            (double?)budget?.ShoppingAmt,
-            (double?)budget?.MedicalAmt,
-            (double?)budget?.InvestingAmt,
-            (double?)budget?.MiscAmt
-        };
+{
+    (double?)budget?.HousingAmt,
+    (double?)budget?.BillsUtilsAmt,
+    (double?)budget?.GroceryDiningAmt,
+    (double?)budget?.TransportAmt,
+    (double?)budget?.EducationAmt,
+    (double?)budget?.DebtAmt,
+    (double?)budget?.EntertainmentAmt,
+    (double?)budget?.ShoppingAmt,
+    (double?)budget?.MedicalAmt,
+    (double?)budget?.InvestingAmt,
+    (double?)budget?.MiscAmt
+};
 
                 // Fetch recent transaction amounts by category
                 var transactions = await DbContext.UserTransactions
-                    .Where(t => t.UserId == userId)
-                    .ToListAsync();
+                        .Where(t => t.UserId == userId && t.TransactionDateTime.Month == DateTime.Now.Month)
+                        .ToListAsync();
 
                 var transactionSums = transactions
                     .GroupBy(t => t.TransactionCategory)
@@ -269,19 +270,19 @@ namespace BAR.Components.Pages.Homepage
                     );
 
                 var transactionAmounts = new List<double?>
-        {
-            transactionSums.GetValueOrDefault("Housing", 0),
-            transactionSums.GetValueOrDefault("Bills/Utilities", 0),
-            transactionSums.GetValueOrDefault("Grocery/Dining", 0),
-            transactionSums.GetValueOrDefault("Transportation", 0),
-            transactionSums.GetValueOrDefault("Education", 0),
-            transactionSums.GetValueOrDefault("Debt", 0),
-            transactionSums.GetValueOrDefault("Entertainment", 0),
-            transactionSums.GetValueOrDefault("Shopping", 0),
-            transactionSums.GetValueOrDefault("Medical", 0),
-            transactionSums.GetValueOrDefault("Investing", 0),
-            transactionSums.GetValueOrDefault("Miscellaneous", 0)
-        };
+{
+    transactionSums.GetValueOrDefault("Housing", 0),
+    transactionSums.GetValueOrDefault("Bills/Utilities", 0),
+    transactionSums.GetValueOrDefault("Grocery/Dining", 0),
+    transactionSums.GetValueOrDefault("Transportation", 0),
+    transactionSums.GetValueOrDefault("Education", 0),
+    transactionSums.GetValueOrDefault("Debt", 0),
+    transactionSums.GetValueOrDefault("Entertainment", 0),
+    transactionSums.GetValueOrDefault("Shopping", 0),
+    transactionSums.GetValueOrDefault("Medical", 0),
+    transactionSums.GetValueOrDefault("Investing", 0),
+    transactionSums.GetValueOrDefault("Miscellaneous", 0)
+};
 
                 // Filter categories and amounts where both are null or zero
                 var filteredData = categories
@@ -299,20 +300,23 @@ namespace BAR.Components.Pages.Homepage
                 {
                     Labels = filteredData.Select(x => x.Category).ToList(),
                     Datasets = new List<IChartDataset>
-            {
-                new DoughnutChartDataset
-                {
-                    Label = "Amount Spent",
-                    Data = filteredData.Select(x => x.TransactionAmount).ToList(),
-                    BackgroundColor = filteredData.Select((_, index) => GetColorByIndex(index)).ToList()
-                },
-                new DoughnutChartDataset
-                {
-                    Label = "Amount Remaining",
-                    Data = filteredData.Select(x => x.BudgetAmount - x.TransactionAmount).ToList(),
-                    BackgroundColor = filteredData.Select((_, index) => GetColorByIndex(index)).ToList()
-                }
-            }
+    {
+        new DoughnutChartDataset
+        {
+            Label = "Amount Spent",
+            Data = filteredData.Select(x => x.TransactionAmount).ToList(),
+            BackgroundColor = filteredData.Select((_, index) => GetColorByIndex(index)).ToList()
+        },
+        new DoughnutChartDataset
+        {
+            Label = "Amount Remaining",
+            Data = filteredData
+            .Select(x => x.BudgetAmount - x.TransactionAmount)
+            .Where(amountRemaining => amountRemaining >= 0) // Filter out negative values
+            .ToList(),
+            BackgroundColor = filteredData.Select((_, index) => GetColorByIndex(index)).ToList()
+        }
+    }
                 };
             }
             finally
@@ -320,6 +324,10 @@ namespace BAR.Components.Pages.Homepage
                 _dbSemaphore.Release();
             }
         }
+
+
+
+
 
         private string GetColorByIndex(int index)
         {

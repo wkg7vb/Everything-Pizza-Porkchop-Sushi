@@ -88,7 +88,7 @@
         Label:
         <input type="text" class="mt-2" @bind-value="label" PlaceHolder="@label" /> <br>
         Amount:
-        <input type="text" class="mt-2" @bind-value="amount" PlaceHolder="@amount" /> <br> <br>
+        <input onClick="this.select();" type="text" class="mt-2" @bind-value="amount" PlaceHolder="@amount" /> <br> <br>
         Category:
         <select @bind="category" PlaceHolder="@category">
             <option value="Housing">Housing</option>
@@ -150,10 +150,7 @@
             await TransactionManager.AddTransaction(transaction);
             await addmodal.HideAsync();
             toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully added transaction."));
-            if (NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "transactions")
-            {
-                NavigationManager.Refresh(true);
-            }
+            NavigationManager.Refresh(true);
         }
         else
         {
