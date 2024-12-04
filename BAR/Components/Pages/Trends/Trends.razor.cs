@@ -12,7 +12,6 @@ namespace BAR.Components.Pages.Trends
 {
     public partial class Trends
     {
-
         [Inject]
         private ApplicationDbContext DbContext { get; set; } = default!;
 
@@ -22,12 +21,9 @@ namespace BAR.Components.Pages.Trends
         [Inject]
         private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
-        [Inject]
-        private ITransaction TransactionManager { get; set; } = default!;
-
         private ApplicationUser user = default!;
 
-        //recent transactions list
+        //recent transactions list (transaction list)
         private IEnumerable<UserTransaction>? transactions;
 
         // monthly total chart
@@ -41,14 +37,12 @@ namespace BAR.Components.Pages.Trends
         private BarChartOptions avgsBarChartOptions = default!;
         private ChartData avgsBarChartData = default!;
 
-        // Monthly Projection
+        // Monthly Projection variables
         private LineChart projectionsChart = default!;
         private LineChartOptions lineChartOptions1 = default!;
         private ChartData projectionsChartData = default!;
-        int pastDays = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month - 1); // error 
-        int currentDays = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
 
-        private Dictionary<int, string> months = new Dictionary<int, string> {
+        private readonly Dictionary<int, string> months = new() {
             {1, "January"},
             {2, "February"},
             {3, "March"},
@@ -63,7 +57,7 @@ namespace BAR.Components.Pages.Trends
             {12, "December"}
             };
 
-        private Dictionary<int, string> categories = new Dictionary<int, string> {
+        private readonly Dictionary<int, string> categories = new() {
             {1, "Housing"},
             {2, "Bills/Utilities"},
             {3, "Grocery/Dining"},
@@ -76,19 +70,20 @@ namespace BAR.Components.Pages.Trends
             {10, "Investing"},
             {11, "Miscellaneous"}
             };
-        private static int year;
-        private static int month;
 
-        private int GetMonthBehind(int amt_to_go_back){
+        // Returns the correct month and year behind as ints given a number of months
+        // Max use case is 5 so never need to go back more than one year, thus its hardcoded
+        private static int[] GetMonthBehind(int amt_to_go_back){
             if (DateTime.Now.Month - amt_to_go_back < 1){
-                return 12 + (DateTime.Now.Month - amt_to_go_back);
+                return [12 + (DateTime.Now.Month - amt_to_go_back), DateTime.Now.Year - 1];
             }
-            else return DateTime.Now.Month - amt_to_go_back;
+            else return [DateTime.Now.Month - amt_to_go_back, DateTime.Now.Year];
         }
 
-        // total by month task
+        // OnInit functionality
         protected override async Task OnInitializedAsync()
         {
+            await Task.Delay(10);
             await base.OnInitializedAsync();
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             if (authState.User.Identity!.IsAuthenticated)
@@ -99,12 +94,16 @@ namespace BAR.Components.Pages.Trends
 
             // total by month graph
             // Initialize chart data with 6 labels (past 6 months) and 4 datasets (Bills, Education, Debt, Investing)
-            var labels = months.Values.ToList(); // putting months onto label value
+            List<string> labels = [];  // putting months onto label value
+            for (int i = 0; i < 6; i++){
+                int[] behind = GetMonthBehind(i);
+                labels.Insert(0,months[behind[0]]);
+            }
 
             totalByMonthData = new ChartData
             {
                 // calculating past 6 months
-                Labels = labels[(DateTime.Now.Month - 6)..(DateTime.Now.Month)],
+                Labels = labels,
                 Datasets = GetTotalAmountData()
             };
 
@@ -219,7 +218,7 @@ namespace BAR.Components.Pages.Trends
             await base.OnAfterRenderAsync(firstRender);
         }
 
-        //generate data for totals (line graph 1)
+        // generate data for totals (line graph 1)
         private List<IChartDataset> GetTotalAmountData()
         {
             var datasets = new List<IChartDataset>
@@ -236,7 +235,7 @@ namespace BAR.Components.Pages.Trends
             return datasets;
         }
 
-        //get monthly spending totals (line graph 1) 
+        // get monthly spending totals (line graph 1) 
         private List<double?> GetMonthlyDataPoints()
         {
             var data = new List<double?>();
@@ -244,8 +243,11 @@ namespace BAR.Components.Pages.Trends
             for (var month = 0; month < 6; month++)
             {
                 // Fetch user's transactions for the current month
+                int[] behind = GetMonthBehind(month);
                 var transactions = DbContext.UserTransactions
-                    .Where(t => t.UserId == user.Id && t.TransactionDateTime.Month == GetMonthBehind(month))
+                    .Where(t => t.UserId == user.Id 
+                    && t.TransactionDateTime.Month == behind[0]
+                    && t.TransactionDateTime.Year == behind[1])
                     .ToList();
 
                 // Calculate the total spent in the current month
@@ -258,24 +260,22 @@ namespace BAR.Components.Pages.Trends
         // Data provider for the Grid component displaying transactions
         private async Task<GridDataProviderResult<UserTransaction>> TransactionsDataProvider(GridDataProviderRequest<UserTransaction> request)
         {
-            if (transactions == null) // Fetch transactions only once to optimize
-                transactions = await GetUserTransactionsAsync();
-
+            transactions ??= await GetUserTransactionsAsync();
             return await Task.FromResult(request.ApplyTo(transactions));
         }
-
-        // Fetch the biggest 3 transactions
         private async Task<IEnumerable<UserTransaction>> GetUserTransactionsAsync()
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var userId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId == null)
-                return Enumerable.Empty<UserTransaction>();
+                return [];
 
             // Get the biggest 3 transactions for the current user, ordered by date
             return await DbContext.UserTransactions
-                .Where(t => t.UserId == userId && t.TransactionDateTime.Month == DateTime.Now.Month)
+                .Where(t => t.UserId == userId 
+                        && t.TransactionDateTime.Month == DateTime.Now.Month 
+                        && t.TransactionDateTime.Year == DateTime.Now.Year)
                 .OrderByDescending(t => t.TransactionAmt)
                 .Take(3)
                 .ToListAsync();
@@ -287,34 +287,34 @@ namespace BAR.Components.Pages.Trends
         private List<double?> GetAverageDataPoints()
         {
             var data = new List<double?>();
-            var counter = new int[11];
+            IEnumerable<UserTransaction> transactions_list = [];
 
             // getting spending amounts for past 6 months
-            var transactions = DbContext.UserTransactions
-                    .Where(t => t.UserId == user.Id 
-                        && t.TransactionDateTime.Month == GetMonthBehind(0)
-                        || t.TransactionDateTime.Month == GetMonthBehind(1)
-                        || t.TransactionDateTime.Month == GetMonthBehind(2)
-                        || t.TransactionDateTime.Month == GetMonthBehind(3)
-                        || t.TransactionDateTime.Month == GetMonthBehind(4)
-                        || t.TransactionDateTime.Month == GetMonthBehind(5))
-                    .ToList();
+            for (int month = 0; month < 6; month++){
+                int[] behind = GetMonthBehind(month);  
+                var tl = DbContext.UserTransactions
+                        .Where(t => t.UserId == user.Id 
+                            && t.TransactionDateTime.Month == behind[0]
+                            && t.TransactionDateTime.Year == behind[1])
+                        .ToList();
+                transactions_list = transactions_list.Concat(tl);
+            }
             
-            if (transactions.Count() == 0) {
+            if (!transactions_list.Any()) {
                 return data;
             }
 
             foreach (var item in categories)
             {
-                if (transactions.Count(t => t.TransactionCategory == item.Value) == 0){
+                if (transactions_list.Any(t => t.TransactionCategory == item.Value) == false){
                     data.Add(0.00);
                     continue;
                 }
                 // Calculate the average by category
-                var avgByCategory = transactions
+                var avgByCategory = transactions_list
                     .Where(t => t.TransactionCategory == item.Value)
                     .Sum(t => t.TransactionAmt) /
-                    transactions.Count(t => t.TransactionCategory == item.Value);
+                    transactions_list.Count(t => t.TransactionCategory == item.Value);
 
                 // put info into data 
                 data.Add(Math.Round((double)avgByCategory,2));
@@ -327,16 +327,17 @@ namespace BAR.Components.Pages.Trends
         private List<double?> GetLastMonthDataPoints()
         {
             var data = new List<double?>();
-
-            var transactions = DbContext.UserTransactions
-                    .Where(t => t.UserId == user.Id && t.TransactionDateTime.Month == GetMonthBehind(1))
+            int[] behind = GetMonthBehind(1);
+            var transactions_list = DbContext.UserTransactions
+                    .Where(t => t.UserId == user.Id 
+                            && t.TransactionDateTime.Month == behind[0]
+                            && t.TransactionDateTime.Year == behind[1])
                     .ToList();
-            var monthlySlope = transactions.Sum(t => t.TransactionAmt) / DateTime.DaysInMonth(DateTime.Now.Year, GetMonthBehind(1));
-
+            var monthlySlope = transactions_list.Sum(t => t.TransactionAmt) / DateTime.DaysInMonth(behind[1], behind[0]);
 
             for (int i = 1; i < DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) + 1; i++){
                 double count = i * (double)monthlySlope;
-                data.Add(count);
+                data.Add(Math.Round(count,2));
             }
 
             return data;
@@ -351,13 +352,16 @@ namespace BAR.Components.Pages.Trends
             for (int i = 1; i < DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) + 1; i++)
             {
                 // Fetch user's transactions for the iterated day
-                var transactions = DbContext.UserTransactions
-                    .Where(t => t.UserId == user.Id && t.TransactionDateTime.Day == i && t.TransactionDateTime.Month == DateTime.Now.Month)
+                var transactions_list = DbContext.UserTransactions
+                    .Where(t => t.UserId == user.Id 
+                            && t.TransactionDateTime.Day == i 
+                            && t.TransactionDateTime.Month == DateTime.Now.Month
+                            && t.TransactionDateTime.Year == DateTime.Now.Year)
                     .ToList();
 
                 // Calculate the total spent in the current month
-                var currentDaySum = transactions.Sum(t => t.TransactionAmt);
-                total = total + (double)currentDaySum;
+                var currentDaySum = transactions_list.Sum(t => t.TransactionAmt);
+                total += (double)currentDaySum;
                 data.Add(total);
             }
 
