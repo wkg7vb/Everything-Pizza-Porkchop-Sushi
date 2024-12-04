@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using System.Globalization;
 
 namespace BAR.Components.Pages.Homepage
 {
@@ -50,6 +51,8 @@ namespace BAR.Components.Pages.Homepage
         private readonly SemaphoreSlim _dbSemaphore = new(1, 1);
 
 
+        private string userCurrency;
+
 
 
         protected override async Task OnInitializedAsync()
@@ -69,6 +72,12 @@ namespace BAR.Components.Pages.Homepage
             // Initialize user's personal details and financial data
             await GetUserNames();
             await CalculateCardFinancials();
+
+            var user = await GetCurrentUser();
+            if (user != null)
+            {
+                userCurrency = GetUserCurrency(user);
+            }
         }
 
 
@@ -78,6 +87,25 @@ namespace BAR.Components.Pages.Homepage
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
             return user.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
+        // Method to get the current user based on their authentication state
+        private async Task<ApplicationUser?> GetCurrentUser()
+        {
+            var userId = await GetCurrentUserIdAsync();
+            if (userId != null)
+            {
+                return await UserManager.FindByIdAsync(userId);
+            }
+            return null;
+        }
+
+        // Get the user's currency symbol based on their locale
+        private string GetUserCurrency(ApplicationUser user)
+        {
+            var cultureInfo = new CultureInfo(user.UserLocale);
+            var regionInfo = new RegionInfo(cultureInfo.Name);
+            return regionInfo.CurrencySymbol; // Get the currency symbol based on the locale
         }
 
         // Data provider for the Grid component displaying list of recent transactions

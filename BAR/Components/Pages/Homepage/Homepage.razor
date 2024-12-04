@@ -20,8 +20,8 @@
     <!-- Monthly Budget Total -->
     <Card Style="flex: 1 1 calc(100% - 20px); max-width: 300px; margin: 10px;">
         <CardBody Style="text-align: center;">
-
-            <CardTitle>@monthlyBudgetTotal.ToString("C") / @monthlyIncome.ToString("C")</CardTitle>
+            <!-- Use the currency symbol dynamically for formatting -->
+            <CardTitle>@userCurrency @monthlyBudgetTotal.ToString("N2") / @userCurrency @monthlyIncome.ToString("N2")</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Allocated Funds / Total Monthly Budget</CardSubTitle>
         </CardBody>
     </Card>
@@ -30,7 +30,7 @@
     <Card Style="flex: 1 1 calc(100% - 20px); max-width: 300px; margin: 10px;">
         <CardBody Style="text-align: center;">
 
-            <CardTitle>@monthlyTotalSpent.ToString("C")</CardTitle>
+            <CardTitle>@userCurrency @monthlyTotalSpent.ToString("N2")</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Monthly Total Spent</CardSubTitle>
         </CardBody>
     </Card>
@@ -38,7 +38,7 @@
     <!-- Over Monthly Budget -->
     <Card Style="flex: 1 1 calc(100% - 20px); max-width: 300px; margin: 10px;">
         <CardBody Style="text-align: center;">
-            <CardTitle>@overMonthlyBudget.ToString("C")</CardTitle>
+            <CardTitle>@userCurrency @overMonthlyBudget.ToString("N2")</CardTitle>
             <CardSubTitle Class="mb-2 text-muted">Over Monthly Budget</CardSubTitle>
         </CardBody>
     </Card>
@@ -69,7 +69,7 @@
                 @context.TransactionLabel
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Amount" HeaderTextAlignment="Alignment.Center">
-                @context.TransactionAmt.ToString("C")
+                @userCurrency @context.TransactionAmt.ToString("N2")
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
                 @context.TransactionCategory
