@@ -55,12 +55,13 @@ namespace BAR.Components.Pages.Homepage
 
         protected override async Task OnInitializedAsync()
         {
+            await Task.Delay(10);
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             if (authState.User.Identity.IsAuthenticated)
             {
                 user = await UserManager.GetUserAsync(authState.User);
             }
-            await Task.Delay(10);
+            
             // Initialize the chart options
             doughnutChartOptions = new();
             doughnutChartOptions.Responsive = true; // Make the chart responsive
@@ -215,6 +216,7 @@ namespace BAR.Components.Pages.Homepage
         // Method called after the component has rendered
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await Task.Delay(10);
             // Always initialize the DoughnutChart with data and options
             await doughnutChart.InitializeAsync(chartData, doughnutChartOptions);
 
