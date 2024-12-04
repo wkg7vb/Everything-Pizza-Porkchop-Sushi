@@ -150,10 +150,7 @@
             await TransactionManager.AddTransaction(transaction);
             await addmodal.HideAsync();
             toastService.Notify(new ToastMessage(ToastType.Success, $"Successfully added transaction."));
-            if (NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "transactions")
-            {
-                NavigationManager.Refresh(true);
-            }
+            NavigationManager.Refresh(true);
         }
         else
         {
