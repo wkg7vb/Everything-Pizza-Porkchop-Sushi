@@ -22,10 +22,13 @@
         <BarChart class="col-md-6" @ref="avgsBarChart" Width="600" Height="400" /> <br>
     </div>
 
+    
     <div class="row align-items-center">
         @*three biggest transactions of the month*@
         <div style="padding-top: 50px;" class="col-md-6">
             <h3>3 Biggest Transactions of the Month</h3>
+            @if (user is not null)
+            {
             <Grid TItem="UserTransaction"
                 Class="table table-hover table-bordered table-striped"
                 DataProvider="TransactionsDataProvider">
@@ -44,6 +47,7 @@
                     </GridColumn>
                 </GridColumns>
             </Grid>
+           }
         </div> <br> <br>
 
         @*projections from last month*@
