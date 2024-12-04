@@ -1,5 +1,6 @@
 .navbar-toggler {
     appearance: none;
+    display: none;
     cursor: pointer;
     width: 3.5rem;
     height: 2.5rem;
@@ -114,7 +115,7 @@
 }
 
 .nav-scrollable {
-    display: none;
+    display: block;
 }
 
 .navbar-toggler:checked ~ .nav-scrollable {

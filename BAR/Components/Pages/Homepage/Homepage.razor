@@ -71,7 +71,7 @@
             <GridColumn TItem="UserTransaction" HeaderText="Label">
                 @context.TransactionLabel
             </GridColumn>
-            <GridColumn TItem="UserTransaction" HeaderText="Label" SortKeySelector="item => item.TransactionAmt">
+            <GridColumn TItem="UserTransaction" HeaderText="Amount" SortKeySelector="item => item.TransactionAmt">
                 @context.TransactionAmt.ToString("C", CultureInfo.CreateSpecificCulture(@user.UserLocale))
             </GridColumn>
             <GridColumn TItem="UserTransaction" HeaderText="Category" HeaderTextAlignment="Alignment.Center">
