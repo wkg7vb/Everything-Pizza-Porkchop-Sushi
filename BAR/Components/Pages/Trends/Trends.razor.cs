@@ -208,7 +208,7 @@ namespace BAR.Components.Pages.Trends
 
         protected override async Task OnAfterRenderAsync(bool firstRender) // show chart
         {
-            await Task.Delay(10);
+            await Task.Delay(100);
             if (firstRender)
             {
                 await totalByMonth.InitializeAsync(totalByMonthData, lineChartOptions);
@@ -260,7 +260,7 @@ namespace BAR.Components.Pages.Trends
         // Data provider for the Grid component displaying transactions
         private async Task<GridDataProviderResult<UserTransaction>> TransactionsDataProvider(GridDataProviderRequest<UserTransaction> request)
         {
-            await Task.Delay(20);
+            await Task.Delay(50);
             transactions ??= await GetUserTransactionsAsync();
             return await Task.FromResult(request.ApplyTo(transactions));
         }
